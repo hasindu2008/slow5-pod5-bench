@@ -6,6 +6,7 @@
 #include <omp.h>
 #include <sys/time.h>
 #include "pod5_format/c_api.h"
+#include <vector>
 
 static inline double realtime(void) {
     struct timeval tp;
@@ -116,28 +117,31 @@ int main(int argc, char *argv[]){
             }
 
             // Find the locations of each row in signal batches:
-            SignalRowInfo_t *signal_rows = (SignalRowInfo_t *)malloc(sizeof(SignalRowInfo_t)*signal_row_count);
+            //SignalRowInfo_t *signal_rows = (SignalRowInfo_t *)malloc(sizeof(SignalRowInfo_t)*signal_row_count);
+            std::vector<SignalRowInfo_t *> signal_rows(signal_row_count);
 
+            //if (pod5_get_signal_row_info(file, signal_row_count, signal_rows_indices,
+                                        //&signal_rows) != POD5_OK) {
             if (pod5_get_signal_row_info(file, signal_row_count, signal_rows_indices,
-                                        &signal_rows) != POD5_OK) {
+                                        signal_rows.data()) != POD5_OK) {
                 fprintf(stderr,"Failed to get read %ld signal row locations: %s\n", row, pod5_get_error_string());
             }
 
             size_t total_sample_count = 0;
             for (size_t i = 0; i < signal_row_count; ++i) {
-                total_sample_count += signal_rows[i].stored_sample_count;
+                total_sample_count += signal_rows[i]->stored_sample_count;
             }
 
             int16_t *samples = (int16_t*)malloc(sizeof(int16_t)*total_sample_count);
             size_t samples_read_so_far = 0;
             for (size_t i = 0; i < signal_row_count; ++i) {
-                if (pod5_get_signal(file, &signal_rows[i], signal_rows[i].stored_sample_count,
+                if (pod5_get_signal(file, signal_rows[i], signal_rows[i]->stored_sample_count,
                                    samples + samples_read_so_far) != POD5_OK) {
                     fprintf(stderr,"Failed to get read  %ld; signal: %s\n", row, pod5_get_error_string());
                     fprintf(stderr,"Failed to get read  %ld; signal: %s\n", row, pod5_get_error_string());
                 }
 
-                samples_read_so_far += signal_rows[i].stored_sample_count;
+                samples_read_so_far += signal_rows[i]->stored_sample_count;
             }
 
             rec[row].len_raw_signal = samples_read_so_far;
@@ -147,10 +151,10 @@ int main(int argc, char *argv[]){
             rec[row].read_id = strdup(read_id_tmp);
 
             pod5_release_calibration(calib_data);
-            pod5_free_signal_row_info(signal_row_count, &signal_rows);
+            pod5_free_signal_row_info(signal_row_count, signal_rows.data());
 
             free(signal_rows_indices);
-            free(signal_rows);
+            //free(signal_rows);
 
         }
         tot_time += realtime() - t0;
