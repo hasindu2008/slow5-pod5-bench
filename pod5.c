@@ -171,7 +171,7 @@ int main(int argc, char *argv[]){
         }
         free(sums);
         for(int i=0;i<batch_row_count;i++){
-            fprintf(stderr,"%s\t%f\n",rec[i].read_id,sums[i]);
+            fprintf(stdout,"%s\t%f\n",rec[i].read_id,sums[i]);
         }
         fprintf(stderr,"batch printed with %ld reads\n",batch_row_count);
 
