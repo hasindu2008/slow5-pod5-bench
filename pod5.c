@@ -77,7 +77,7 @@ int main(int argc, char *argv[]){
         }
 
         //parsing?
-        rec_t *rec = (rec_t*)malloc(batch_row_count * sizeof(rec));
+        rec_t *rec = (rec_t*)malloc(batch_row_count * sizeof(rec_t));
 
         for (size_t row = 0; row < batch_row_count; ++row) {
             uint8_t read_id[16];
