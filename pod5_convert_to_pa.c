@@ -1,4 +1,4 @@
-//g++-9 -Wall -O2 -I pod5_format/include/ -o pod5_pa pod5.c pod5_format/lib64/libpod5_format.a  -lm -lz -lzstd -fopenmp
+//g++-9 -Wall -O2 -I pod5_format/include/ -o pod5_convert_to_pa pod5_convert_to_pa.c pod5_format/lib64/libpod5_format.a  -lm -lz -lzstd -fopenmp
 //loads a batch of reads (signal+information needed for pA conversion) from file, process the batch (convert to pA and sum), and write output
 //only the time for loading a batch to memory (Disk I/O + decompression + parsing and filling the memory arrays) is measured
 
