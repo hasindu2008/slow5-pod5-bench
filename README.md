@@ -20,5 +20,54 @@ The benchmark code for POD5 is available [in this reposity](https://github.com/h
 
   
 Note that POD5 format uses a newer version of vbz (16-bit encoding with SIMD acceleration). The closest available in BLOW5 is the previous version of vbz (32-bit encoding with no SIMD acceleration). I will implement this new vbz into slow5lib when it is stable and time permits and I expect this to further improve the BLOW5 file size and access performance.
+ 
+  
+
+  
+## Experiment setup
+  
+Dataset: [Subset of Nanopore WGS of NA12878 available at SRA](https://www.ncbi.nlm.nih.gov/sra?linkname=bioproject_sra_all&from_uid=744329). Contains 500,000 reads.
+  
+System information: Dell server: 20-core (40-thread) Intel(R) Xeon(R) Silver 4114 CPU, 377 GB of RAM, Ubuntu 18.04.5 LTS
+
+Two disk systems are tested on the above server:
+1. local NVME SSD storage 
+2. network file system mounted over NFS (A synology NAS with traditional spinning disks with RAID)  
+  
+Converting dataset to BLOW5 (slow5tools v0.4.0 was used):
+```
+slow5tools f2s -c zstd -s svb-zd -p 40 <fast5_file_dir> -d <tmp_slow5_files> 
+slow5tools cat  <tmp_slow5_files> -o merged_zstd.blow5
+```
+  
+Converting data to POD5 (pod5-convert-fast5 v0.0.15)   
+```
+ pod5-convert-fast5 --active-readers 40  <fast5_file_dir> <pod5_dir> 
+```  
+  
+ ## Results
+  
+ 
+ ### Conversion (done on SSD)
+ slow5tools f2s:      real time 98.208s
+ slow5tools cat:      real time 52.703s
+ pod5-convert-fast5:  real time 137.51s
+
+merged_zstd.blow5 37G
+pod5/output.pod5 37G  
+  
+ ### Benchmark 1
+ 
+  On SSD:
+  SLOW5:  55.969939 s
+  POD5:   151.387814
+  
+  
+  On HDD-NAS
+  
+  
+  
+  
+  
   
 
