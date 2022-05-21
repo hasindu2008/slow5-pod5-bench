@@ -45,27 +45,45 @@ Converting data to POD5 (pod5-convert-fast5 v0.0.15)
  pod5-convert-fast5 --active-readers 40  <fast5_file_dir> <pod5_dir> 
 ```  
   
+Benchmark 1
+
+For SLOW5 a batch size of 4000 and 40 threads are used for decompression and parsing a batch. 
+I cannot find how an arbitary batch size and a number of threads can be provided to pod5 fromat yet.
+So waiting for the POD5 designer's response [here](https://github.com/nanoporetech/pod5-file-format/issues).  
+  
+```
+./convert_to_pa reads_zstd.blow5 40 4000  
+./pod5_convert_to_pa output.pod5 40 4000
+```
+
+  
+  
  ## Results
   
  
  ### Conversion (done on SSD)
+```
  slow5tools f2s:      real time 98.208s
  slow5tools cat:      real time 52.703s
  pod5-convert-fast5:  real time 137.51s
 
-merged_zstd.blow5 37G
-pod5/output.pod5 37G  
+ merged_zstd.blow5 37G
+ pod5/output.pod5 37G  
+  ```
   
  ### Benchmark 1
  
   On SSD:
+```
   SLOW5:  55.969939 s
   POD5:   151.387814
-  
+```  
   
   On HDD-NAS
-  
-  
+```
+  SLOW5: 89.589880
+  POD5:  254.235119
+```  
   
   
   
