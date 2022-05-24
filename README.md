@@ -1,10 +1,10 @@
 # slow5-pod5-bench
 
-In this repository, my attempt is to benchmark the S/BLOW5 format vs POD5 format using the C API. C is close to the file system than high-level languages like Python and therefore in my opinion it is a better choice to benchmark the file format. When using high level languages like Python, data type conversion that happens under the hood can dominate the execution time, thus would not be respresetative of the file format performat. Even in the C API this will be the case to a certain degree. Even though it is closer to the file system, still the library implementation and the optimisations done would affect the runtime significantly and if that is the case we will end up comparing the implementation rather than the file format. 
+In this repository, my attempt is to benchmark the S/BLOW5 format vs POD5 format using the C API. C is close to the file system than high-level languages like Python and therefore in my opinion it is a better choice to benchmark a file format. When using high level languages like Python, data type conversion that happens under the hood can dominate the execution time, thus would not be respresetative of the file format performance. However, despite being close to  the file system, even in the C API, this will be the case to a certain degree. That is, the library implementation and optimisations done would affect the runtime considerablu and if that is the case we will end up comparing the implementation rather than the file format. 
 
-Also another thing to note is that, the way you use the file format or the library can drastically affect performance. I being the designer of the S/BLOW5 format I know the best way to exploit its propoerties for the best performance for a given applictaion. I might be using the POD5 format in the wrong way, the POD5 designers can correct me if I am doing the wrong way.
+Also another thing to note is that, the way you use the file format or the library can drastically affect performance. Me being the designer of the S/BLOW5 format, I know the best way to exploit its properties for the best performance for a given applictaion. I might be using the POD5 format in the wrong way, the POD5 designers can correct me if I am doing the wrong way.
 
-Another thing to note is that doing a perfect disk I/O benchmark is very tricky due to the effects of different levels of disk caches, other programmes running in the back ground etc. I have tried to do the benchmarks with equal conditions as much as possible, but still it is not perfect. For instance, I clean the Linux O/S disk cache before each experiment, however, I cannot clean the hardware cache in the RAID controller if any.
+Furthermore, doing a perfect disk I/O benchmark is very tricky due to the effects of different levels of disk caches, other programmes running in the background, etc. I have tried to do the benchmarks with equal conditions as much as possible, but still it is not perfect. For instance, I clean the Linux O/S disk cache before each experiment, however, I cannot clean the hardware cache in the RAID controller, if any.
 
 
 Two key benchmarks are explored that represents two realistic workloads:
@@ -48,8 +48,7 @@ Converting data to POD5 (pod5-convert-fast5 v0.0.15)
 Benchmark 1
 
 For SLOW5 a batch size of 4000 and 40 threads are used for decompression and parsing a batch. 
-I cannot find how an arbitary batch size and a number of threads can be provided to pod5 fromat yet.
-So waiting for the POD5 designer's response [here](https://github.com/nanoporetech/pod5-file-format/issues).  
+It is not yet clear [how a userspecifed batch size and the number of threads can be provided to pod5 fromat and if the underlyung arrow library implementation is using multiple threads for parsing and decompression](https://github.com/nanoporetech/pod5-file-format/issues).  
   
 ```
 ./convert_to_pa reads_zstd.blow5 40 4000  
