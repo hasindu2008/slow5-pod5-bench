@@ -34,7 +34,7 @@ Two disk systems are tested on the above server:
 1. local NVME SSD storage 
 2. network file system mounted over NFS (A synology NAS with traditional spinning disks with RAID)  
   
-Converting dataset to BLOW5 (slow5tools v0.4.0 was used):
+### Converting dataset to BLOW5 (slow5tools v0.4.0 was used):
 ```
 slow5tools f2s -c zstd -s svb-zd -p 40 <fast5_file_dir> -d <tmp_slow5_files> 
 slow5tools cat  <tmp_slow5_files> -o merged_zstd.blow5
@@ -45,7 +45,7 @@ Converting data to POD5 (pod5-convert-fast5 v0.0.15)
  pod5-convert-fast5 --active-readers 40  <fast5_file_dir> <pod5_dir> 
 ```  
   
-Benchmark 1
+### Benchmark 1
 
 For SLOW5 a batch size of 4000 and 40 threads are used for decompression and parsing a batch. 
 It is not yet clear [how a userspecifed batch size and the number of threads can be provided to pod5 fromat and if the underlyung arrow library implementation is using multiple threads for parsing and decompression](https://github.com/nanoporetech/pod5-file-format/issues).  
