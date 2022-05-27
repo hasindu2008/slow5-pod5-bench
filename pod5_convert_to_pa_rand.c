@@ -12,7 +12,9 @@
 #include <sys/time.h>
 #include "pod5_format/c_api.h"
 #include <vector>
-
+#include <boost/lexical_cast.hpp>
+#include <boost/uuid/uuid.hpp>
+#include <boost/uuid/uuid_io.hpp>
 #include <iostream>
 
 static inline double realtime(void) {
@@ -81,6 +83,8 @@ int main(int argc, char *argv[]){
 
     int read_count = 0;
 
+    std::vector<boost::uuids::uuid> search_uuids;
+
     while(1){
 
         int i=0;
@@ -89,6 +93,8 @@ int main(int argc, char *argv[]){
                 break;
             }
             rid[i] = strdup(tmp);
+            search_uuids.push_back(boost::lexical_cast<boost::uuids::uuid>(rid[i]));
+
         }
         int ret = i;
         read_count += ret;
@@ -98,7 +104,7 @@ int main(int argc, char *argv[]){
         std::vector<std::uint32_t> traversal_batch_counts(batch_count);
         std::vector<std::uint32_t> traversal_row_indices(ret);
         std::size_t find_success_count = 0;
-        if (pod5_plan_traversal(file, (uint8_t*)rid, ret,
+        if (pod5_plan_traversal(file, (uint8_t*)(uint8_t*)search_uuids.data(), ret,
                                 traversal_batch_counts.data(), traversal_row_indices.data(),
                                 &find_success_count) != POD5_OK) {
             fprintf(stderr,"Failed to plan traversal of file: %s\n",pod5_get_error_string());
