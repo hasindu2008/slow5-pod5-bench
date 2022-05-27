@@ -1,4 +1,4 @@
-//g++-9 -Wall -O2 -I pod5_format/include/ -o pod5_convert_to_pa pod5_convert_to_pa.c pod5_format/lib64/libpod5_format.a  -lm -lz -lzstd -fopenmp
+//g++-9  -Wall -O2 -I pod5_format/include/ -o pod5_convert_to_pa pod5_convert_to_pa.c pod5_format/lib64/libpod5_format.a  pod5_format/lib64/libarrow.a pod5_format/lib64/libboost_filesystem.a -lm -lz -lzstd -fopenmp
 //loads a batch of reads (signal+information needed for pA conversion) from file, process the batch (convert to pA and sum), and write output
 //only the time for loading a batch to memory (Disk I/O + decompression + parsing and filling the memory arrays) is measured
 
@@ -174,10 +174,11 @@ int main(int argc, char *argv[]){
             }
             sums[i] = sum;
         }
-        free(sums);
+
         for(int i=0;i<batch_row_count;i++){
             fprintf(stdout,"%s\t%f\n",rec[i].read_id,sums[i]);
         }
+        free(sums);
         fprintf(stderr,"batch printed with %ld reads\n",batch_row_count);
 
         /**** Deinit ***/
