@@ -83,10 +83,9 @@ int main(int argc, char *argv[]){
 
     int read_count = 0;
 
-    std::vector<boost::uuids::uuid> search_uuids;
-
     while(1){
 
+        std::vector<boost::uuids::uuid> search_uuids;
         int i=0;
         for(i=0; i<batch_size; i++){
             if (fscanf(fpr,"%s",tmp) < 1) {
@@ -105,7 +104,7 @@ int main(int argc, char *argv[]){
         std::vector<std::uint32_t> traversal_batch_counts(batch_count);
         std::vector<std::uint32_t> traversal_row_indices(ret);
         std::size_t find_success_count = 0;
-        if (pod5_plan_traversal(file, (uint8_t*)(uint8_t*)search_uuids.data(), ret,
+        if (pod5_plan_traversal(file, (uint8_t*)search_uuids.data(), ret,
                                 traversal_batch_counts.data(), traversal_row_indices.data(),
                                 &find_success_count) != POD5_OK) {
             fprintf(stderr,"Failed to plan traversal of file: %s\n",pod5_get_error_string());
@@ -119,21 +118,18 @@ int main(int argc, char *argv[]){
 
         std::size_t row_offset = 0;
 
-        tot_time += realtime() - t0;
+        rec_t *rec = (rec_t*)malloc(ret * sizeof(rec_t));
 
+        /**** Fetching a batch (disk loading, decompression, parsing in to memory arrays) ***/
+        int row=0;
         // Walk the suggested traversal route, storing read data.
         for (std::size_t batch_index = 0; batch_index < batch_count; ++batch_index) {
-
-            /**** Fetching a batch (disk loading, decompression, parsing in to memory arrays) ***/
-            double t0 = realtime();
 
             Pod5ReadRecordBatch_t* batch = nullptr;
             if (pod5_get_read_batch(&batch, file, batch_index) != POD5_OK) {
                 std::cerr << "Failed to get batch: " << pod5_get_error_string() << "\n";
                 return EXIT_FAILURE;
             }
-
-            rec_t *rec = (rec_t*)malloc(ret * sizeof(rec_t));
 
             for (std::size_t row_index = 0; row_index < traversal_batch_counts[batch_index];
                 ++row_index) {
@@ -202,57 +198,57 @@ int main(int argc, char *argv[]){
                     samples_read_so_far += signal_rows[i]->stored_sample_count;
                 }
 
-                rec[row_index].len_raw_signal = samples_read_so_far;
-                rec[row_index].raw_signal = samples;
-                rec[row_index].scale = calib_data->scale;
-                rec[row_index].offset = calib_data->offset;
-                rec[row_index].read_id = strdup(read_id_tmp);
-
+                rec[row].len_raw_signal = samples_read_so_far;
+                rec[row].raw_signal = samples;
+                rec[row].scale = calib_data->scale;
+                rec[row].offset = calib_data->offset;
+                rec[row].read_id = strdup(read_id_tmp);
+                row++;
                 pod5_release_calibration(calib_data);
                 pod5_free_signal_row_info(signal_row_count, signal_rows.data());
 
 
             }
             row_offset += traversal_batch_counts[batch_index];
-            tot_time += realtime() - t0;
-            /**** Batch fetched ***/
-
-            //process and print (time not measured as we want to compare to the time it takes to read the file)
-            double *sums = (double*)malloc(ret * sizeof(double));
-
-            //#pragma omp parallel for
-            for(int i=0;i<ret;i++){
-                uint64_t sum = 0;
-                for(uint64_t j=0; j<rec[i].len_raw_signal; j++){
-                    sum +=  ((rec[i].raw_signal[j] + rec[i].offset) * rec[i].scale);
-                }
-                sums[i] = sum;
-            }
-
-            for(int i=0;i<ret;i++){
-                fprintf(stdout,"%s\t%f\n",rec[i].read_id,sums[i]);
-            }
-            free(sums);
-            fprintf(stderr,"batch printed with %d reads\n",ret);
-
 
             /**** Deinit ***/
-            t0 = realtime();
             if (pod5_free_read_batch(batch) != POD5_OK) {
                 std::cerr << "Failed to release batch\n";
                 return EXIT_FAILURE;
             }
 
-            for (int row = 0; row < ret; ++row) {
-                free(rec[row].read_id);
-                free(rec[row].raw_signal);
+        }
+        tot_time += realtime() - t0;
+        /**** Batch fetched ***/
+
+        if(row!=ret) {
+            fprintf(stderr,"Failed to find %ld reads\n", ret - row);
+            return EXIT_FAILURE;
+        }
+        //process and print (time not measured as we want to compare to the time it takes to read the file)
+        double *sums = (double*)malloc(ret * sizeof(double));
+
+        #pragma omp parallel for
+        for(int i=0;i<ret;i++){
+            uint64_t sum = 0;
+            for(uint64_t j=0; j<rec[i].len_raw_signal; j++){
+                sum +=  ((rec[i].raw_signal[j] + rec[i].offset) * rec[i].scale);
             }
-            free(rec);
-            tot_time += realtime() - t0;
-
-
+            sums[i] = sum;
         }
 
+        for(int i=0;i<ret;i++){
+            fprintf(stdout,"%s\t%f\n",rec[i].read_id,sums[i]);
+        }
+        free(sums);
+        fprintf(stderr,"batch printed with %d reads\n",ret);
+
+
+        for (int row = 0; row < ret; ++row) {
+            free(rec[row].read_id);
+            free(rec[row].raw_signal);
+        }
+        free(rec);
 
         for(int i=0; i<ret; i++){
             free(rid[i]);
