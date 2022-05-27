@@ -94,8 +94,9 @@ int main(int argc, char *argv[]){
             }
             rid[i] = strdup(tmp);
             search_uuids.push_back(boost::lexical_cast<boost::uuids::uuid>(rid[i]));
-
         }
+
+        if(i==0) break;
         int ret = i;
         read_count += ret;
 
@@ -227,10 +228,11 @@ int main(int argc, char *argv[]){
                 }
                 sums[i] = sum;
             }
-            free(sums);
+
             for(int i=0;i<ret;i++){
                 fprintf(stdout,"%s\t%f\n",rec[i].read_id,sums[i]);
             }
+            free(sums);
             fprintf(stderr,"batch printed with %d reads\n",ret);
 
 
