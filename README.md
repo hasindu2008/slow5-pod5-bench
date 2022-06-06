@@ -2,13 +2,13 @@
 
 In this repository, my attempt is to benchmark the S/BLOW5 format vs POD5 format using the C API. C is close to the file system than high-level languages like Python and therefore in my opinion it is a better choice to benchmark a file format. When using high level languages like Python, data type conversion that happens under the hood can dominate the execution time, thus would not be respresetative of the file format performance. However, despite being close to  the file system, even in the C API, this will be the case to a certain degree. That is, the library implementation and optimisations done would affect the runtime considerablu and if that is the case we will end up comparing the implementation rather than the file format. See caveats below before interpreting the results.
 
-Two key benchmarks are explored that represents two realistic workloads:
 
-1. Accessing all the signal data and associated parameters required for pico-ampere conversion. This mimicks a typical basecalling workflow. We load a batch of reads from the disk, decompress and parse them into memory arrays; do the processing (in this case I just convert the raw signal to picoampere and sum them up); and, output the sum. Only the time for loading a batch of reads from the disk, decompressing and parsing them into memory arrays is measured.
+## Benchmark details
 
-2. <todo> Random access in Nanopolish style
-  
+Accessing all the signal data and associated parameters required for pico-ampere conversion. This mimicks a typical basecalling workflow. We load a batch of reads from the disk, decompress and parse them into memory arrays; do the processing (in this case I just convert the raw signal to picoampere and sum them up); and, output the sum. Only the time for loading a batch of reads from the disk, decompressing and parsing them into memory arrays is measured.
 
+
+ 
  ## Results
   
  ### NA12878 subsample (500,000 reads) 
@@ -45,7 +45,6 @@ BLOW5: 1839.534667s # 1321.919755s for disk operations, rest for decompression a
 POD5:  4933.334736s
 ```    
 
-
 ## Experiment setup
   
 ### Datasets
@@ -59,7 +58,6 @@ Two datasets are used:
   
 Server with SSD: 20-core (40-threads) Intel(R) Xeon(R) Silver 4114 CPU, 377 GB of RAM, Ubuntu 18.04.5 LTS, local NVME SSD storage 
 Server with NFS: same above server with  network file system mounted over NFS (A synology NAS with traditional spinning disks with RAID) 
-
 
   
 ### Conversion  
