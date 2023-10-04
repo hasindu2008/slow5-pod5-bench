@@ -91,7 +91,7 @@ int main(int argc, char *argv[]){
     // need to verify if there is a way
     int batch_size = atoi(argv[4]);
     std::size_t num_thread = atoi(argv[3]);
-    omp_set_num_threads(num_thread);
+//    omp_set_num_threads(num_thread);
 
     std::string path = std::string(argv[1]);
 
@@ -212,7 +212,7 @@ int main(int argc, char *argv[]){
 
             //process and print (time not measured as we want to compare to the time it takes to read the file)
             double *sums = (double*)malloc(ret * sizeof(double));
-            #pragma omp parallel for
+//            #pragma omp parallel for
             for(int i=0;i<ret;i++){
                 uint64_t sum = 0;
                 for(uint64_t j=0; j<rec[i].len_raw_signal; j++){
@@ -232,12 +232,11 @@ int main(int argc, char *argv[]){
             free(rec);
 
         }
-        if (pod5_close_and_free_reader(file) != POD5_OK) {
-            fprintf(stderr, "Failed to close and free POD5 reader\n");
-            exit(EXIT_FAILURE);
-        }
     }
-
+    if (pod5_close_and_free_reader(file) != POD5_OK) {
+        fprintf(stderr, "Failed to close and free POD5 reader\n");
+        exit(EXIT_FAILURE);
+    }
     fclose(fpr);
     fprintf(stderr,"Reads: %d\n",read_count);
     fprintf(stderr,"Time for getting samples %f\n", tot_time);

@@ -156,7 +156,7 @@ int load_pod5_reads_from_file_0(const std::string& path, size_t m_num_worker_thr
         //process and print (time not measured as we want to compare to the time it takes to read the file)
         double *sums = (double*)malloc(batch_row_count * sizeof(double));
 
-        #pragma omp parallel for
+//        #pragma omp parallel for
         for(int i=0;i<batch_row_count;i++){
             uint64_t sum = 0;
             for(uint64_t j=0; j<rec[i].len_raw_signal; j++){
@@ -176,7 +176,6 @@ int load_pod5_reads_from_file_0(const std::string& path, size_t m_num_worker_thr
             free(rec[row].raw_signal);
         }
         free(rec);
-
     }
 
     if (pod5_close_and_free_reader(file) != POD5_OK) {
@@ -195,6 +194,7 @@ int main(int argc, char *argv[]){
         return EXIT_FAILURE;
     }
     int num_thread = atoi(argv[2]);
+//    omp_set_num_threads(num_thread);
 
     double tot_time = 0;
 
