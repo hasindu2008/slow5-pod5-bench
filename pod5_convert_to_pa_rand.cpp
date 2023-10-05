@@ -195,14 +195,14 @@ int main(int argc, char *argv[]){
         //process and print (time not measured as we want to compare to the time it takes to read the file)
         double *sums = (double*)malloc(ret * sizeof(double));
         for(int i=0;i<ret;i++){
-            double sum = 0;
+            uint64_t sum = 0;
             for(uint64_t j=0; j<rec[i].len_raw_signal; j++){
                 sum +=  ((rec[i].raw_signal[j] + rec[i].offset) * rec[i].scale);
             }
             sums[i] = sum;
         }
         for(int i=0;i<ret;i++){
-            fprintf(stdout,"%s\t%.3f\n", rec[i].read_id, sums[i]);
+            fprintf(stdout,"%s\t%f\n", rec[i].read_id, sums[i]);
         }
         free(sums);
         fprintf(stderr,"batch printed with %d reads\n", ret);

@@ -116,14 +116,14 @@ int load_pod5_reads_from_file_0(const std::string& path, size_t m_num_worker_thr
         //process and print (time not measured as we want to compare to the time it takes to read the file)
         double *sums = (double*)malloc(batch_row_count * sizeof(double));
         for(size_t i=0;i<batch_row_count;i++){
-            double sum = 0;
+            uint64_t sum = 0;
             for(uint64_t j=0; j<rec[i].len_raw_signal; j++){
                 sum +=  ((rec[i].raw_signal[j] + rec[i].offset) * rec[i].scale);
             }
             sums[i] = sum;
         }
         for(size_t i=0;i<batch_row_count;i++){
-            fprintf(stdout,"%s\t%.3f\n", rec[i].read_id, sums[i]);
+            fprintf(stdout,"%s\t%f\n", rec[i].read_id, sums[i]);
         }
         free(sums);
         fprintf(stderr,"batch printed with %zu reads\n",batch_row_count);
