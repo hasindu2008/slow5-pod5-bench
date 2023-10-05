@@ -158,7 +158,7 @@ int load_pod5_reads_from_file_0(const std::string& path, size_t m_num_worker_thr
 
 //        #pragma omp parallel for
         for(int i=0;i<batch_row_count;i++){
-            uint64_t sum = 0;
+            double sum = 0;
             for(uint64_t j=0; j<rec[i].len_raw_signal; j++){
                 sum +=  ((rec[i].raw_signal[j] + rec[i].offset) * rec[i].scale);
             }
@@ -166,7 +166,7 @@ int load_pod5_reads_from_file_0(const std::string& path, size_t m_num_worker_thr
         }
 
         for(int i=0;i<batch_row_count;i++){
-            fprintf(stdout,"%s\t%f\n",rec[i].read_id,sums[i]);
+            fprintf(stdout,"%s\t%.3f\n", rec[i].read_id, sums[i]);
         }
         free(sums);
         fprintf(stderr,"batch printed with %zu reads\n",batch_row_count);
@@ -194,6 +194,7 @@ int main(int argc, char *argv[]){
         return EXIT_FAILURE;
     }
     int num_thread = atoi(argv[2]);
+    fprintf(stderr,"Using %zu threads\n", num_thread);
 //    omp_set_num_threads(num_thread);
 
     double tot_time = 0;

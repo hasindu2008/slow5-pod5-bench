@@ -89,8 +89,9 @@ int main(int argc, char *argv[]){
 
     // note that batch size of is not really used in POD5 as the concept of a batch seem to be hard coded to the file
     // need to verify if there is a way
-    int batch_size = atoi(argv[4]);
     std::size_t num_thread = atoi(argv[3]);
+    int batch_size = atoi(argv[4]);
+    fprintf(stderr,"Using %zu threads with batchsize %d\n", num_thread, batch_size);
 //    omp_set_num_threads(num_thread);
 
     std::string path = std::string(argv[1]);
@@ -185,6 +186,7 @@ int main(int argc, char *argv[]){
 
         // Create static threadpool so it is reused across calls to this function.
         static cxxpool::thread_pool pool{num_thread};
+        rec_t *rec = (rec_t*)malloc(ret * sizeof(rec_t));
 
         uint32_t row_offset = 0;
         for (std::size_t batch_index = 0; batch_index < batch_count; ++batch_index) {
@@ -195,11 +197,10 @@ int main(int argc, char *argv[]){
                 fprintf(stderr, "Failed to get batch: %s\n", pod5_get_error_string());
                 exit(EXIT_FAILURE);
             }
-            rec_t *rec = (rec_t*)malloc(ret * sizeof(rec_t));
 
             for (std::size_t row_idx = 0; row_idx < traversal_batch_counts[batch_index]; row_idx++) {
                 uint32_t row = traversal_batch_rows[row_idx + row_offset];
-                process_pod5_read(row, batch, file, &rec[row_idx]);
+                process_pod5_read(row, batch, file, &rec[row_idx + row_offset]);
             }
 
             if (pod5_free_read_batch(batch) != POD5_OK) {
@@ -207,31 +208,28 @@ int main(int argc, char *argv[]){
                 exit(EXIT_FAILURE);
             }
             row_offset += traversal_batch_counts[batch_index];
-
             tot_time += realtime() - t0;
-
-            //process and print (time not measured as we want to compare to the time it takes to read the file)
-            double *sums = (double*)malloc(ret * sizeof(double));
-//            #pragma omp parallel for
-            for(int i=0;i<ret;i++){
-                uint64_t sum = 0;
-                for(uint64_t j=0; j<rec[i].len_raw_signal; j++){
-                    sum +=  ((rec[i].raw_signal[j] + rec[i].offset) * rec[i].scale);
-                }
-                sums[i] = sum;
-            }
-            for(int i=0;i<ret;i++){
-                fprintf(stdout,"%s\t%f\n",rec[i].read_id,sums[i]);
-            }
-            free(sums);
-            fprintf(stderr,"batch printed with %zu reads\n",ret);
-            for (int row = 0; row < ret; ++row) {
-                free(rec[row].read_id);
-                free(rec[row].raw_signal);
-            }
-            free(rec);
-
         }
+        //process and print (time not measured as we want to compare to the time it takes to read the file)
+        double *sums = (double*)malloc(ret * sizeof(double));
+//            #pragma omp parallel for
+        for(int i=0;i<ret;i++){
+            double sum = 0;
+            for(uint64_t j=0; j<rec[i].len_raw_signal; j++){
+                sum +=  ((rec[i].raw_signal[j] + rec[i].offset) * rec[i].scale);
+            }
+            sums[i] = sum;
+        }
+        for(int i=0;i<ret;i++){
+            fprintf(stdout,"%s\t%.3f\n", rec[i].read_id, sums[i]);
+        }
+        free(sums);
+        fprintf(stderr,"batch printed with %zu reads\n", ret);
+        for (int row = 0; row < ret; ++row) {
+            free(rec[row].read_id);
+            free(rec[row].raw_signal);
+        }
+        free(rec);
     }
     if (pod5_close_and_free_reader(file) != POD5_OK) {
         fprintf(stderr, "Failed to close and free POD5 reader\n");
@@ -239,7 +237,7 @@ int main(int argc, char *argv[]){
     }
     fclose(fpr);
     fprintf(stderr,"Reads: %d\n",read_count);
-    fprintf(stderr,"Time for getting samples %f\n", tot_time);
+    fprintf(stderr,"Time for getting samples %f (%d threads)\n", tot_time, num_thread);
 
     return 0;
 }
