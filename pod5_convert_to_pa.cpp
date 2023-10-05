@@ -38,30 +38,25 @@ int process_pod5_read(size_t row, Pod5ReadRecordBatch* batch, Pod5FileReader* fi
         fprintf(stderr, "Failed to get read %zu\n", row);
         return EXIT_FAILURE;
     }
-
     //Retrieve global information for the run
     RunInfoDictData_t* run_info_data;
     if (pod5_get_run_info(batch, read_data.run_info, &run_info_data) != POD5_OK) {
         fprintf(stderr, "Failed to get Run Info %zu %s\n", row, pod5_get_error_string());
         return EXIT_FAILURE;
     }
-
     char read_id_tmp[POD5_READ_ID_LEN];
+    pod5_error_t err = pod5_format_read_id(read_data.read_id, read_id_tmp);
     std::string read_id_str(read_id_tmp);
-
     int16_t *samples = (int16_t*)malloc(sizeof(int16_t)*read_data.num_samples);
-
     if (pod5_get_read_complete_signal(file, batch, row, read_data.num_samples, samples) != POD5_OK) {
         fprintf(stderr, "Failed to get read %zu signal: %s\"\n", row, pod5_get_error_string());
         return EXIT_FAILURE;
     }
-
     rec->len_raw_signal = read_data.num_samples;
     rec->raw_signal = samples;
     rec->scale = read_data.calibration_scale;
     rec->offset = read_data.calibration_offset;
     rec->read_id = strdup(read_id_tmp);
-
     if (pod5_free_run_info(run_info_data) != POD5_OK) {
         fprintf(stderr, "Failed to free run info\n");
         return EXIT_FAILURE;
@@ -103,7 +98,6 @@ int load_pod5_reads_from_file_0(const std::string& path, size_t m_num_worker_thr
             fprintf(stderr, "Failed to get batch: %s\n", pod5_get_error_string());
             exit(EXIT_FAILURE);
         }
-
         std::size_t batch_row_count = 0;
         if (pod5_get_read_batch_row_count(&batch_row_count, batch) != POD5_OK) {
             fprintf(stderr, "Failed to get batch row count\n");
@@ -111,11 +105,9 @@ int load_pod5_reads_from_file_0(const std::string& path, size_t m_num_worker_thr
         }
         fprintf(stderr, "batch_row_count: %zu\n", batch_row_count);
         rec_t *rec = (rec_t*)malloc(batch_row_count * sizeof(rec_t));
-
         for (std::size_t row = 0; row < batch_row_count; ++row) {
             process_pod5_read(row, batch, file, &rec[row]);
         }
-
         if (pod5_free_read_batch(batch) != POD5_OK) {
             fprintf(stderr, "Failed to release batch\n");
             exit(EXIT_FAILURE);
@@ -124,7 +116,6 @@ int load_pod5_reads_from_file_0(const std::string& path, size_t m_num_worker_thr
 
         //process and print (time not measured as we want to compare to the time it takes to read the file)
         double *sums = (double*)malloc(batch_row_count * sizeof(double));
-
         for(size_t i=0;i<batch_row_count;i++){
             double sum = 0;
             for(uint64_t j=0; j<rec[i].len_raw_signal; j++){
@@ -132,13 +123,11 @@ int load_pod5_reads_from_file_0(const std::string& path, size_t m_num_worker_thr
             }
             sums[i] = sum;
         }
-
         for(size_t i=0;i<batch_row_count;i++){
             fprintf(stdout,"%s\t%.3f\n", rec[i].read_id, sums[i]);
         }
         free(sums);
         fprintf(stderr,"batch printed with %zu reads\n",batch_row_count);
-
         for (size_t row = 0; row < batch_row_count; ++row) {
             free(rec[row].read_id);
             free(rec[row].raw_signal);
