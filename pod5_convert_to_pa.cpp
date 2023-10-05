@@ -6,9 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <omp.h>
 #include <sys/time.h>
-#include <vector>
 #include <iostream>
 #include "pod5_format/c_api.h"
 #include "cxxpool.h"
@@ -47,11 +45,8 @@ int process_pod5_read(size_t row, Pod5ReadRecordBatch* batch, Pod5FileReader* fi
         fprintf(stderr, "Failed to get Run Info %zu %s\n", row, pod5_get_error_string());
         return EXIT_FAILURE;
     }
-    auto run_acquisition_start_time_ms = run_info_data->acquisition_start_time_ms;
-    auto run_sample_rate = run_info_data->sample_rate;
 
     char read_id_tmp[POD5_READ_ID_LEN];
-    pod5_error_t err = pod5_format_read_id(read_data.read_id, read_id_tmp);
     std::string read_id_str(read_id_tmp);
 
     int16_t *samples = (int16_t*)malloc(sizeof(int16_t)*read_data.num_samples);
@@ -67,32 +62,6 @@ int process_pod5_read(size_t row, Pod5ReadRecordBatch* batch, Pod5FileReader* fi
     rec->offset = read_data.calibration_offset;
     rec->read_id = strdup(read_id_tmp);
 
-    /*
-    auto new_read = std::make_shared<dorado::Read>();
-    new_read->raw_data = samples;
-    new_read->sample_rate = run_sample_rate;
-
-    auto start_time_ms = run_acquisition_start_time_ms +
-                         ((read_data.start_sample * 1000) /
-                          (uint64_t)run_sample_rate);  // TODO check if this cast is needed
-    auto start_time = utils::get_string_timestamp_from_unix_time(start_time_ms);
-    new_read->run_acquisition_start_time_ms = run_acquisition_start_time_ms;
-    new_read->start_time_ms = start_time_ms;
-    new_read->scaling = read_data.calibration_scale;
-    new_read->offset = read_data.calibration_offset;
-    new_read->read_id = std::move(read_id_str);
-    new_read->num_trimmed_samples = 0;
-    new_read->attributes.read_number = read_data.read_number;
-    new_read->attributes.mux = read_data.well;
-    new_read->attributes.num_samples = read_data.num_samples;
-    new_read->attributes.channel_number = read_data.channel;
-    new_read->attributes.start_time = start_time;
-    new_read->run_id = run_info_data->acquisition_id;
-    new_read->start_sample = read_data.start_sample;
-    new_read->end_sample = read_data.start_sample + read_data.num_samples;
-    new_read->flowcell_id = run_info_data->flow_cell_id;
-    new_read->is_duplex = false;
-    */
     if (pod5_free_run_info(run_info_data) != POD5_OK) {
         fprintf(stderr, "Failed to free run info\n");
         return EXIT_FAILURE;
@@ -156,8 +125,7 @@ int load_pod5_reads_from_file_0(const std::string& path, size_t m_num_worker_thr
         //process and print (time not measured as we want to compare to the time it takes to read the file)
         double *sums = (double*)malloc(batch_row_count * sizeof(double));
 
-//        #pragma omp parallel for
-        for(int i=0;i<batch_row_count;i++){
+        for(size_t i=0;i<batch_row_count;i++){
             double sum = 0;
             for(uint64_t j=0; j<rec[i].len_raw_signal; j++){
                 sum +=  ((rec[i].raw_signal[j] + rec[i].offset) * rec[i].scale);
@@ -165,13 +133,13 @@ int load_pod5_reads_from_file_0(const std::string& path, size_t m_num_worker_thr
             sums[i] = sum;
         }
 
-        for(int i=0;i<batch_row_count;i++){
+        for(size_t i=0;i<batch_row_count;i++){
             fprintf(stdout,"%s\t%.3f\n", rec[i].read_id, sums[i]);
         }
         free(sums);
         fprintf(stderr,"batch printed with %zu reads\n",batch_row_count);
 
-        for (int row = 0; row < batch_row_count; ++row) {
+        for (size_t row = 0; row < batch_row_count; ++row) {
             free(rec[row].read_id);
             free(rec[row].raw_signal);
         }
@@ -190,12 +158,11 @@ int load_pod5_reads_from_file_0(const std::string& path, size_t m_num_worker_thr
 int main(int argc, char *argv[]){
 
     if(argc != 3) {
-        fprintf(stderr, "Usage: %s in_file.pod5 thread_count\n", argv[0]);
+        fprintf(stderr, "Usage: %s reads.pod5 num_thread\n", argv[0]);
         return EXIT_FAILURE;
     }
     int num_thread = atoi(argv[2]);
-    fprintf(stderr,"Using %zu threads\n", num_thread);
-//    omp_set_num_threads(num_thread);
+    fprintf(stderr,"Using %d threads\n", num_thread);
 
     double tot_time = 0;
 
