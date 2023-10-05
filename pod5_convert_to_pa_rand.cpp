@@ -99,18 +99,14 @@ int main(int argc, char *argv[]){
 
     /**** Initialisation and opening of the file ***/
     t0 = realtime();
-
     pod5_init();
-
     // Open the file ready for walking:
     Pod5FileReader_t* file = pod5_open_file(path.c_str());
-
     if (!file) {
        fprintf(stderr,"Error in opening input pod5 file %s\n", path.c_str());
        perror("perr: ");
        exit(EXIT_FAILURE);
     }
-
     size_t batch_count = 0;
     if (pod5_get_read_batch_count(&batch_count, file) != POD5_OK) {
         fprintf(stderr, "Failed to query batch count: %s\n", pod5_get_error_string());
@@ -119,7 +115,6 @@ int main(int argc, char *argv[]){
     /**** End of init ***/
 
     int read_count = 0;
-
     // We read the input read id list in batches. A batch of read ids is passed to the pod5 funcs to plan the pod5 traversal.
     // Pod5 uses another batching process to retrieve our batch of reads.
     while(1){
@@ -147,18 +142,17 @@ int main(int argc, char *argv[]){
         if(i_count == 0) break;
         int ret = i_count;
         read_count += ret;
+        rec_t *rec = (rec_t*)malloc(ret * sizeof(rec_t));
 
         t0 = realtime();
         // Plan the most efficient route through the file for the required read ids:
         std::vector<std::uint32_t> traversal_batch_counts(batch_count);
         std::vector<std::uint32_t> traversal_batch_rows(ret);
         std::size_t find_success_count = 0;
-
         std::vector<uint8_t> read_id_array(POD5_READ_ID_SIZE * read_ids.size());
         for (size_t i = 0; i < read_ids.size(); i++) {
             std::memcpy(read_id_array.data() + POD5_READ_ID_SIZE * i, read_ids[i].data(), POD5_READ_ID_SIZE);
         }
-
         pod5_error_t err = pod5_plan_traversal(file, read_id_array.data(), read_ids.size(),
                                                traversal_batch_counts.data(),
                                                traversal_batch_rows.data(), &find_success_count);
@@ -166,16 +160,13 @@ int main(int argc, char *argv[]){
             fprintf(stderr,"Couldn't create plan for %s with reads %zu\n", path.c_str(), read_ids.size());
             return EXIT_FAILURE;
         }
-
         if (find_success_count != read_ids.size()) {
             fprintf(stderr,"Reads found by plan %zu, reads in input %zu\n", find_success_count, read_ids.size());
             fprintf(stderr,"Plan traveral didn't yield correct number of reads\n");
             return EXIT_FAILURE;
         }
-
         // Create static threadpool so it is reused across calls to this function.
         static cxxpool::thread_pool pool{num_thread};
-        rec_t *rec = (rec_t*)malloc(ret * sizeof(rec_t));
 
         uint32_t row_offset = 0;
         // pod5 batching
@@ -221,10 +212,12 @@ int main(int argc, char *argv[]){
         }
         free(rec);
     }
+    t0 = realtime();
     if (pod5_close_and_free_reader(file) != POD5_OK) {
         fprintf(stderr, "Failed to close and free POD5 reader\n");
         exit(EXIT_FAILURE);
     }
+    tot_time += realtime() - t0;
     fclose(fpr);
     fprintf(stderr,"Reads: %d\n",read_count);
     fprintf(stderr,"Time for getting samples %f (%zu threads)\n", tot_time, num_thread);

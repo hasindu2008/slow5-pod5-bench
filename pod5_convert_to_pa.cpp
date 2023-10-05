@@ -65,31 +65,24 @@ int process_pod5_read(size_t row, Pod5ReadRecordBatch* batch, Pod5FileReader* fi
 }
 
 int load_pod5_reads_from_file_0(const std::string& path, size_t m_num_worker_threads, double* tot_time_ptr) {
-
     double t0 = 0 ;
-
     /**** Initialisation and opening of the file ***/
     t0 = realtime();
     pod5_init();
-
     // Open the file ready for walking:
     Pod5FileReader_t* file = pod5_open_file(path.c_str());
-
     if (!file) {
         fprintf(stderr, "Failed to open file %s: %s\n", path.c_str(), pod5_get_error_string());
         exit(EXIT_FAILURE);
     }
-
     std::size_t batch_count = 0;
     if (pod5_get_read_batch_count(&batch_count, file) != POD5_OK) {
         fprintf(stderr, "Failed to query batch count: %s\n", pod5_get_error_string());
         exit(EXIT_FAILURE);
     }
     fprintf(stderr, "batch_count: %zu\n", batch_count);
-
-
-    (*tot_time_ptr) += realtime() - t0;
     cxxpool::thread_pool pool{m_num_worker_threads};
+    (*tot_time_ptr) += realtime() - t0;
 
     for (std::size_t batch_index = 0; batch_index < batch_count; ++batch_index) {
         t0 = realtime();
@@ -140,30 +133,25 @@ int load_pod5_reads_from_file_0(const std::string& path, size_t m_num_worker_thr
         }
         free(rec);
     }
-
+    t0 = realtime();
     if (pod5_close_and_free_reader(file) != POD5_OK) {
         fprintf(stderr, "Failed to close and free POD5 reader\n");
         exit(EXIT_FAILURE);
     }
+    (*tot_time_ptr) += realtime() - t0;
     return 0;
 }
 
-
-
 int main(int argc, char *argv[]){
-
     if(argc != 3) {
         fprintf(stderr, "Usage: %s reads.pod5 num_thread\n", argv[0]);
         return EXIT_FAILURE;
     }
     int num_thread = atoi(argv[2]);
     fprintf(stderr,"Using %d threads\n", num_thread);
-
     double tot_time = 0;
-
     load_pod5_reads_from_file_0(std::string(argv[1]), num_thread, &tot_time);
     fprintf(stderr,"Time for getting samples %f (%d threads)\n", tot_time, num_thread);
-
     return 0;
 }
 
