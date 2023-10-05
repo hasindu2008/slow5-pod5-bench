@@ -185,9 +185,14 @@ int main(int argc, char *argv[]){
                 fprintf(stderr, "Failed to get batch: %s\n", pod5_get_error_string());
                 exit(EXIT_FAILURE);
             }
+            std::vector<std::future<int>> futures;
             for (std::size_t row_idx = 0; row_idx < traversal_batch_counts[batch_index]; row_idx++) {
                 uint32_t row = traversal_batch_rows[row_idx + row_offset];
-                process_pod5_read(row, batch, file, &rec[row_idx + row_offset]);
+//                process_pod5_read(row, batch, file, &rec[row_idx + row_offset]);
+                futures.push_back(pool.push(process_pod5_read,row, batch, file, &rec[row_idx + row_offset]));
+            }
+            for (auto& v : futures) {
+                auto read = v.get();
             }
             if (pod5_free_read_batch(batch) != POD5_OK) {
                 fprintf(stderr, "Failed to release batch\n");

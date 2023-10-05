@@ -99,6 +99,8 @@ int load_pod5_reads_from_file_0(const std::string& path, size_t m_num_worker_thr
             exit(EXIT_FAILURE);
         }
         std::size_t batch_row_count = 0;
+        std::vector<std::future<int>> futures;
+
         if (pod5_get_read_batch_row_count(&batch_row_count, batch) != POD5_OK) {
             fprintf(stderr, "Failed to get batch row count\n");
             exit(EXIT_FAILURE);
@@ -106,7 +108,11 @@ int load_pod5_reads_from_file_0(const std::string& path, size_t m_num_worker_thr
         fprintf(stderr, "batch_row_count: %zu\n", batch_row_count);
         rec_t *rec = (rec_t*)malloc(batch_row_count * sizeof(rec_t));
         for (std::size_t row = 0; row < batch_row_count; ++row) {
-            process_pod5_read(row, batch, file, &rec[row]);
+            futures.push_back(pool.push(process_pod5_read,row, batch, file, &rec[row]));
+//            process_pod5_read(row, batch, file, &rec[row]);
+        }
+        for (auto& v : futures) {
+            auto read = v.get();
         }
         if (pod5_free_read_batch(batch) != POD5_OK) {
             fprintf(stderr, "Failed to release batch\n");
