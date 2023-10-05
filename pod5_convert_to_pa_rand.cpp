@@ -52,6 +52,7 @@ int process_pod5_read(size_t row, Pod5ReadRecordBatch* batch, Pod5FileReader* fi
         return EXIT_FAILURE;
     }
     char read_id_tmp[POD5_READ_ID_LEN];
+    pod5_error_t err = pod5_format_read_id(read_data.read_id, read_id_tmp);
     std::string read_id_str(read_id_tmp);
     int16_t *samples = (int16_t*)malloc(sizeof(int16_t)*read_data.num_samples);
     if (pod5_get_read_complete_signal(file, batch, row, read_data.num_samples, samples) != POD5_OK) {
