@@ -6,7 +6,7 @@
 2. random [duplex/f5c/squigualiser]
 
 The fields accessed (in order) are
-1. 
+1. signal
 2. 
 
 ## Disks 
@@ -16,8 +16,9 @@ The fields accessed (in order) are
 
 ## Dataset
 
-Full prom
-https://gtgseq.s3.amazonaws.com/index.html#ont-r10-5khz-dna/NA24385/raw/
+Full prom 5KHz: available via
+- https://gtgseq.s3.amazonaws.com/index.html#ont-r10-5khz-dna/NA24385/raw/
+- gtgpu:/home/hasindu/scratch/hg2_prom_lsk114_5khz/PGXXXX230339_reads.blow5
 
 ## Match conditions
 
