@@ -7,18 +7,20 @@
 
 The fields accessed (in order) are
 1. run_acquisition_start_time_ms
-2. run_sample_rate
+2. sample_rate
 3. read_id
 4. num_samples
 5. raw_signal
 6. start_sample
-7. scaling
-8. offset
+7. calibration_scale (scaling)
+8. calibration_offset (offset)
 9. read_number
-10. well
-11. channel
+10. well (mux)
+11. channel (channel number)
 12. acquisition_id (run_id)
-13. flow_cell_id
+13. flowcell_id
+14. sequencer_position (position_id)
+15. experiment_name (experiment_id)
 
 ## Disks 
 
