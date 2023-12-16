@@ -5,7 +5,7 @@
 1. sequential [basecall/methcall]
 2. random [duplex/f5c/squigualiser]
 
-The fields accessed (in order) are
+The fields accessed (in order) are (https://github.com/nanoporetech/dorado/blob/0d932c0539a8d81fedb5c98931475e69dd97df93/dorado/data_loader/DataLoader.cpp#L112)
 1. run_acquisition_start_time_ms
 2. sample_rate
 3. read_id
