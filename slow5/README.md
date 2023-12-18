@@ -7,7 +7,7 @@ For equivalent conditions with vbz in POD5, must use svb16 in BLOW5.
 ```
 git clone --recursive https://github.com/hasindu2008/slow5tools -b vbz
 cd slow5tools
-make zstd=1 -j
+make disable_hdf5=1 zstd=1 -j
 ./slow5tools view -c zstd -s svb16-zd PGXX22394_reads_1000.blow5 -o zstd-sv16-zd.blow5
 ```
 
