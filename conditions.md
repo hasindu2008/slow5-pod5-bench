@@ -22,7 +22,7 @@ The fields accessed (in order) are (https://github.com/nanoporetech/dorado/blob/
 14. sequencer_position (position_id)
 15. experiment_name (experiment_id)
 
-## Disks 
+## Disks
 
 1. SSD [brenner nvme]
 2. HDD [nci lustre]
@@ -32,6 +32,11 @@ The fields accessed (in order) are (https://github.com/nanoporetech/dorado/blob/
 Full prom 5KHz: available via
 - https://gtgseq.s3.amazonaws.com/index.html#ont-r10-5khz-dna/NA24385/raw/
 - gtgpu:/home/hasindu/scratch/hg2_prom_lsk114_5khz/PGXXXX230339_reads.blow5
+
+## systems
+
+1. Server
+2. Embedded system
 
 ## Match conditions
 
