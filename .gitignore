@@ -1,3 +1,5 @@
 cmake-build-debug
 .idea
 build
+slow5/slow5_convert_to_pa
+slow5/slow5_convert_to_pa_rand
