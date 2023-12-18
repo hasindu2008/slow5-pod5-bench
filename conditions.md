@@ -48,3 +48,6 @@ Full prom 5KHz: available via
 - POD5 must use streaming I/O (opposed to memory mapping)
 - POD5 must use default chunk size as in MinKNOW, as it was the reason why ONT could not integrate SLOW5 to their minKNOW
 
+- use taskset command to force using N number of CPUs
+- clean_fscache to prevent caching
+
