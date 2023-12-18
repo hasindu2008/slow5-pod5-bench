@@ -3,3 +3,4 @@ cmake-build-debug
 build
 slow5/slow5_convert_to_pa
 slow5/slow5_convert_to_pa_rand
+*.gz

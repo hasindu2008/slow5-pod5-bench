@@ -38,37 +38,37 @@ typedef struct {
 } rec_t;
 
 int process_pod5_read(size_t row, Pod5ReadRecordBatch* batch, Pod5FileReader* file, rec_t *rec) {
-    uint16_t read_table_version = 0;
-    ReadBatchRowInfo_t read_data;
-    if (pod5_get_read_batch_row_info_data(batch, row, READ_BATCH_ROW_INFO_VERSION, &read_data,
-                                          &read_table_version) != POD5_OK) {
-        fprintf(stderr, "Failed to get read %zu\n", row);
-        return EXIT_FAILURE;
-    }
-    //Retrieve global information for the run
-    RunInfoDictData_t* run_info_data;
-    if (pod5_get_run_info(batch, read_data.run_info, &run_info_data) != POD5_OK) {
-        fprintf(stderr, "Failed to get Run Info %zu %s\n", row, pod5_get_error_string());
-        return EXIT_FAILURE;
-    }
-    char read_id_tmp[POD5_READ_ID_LEN];
-    pod5_error_t err = pod5_format_read_id(read_data.read_id, read_id_tmp);
-    std::string read_id_str(read_id_tmp);
-    int16_t *samples = (int16_t*)malloc(sizeof(int16_t)*read_data.num_samples);
-    if (pod5_get_read_complete_signal(file, batch, row, read_data.num_samples, samples) != POD5_OK) {
-        fprintf(stderr, "Failed to get read %zu signal: %s\"\n", row, pod5_get_error_string());
-        return EXIT_FAILURE;
-    }
-    rec->len_raw_signal = read_data.num_samples;
-    rec->raw_signal = samples;
-    rec->scale = read_data.calibration_scale;
-    rec->offset = read_data.calibration_offset;
-    rec->read_id = strdup(read_id_tmp);
-    if (pod5_free_run_info(run_info_data) != POD5_OK) {
-        fprintf(stderr, "Failed to free run info\n");
-        return EXIT_FAILURE;
-    }
-    return 0;
+uint16_t read_table_version = 0;
+ReadBatchRowInfo_t read_data;
+if (pod5_get_read_batch_row_info_data(batch, row, READ_BATCH_ROW_INFO_VERSION, &read_data,
+        &read_table_version) != POD5_OK) {
+fprintf(stderr, "Failed to get read %zu\n", row);
+return EXIT_FAILURE;
+}
+//Retrieve global information for the run
+RunInfoDictData_t* run_info_data;
+if (pod5_get_run_info(batch, read_data.run_info, &run_info_data) != POD5_OK) {
+fprintf(stderr, "Failed to get Run Info %zu %s\n", row, pod5_get_error_string());
+return EXIT_FAILURE;
+}
+char read_id_tmp[POD5_READ_ID_LEN];
+pod5_error_t err = pod5_format_read_id(read_data.read_id, read_id_tmp);
+std::string read_id_str(read_id_tmp);
+int16_t *samples = (int16_t*)malloc(sizeof(int16_t)*read_data.num_samples);
+if (pod5_get_read_complete_signal(file, batch, row, read_data.num_samples, samples) != POD5_OK) {
+fprintf(stderr, "Failed to get read %zu signal: %s\"\n", row, pod5_get_error_string());
+return EXIT_FAILURE;
+}
+rec->len_raw_signal = read_data.num_samples;
+rec->raw_signal = samples;
+rec->scale = read_data.calibration_scale;
+rec->offset = read_data.calibration_offset;
+rec->read_id = strdup(read_id_tmp);
+if (pod5_free_run_info(run_info_data) != POD5_OK) {
+fprintf(stderr, "Failed to free run info\n");
+return EXIT_FAILURE;
+}
+return 0;
 }
 
 int main(int argc, char *argv[]){
@@ -87,7 +87,7 @@ int main(int argc, char *argv[]){
     double tot_time = 0;
     double t0 = 0 ;
 
-   //read id list
+    //read id list
     FILE *fpr = fopen(argv[2],"r");
     if(fpr==NULL){
         fprintf(stderr,"Error in opening file %s for reading\n", argv[2]);
@@ -103,9 +103,9 @@ int main(int argc, char *argv[]){
     // Open the file ready for walking:
     Pod5FileReader_t* file = pod5_open_file(path.c_str());
     if (!file) {
-       fprintf(stderr,"Error in opening input pod5 file %s\n", path.c_str());
-       perror("perr: ");
-       exit(EXIT_FAILURE);
+        fprintf(stderr,"Error in opening input pod5 file %s\n", path.c_str());
+        perror("perr: ");
+        exit(EXIT_FAILURE);
     }
     size_t batch_count = 0;
     if (pod5_get_read_batch_count(&batch_count, file) != POD5_OK) {
@@ -223,5 +223,4 @@ int main(int argc, char *argv[]){
     fprintf(stderr,"Time for getting samples %f (%zu threads)\n", tot_time, num_thread);
     return 0;
 }
-
 
