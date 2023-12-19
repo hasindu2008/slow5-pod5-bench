@@ -66,4 +66,5 @@ See the perf profile to see if SIMD is used
 ```
 perf record slow5/slow5_convert_to_pa /data/slow5-testdata/hg2_prom_lsk114_5khz_subsubsample/PGXXXX230339_reads_20k_zstd-svb16-zd.blow5 1 1000
 perf report -n
-``
+vtune -collect hotspots   slow5/slow5_convert_to_pa /data/slow5-testdata/hg2_prom_lsk114_5khz_subsubsample/PGXXXX230339_reads_20k_zstd-svb16-zd.blow5 1 1000
+```
