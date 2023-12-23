@@ -11,6 +11,7 @@
 #include "pod5_format/c_api.h"
 #include "cxxpool.h"
 #include <inttypes.h>
+#include <omp.h>
 
 // 37 = number of bytes in UUID (32 hex digits + 4 dashes + null terminator)
 const uint32_t POD5_READ_ID_LEN = 37;
@@ -65,6 +66,7 @@ unsigned int compute_hash(const uint64_t sum, const rec_t *rec) {
 }
 void process_pod5_read_set_func_1(rec_t *rec, std::size_t batch_row_count) {
     unsigned int *hash_array = (unsigned int*)malloc(batch_row_count * sizeof(unsigned int));
+    #pragma omp parallel for
     for(size_t i=0;i<batch_row_count;i++) {
         uint64_t sum = 0;
         for (uint64_t j = 0; j < rec[i].len_raw_signal; j++) {
@@ -80,6 +82,7 @@ void process_pod5_read_set_func_1(rec_t *rec, std::size_t batch_row_count) {
 
 void process_pod5_read_set_func_0(rec_t *rec, std::size_t batch_row_count) {
     double *sums = (double*)malloc(batch_row_count * sizeof(double));
+    #pragma omp parallel for
     for(size_t i=0;i<batch_row_count;i++){
         uint64_t sum = 0;
         for(uint64_t j=0; j<rec[i].len_raw_signal; j++){
@@ -231,6 +234,7 @@ int main(int argc, char *argv[]){
         return EXIT_FAILURE;
     }
     int num_thread = atoi(argv[2]);
+    omp_set_num_threads(num_thread);
     fprintf(stderr,"Using %d threads\n", num_thread);
     double tot_time = 0;
     load_pod5_reads_from_file_0(std::string(argv[1]), num_thread, &tot_time);
