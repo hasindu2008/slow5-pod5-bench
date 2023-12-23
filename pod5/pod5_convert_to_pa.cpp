@@ -66,6 +66,7 @@ unsigned int compute_hash(const uint64_t sum, const rec_t *rec) {
 }
 void process_pod5_read_set_func_1(rec_t *rec, std::size_t batch_row_count) {
     unsigned int *hash_array = (unsigned int*)malloc(batch_row_count * sizeof(unsigned int));
+//    int *thread_num = (int*)malloc(batch_row_count * sizeof(int));
     #pragma omp parallel for
     for(size_t i=0;i<batch_row_count;i++) {
         uint64_t sum = 0;
@@ -73,11 +74,24 @@ void process_pod5_read_set_func_1(rec_t *rec, std::size_t batch_row_count) {
             sum += ((rec[i].raw_signal[j] + rec[i].offset) * rec[i].scale);
         }
         hash_array[i] = compute_hash(sum, &rec[i]);
+//        thread_num[i] = omp_get_max_threads();
     }
     for(size_t i=0;i<batch_row_count;i++){
+//        fprintf(stdout,"%s\t%u\t%d\n", rec[i].read_id, hash_array[i], thread_num[i]);
         fprintf(stdout,"%s\t%u\n", rec[i].read_id, hash_array[i]);
     }
+    free(hash_array);
+//    free(thread_num);
     fprintf(stderr,"batch printed with %zu reads\n",batch_row_count);
+    for (size_t row = 0; row < batch_row_count; ++row) {
+        free(rec[row].read_id);
+        free(rec[row].raw_signal);
+        free(rec[row].run_id);
+        free(rec[row].flowcell_id);
+        free(rec[row].position_id);
+        free(rec[row].experiment_id);
+    }
+    free(rec);
 }
 
 void process_pod5_read_set_func_0(rec_t *rec, std::size_t batch_row_count) {
@@ -234,8 +248,9 @@ int main(int argc, char *argv[]){
         return EXIT_FAILURE;
     }
     int num_thread = atoi(argv[2]);
-    omp_set_num_threads(num_thread);
     fprintf(stderr,"Using %d threads\n", num_thread);
+    omp_set_num_threads(num_thread);
+
     double tot_time = 0;
     load_pod5_reads_from_file_0(std::string(argv[1]), num_thread, &tot_time);
     fprintf(stderr,"Time for getting samples %f (%d threads)\n", tot_time, num_thread);

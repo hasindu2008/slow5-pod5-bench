@@ -4,3 +4,5 @@ build
 slow5/slow5_convert_to_pa
 slow5/slow5_convert_to_pa_rand
 *.gz
+pod5/pod5_convert_to_pa
+pod5/pod5_convert_to_pa_rand
