@@ -11,7 +11,7 @@
 #include "pod5_format/c_api.h"
 #include "cxxpool.h"
 #include <inttypes.h>
-#include <omp.h>
+//#include <omp.h>
 
 // 37 = number of bytes in UUID (32 hex digits + 4 dashes + null terminator)
 const uint32_t POD5_READ_ID_LEN = 37;
@@ -39,18 +39,10 @@ typedef struct {
     char* flowcell_id;
     char* position_id;
     char* experiment_id;
+    uint64_t signal_sum;
 } rec_t;
 
-void process_pod5_read_set_func_0(rec_t *rec, std::size_t batch_row_count) {
-    double *sums = (double*)malloc(batch_row_count * sizeof(double));
-    #pragma omp parallel for
-    for(size_t i=0;i<batch_row_count;i++){
-        uint64_t sum = 0;
-        for(uint64_t j=0; j<rec[i].len_raw_signal; j++){
-            sum += ((rec[i].raw_signal[j] + rec[i].offset) * rec[i].scale);
-        }
-        sums[i] = sum;
-    }
+void print_func(rec_t *rec, std::size_t batch_row_count){
     for(size_t i=0;i<batch_row_count;i++){
         fprintf(stdout, "%" PRId64 ",", rec[i].run_acquisition_start_time_ms);
         fprintf(stdout, "%" PRIu16 ",", rec[i].sampling_rate);
@@ -66,9 +58,9 @@ void process_pod5_read_set_func_0(rec_t *rec, std::size_t batch_row_count) {
         fprintf(stdout, "%s,", rec[i].flowcell_id);
         fprintf(stdout, "%s,", rec[i].position_id);
         fprintf(stdout, "%s,", rec[i].experiment_id);
-        fprintf(stdout,"%f\n", sums[i]);
+        fprintf(stdout, "%" PRIu64 "\n", rec[i].signal_sum);
+//        fprintf(stdout,"%f\n", rec[i].signal_sum);
     }
-    free(sums);
     fprintf(stderr,"batch printed with %zu reads\n",batch_row_count);
     for (size_t row = 0; row < batch_row_count; ++row) {
         free(rec[row].read_id);
@@ -79,6 +71,15 @@ void process_pod5_read_set_func_0(rec_t *rec, std::size_t batch_row_count) {
         free(rec[row].experiment_id);
     }
     free(rec);
+}
+
+int process_pod5_read_set_func_1(rec_t *rec) {
+    uint64_t sum = 0;
+    for(uint64_t j=0; j<rec->len_raw_signal; j++){
+        sum += ((rec->raw_signal[j] + rec->offset) * rec->scale);
+    }
+    rec->signal_sum = sum;
+    return 0;
 }
 
 int load_pod5_read(size_t row, Pod5ReadRecordBatch* batch, Pod5FileReader* file, rec_t *rec) {
@@ -120,6 +121,7 @@ int load_pod5_read(size_t row, Pod5ReadRecordBatch* batch, Pod5FileReader* file,
     rec->flowcell_id = strdup(run_info_data->flow_cell_id);
     rec->position_id = strdup(run_info_data->sequencer_position);
     rec->experiment_id = strdup(run_info_data->experiment_name);
+    rec->signal_sum = 100;
     if (pod5_free_run_info(run_info_data) != POD5_OK) {
         fprintf(stderr, "Failed to free run info\n");
         return EXIT_FAILURE;
@@ -128,7 +130,7 @@ int load_pod5_read(size_t row, Pod5ReadRecordBatch* batch, Pod5FileReader* file,
 }
 
 int load_pod5_reads_from_file_0(const std::string& path, size_t m_num_worker_threads, double* tot_time_ptr) {
-    double t0 = 0 ;
+    double t0 = 0;
     /**** Initialisation and opening of the file ***/
     t0 = realtime();
     pod5_init();
@@ -168,16 +170,23 @@ int load_pod5_reads_from_file_0(const std::string& path, size_t m_num_worker_thr
 //            load_pod5_read(row, batch, file, &rec[row]);
         }
         for (auto& v : futures) {
-            auto read = v.get();
+            v.get();
         }
         if (pod5_free_read_batch(batch) != POD5_OK) {
             fprintf(stderr, "Failed to release batch\n");
             exit(EXIT_FAILURE);
         }
         (*tot_time_ptr) += realtime() - t0;
-
         //process and print (time not measured as we want to compare to the time it takes to read the file)
-        process_pod5_read_set_func_0(rec, batch_row_count);
+        futures.clear();
+        for (std::size_t row = 0; row < batch_row_count; ++row) {
+            futures.push_back(pool.push(process_pod5_read_set_func_1, &rec[row]));
+        }
+        for (auto& v : futures) {
+            v.get();
+        }
+//        process_pod5_read_set_func_0(rec, batch_row_count);
+        print_func(rec, batch_row_count);
     }
     t0 = realtime();
     if (pod5_close_and_free_reader(file) != POD5_OK) {
@@ -195,7 +204,7 @@ int main(int argc, char *argv[]){
     }
     int num_thread = atoi(argv[2]);
     fprintf(stderr,"Using %d threads\n", num_thread);
-    omp_set_num_threads(num_thread);
+//    omp_set_num_threads(num_thread);
 
     double tot_time = 0;
     load_pod5_reads_from_file_0(std::string(argv[1]), num_thread, &tot_time);
