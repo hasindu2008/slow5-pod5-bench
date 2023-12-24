@@ -41,66 +41,13 @@ typedef struct {
     char* experiment_id;
 } rec_t;
 
-unsigned int djb2Hash(const char* str) {
-    unsigned int hash = 5381;
-    int c;
-    while ((c = *str++)) {
-        hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
-    }
-    return hash;
-}
-
-unsigned int compute_hash(const uint64_t sum, const rec_t *rec) {
-    unsigned int hash = 0;
-    hash = (hash * 31) + (unsigned int)rec->run_acquisition_start_time_ms;
-    hash = (hash * 31) + (unsigned int)rec->sampling_rate;
-    hash = (hash * 31) + djb2Hash(rec->read_id);
-    hash = (hash * 31) + (unsigned int)rec->read_number;
-    hash = (hash * 31) + (unsigned int)rec->mux;
-    hash = (hash * 31) + (unsigned int)rec->channel_number;
-    hash = (hash * 31) + djb2Hash(rec->run_id);
-    hash = (hash * 31) + djb2Hash(rec->flowcell_id);
-    hash = (hash * 31) + djb2Hash(rec->position_id);
-    hash = (hash * 31) + djb2Hash(rec->experiment_id);
-    return hash;
-}
-void process_pod5_read_set_func_1(rec_t *rec, std::size_t batch_row_count) {
-    unsigned int *hash_array = (unsigned int*)malloc(batch_row_count * sizeof(unsigned int));
-//    int *thread_num = (int*)malloc(batch_row_count * sizeof(int));
-    #pragma omp parallel for
-    for(size_t i=0;i<batch_row_count;i++) {
-        uint64_t sum = 0;
-        for (uint64_t j = 0; j < rec[i].len_raw_signal; j++) {
-            sum += ((rec[i].raw_signal[j] + rec[i].offset) * rec[i].scale);
-        }
-        hash_array[i] = compute_hash(sum, &rec[i]);
-//        thread_num[i] = omp_get_max_threads();
-    }
-    for(size_t i=0;i<batch_row_count;i++){
-//        fprintf(stdout,"%s\t%u\t%d\n", rec[i].read_id, hash_array[i], thread_num[i]);
-        fprintf(stdout,"%s\t%u\n", rec[i].read_id, hash_array[i]);
-    }
-    free(hash_array);
-//    free(thread_num);
-    fprintf(stderr,"batch printed with %zu reads\n",batch_row_count);
-    for (size_t row = 0; row < batch_row_count; ++row) {
-        free(rec[row].read_id);
-        free(rec[row].raw_signal);
-        free(rec[row].run_id);
-        free(rec[row].flowcell_id);
-        free(rec[row].position_id);
-        free(rec[row].experiment_id);
-    }
-    free(rec);
-}
-
 void process_pod5_read_set_func_0(rec_t *rec, std::size_t batch_row_count) {
     double *sums = (double*)malloc(batch_row_count * sizeof(double));
     #pragma omp parallel for
     for(size_t i=0;i<batch_row_count;i++){
         uint64_t sum = 0;
         for(uint64_t j=0; j<rec[i].len_raw_signal; j++){
-            sum +=  ((rec[i].raw_signal[j] + rec[i].offset) * rec[i].scale);
+            sum += ((rec[i].raw_signal[j] + rec[i].offset) * rec[i].scale);
         }
         sums[i] = sum;
     }
@@ -230,8 +177,7 @@ int load_pod5_reads_from_file_0(const std::string& path, size_t m_num_worker_thr
         (*tot_time_ptr) += realtime() - t0;
 
         //process and print (time not measured as we want to compare to the time it takes to read the file)
-//        process_pod5_read_set_func_0(rec, batch_row_count);
-        process_pod5_read_set_func_1(rec, batch_row_count);
+        process_pod5_read_set_func_0(rec, batch_row_count);
     }
     t0 = realtime();
     if (pod5_close_and_free_reader(file) != POD5_OK) {
