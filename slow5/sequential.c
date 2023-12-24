@@ -103,6 +103,7 @@ void process_read_batch(rec_t *rec_list, int n){
 
     for(int i=0;i<n;i++){
         rec_t *rec = &rec_list[i];
+
         fprintf(stdout, "%s\t", rec->read_id);
         fprintf(stdout, "%.2f\t", rec->scale);
         fprintf(stdout, "%.2f\t", rec->offset);
@@ -258,8 +259,6 @@ int main(int argc, char *argv[]) {
     int num_thread = atoi(argv[2]);
     fprintf(stderr,"Using %d threads\n", num_thread);
     omp_set_num_threads(num_thread);
-
-
 
     int read_count = 0;
     double tot_time = 0;
