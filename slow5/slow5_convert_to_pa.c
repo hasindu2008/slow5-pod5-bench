@@ -9,7 +9,6 @@
 #include <slow5/slow5.h>
 #include <omp.h>
 #include <sys/time.h>
-#include "../src/slow5_extra.h"
 
 static inline double realtime(void) {
     struct timeval tp;
@@ -18,20 +17,35 @@ static inline double realtime(void) {
     return tp.tv_sec + tp.tv_usec * 1e-6;
 }
 
-
+typedef struct {
+    const char *run_acquisition_start_time; //can we convert to match pod5
+    uint16_t sampling_rate; //converted to match pod5
+    char* read_id;
+    uint64_t len_raw_signal;
+    int16_t* raw_signal;
+    uint64_t start_sample;
+    double scale; //converted to match pod5
+    double offset;
+    int32_t read_number; //converted to match pod5
+    uint8_t mux;
+    uint16_t channel_number; //converted to match pod5
+    const char* run_id;
+    const char* flowcell_id;
+    const char* position_id;
+    const char* experiment_id;
+} rec_t;
 
 /* load a data batch from disk */
-int load_raw_batch(char ***mem_records_a, size_t **mem_bytes_a, slow5_file_t *sf, int batch_size) {
+int load_raw_batch(char ***mem_a, size_t **bytes_a, slow5_file_t *sf, int batch_size) {
 
-    char **mem_records = (char **)malloc(batch_size * sizeof(char *));
-    size_t *mem_bytes = (size_t *)malloc(batch_size * sizeof(size_t));
-
+    char **mem = (char **)malloc(batch_size * sizeof(char *));
+    size_t *bytes = (size_t *)malloc(batch_size * sizeof(size_t));
 
     int32_t i = 0;
     while (i < batch_size) {
-        mem_records[i] = (char *)slow5_get_next_mem(&(mem_bytes[i]), sf);
+        int ret  = slow5_get_next_bytes(&(mem[i]),&(bytes[i]), sf);
 
-        if (mem_records[i] == NULL) {
+        if (ret < 0 ) {
             if (slow5_errno != SLOW5_ERR_EOF) {
                 fprintf(stderr,"Error reading from SLOW5 file %d\n", slow5_errno);
                 exit(EXIT_FAILURE);
@@ -45,46 +59,94 @@ int load_raw_batch(char ***mem_records_a, size_t **mem_bytes_a, slow5_file_t *sf
         }
     }
 
-    *mem_records_a = mem_records;
-    *mem_bytes_a = mem_bytes;
+    *mem_a = mem;
+    *bytes_a = bytes;
 
     return i;
 }
 
-void free_raw_batch(char **mem_records, size_t *mem_bytes, int batch_size) {
-    for(int i=0;i<batch_size;i++) {
-        free(mem_records[i]);
+void process_read_batch(rec_t *rec_list, int n){
+    double *sums = malloc(sizeof(uint64_t)*n);
+
+    //process and print (time not measured as we want to compare to the time it takes to read the file)
+    #pragma omp parallel for
+    for(int i=0;i<n;i++){
+        rec_t *rec = &rec_list[i];
+        uint64_t sum = 0;
+        double scale = rec->scale;
+        for(int j=0; j<rec->len_raw_signal; j++){
+            sum += ((rec->raw_signal[j] + rec->offset) * scale);
+        }
+        sums[i] = sum;
     }
-    free(mem_records);
-    free(mem_bytes);
+    fprintf(stderr,"batch processed with %d reads\n",n);
+    for(int i=0;i<n;i++){
+        rec_t *rec = &rec_list[i];
+        fprintf(stdout,"%s\t%f\n",rec->read_id,sums[i]);
+    }
+    fprintf(stderr,"batch printed with %d reads\n",n);
+    free(sums);
+
+    for(int i=0;i<n;i++){
+        rec_t *rec = &rec_list[i];
+        free(rec->raw_signal);
+        free(rec->read_id);
+    }
+    free(rec_list);
 
 }
 
 
-int main(int argc, char *argv[]) {
+int load_slow5_read(char **mem_records, size_t *mem_bytes, rec_t *rec_list, slow5_file_t *sp, int i){
 
-    if(argc != 4) {
-        fprintf(stderr, "Usage: %s reads.blow5 num_thread batch_size\n", argv[0]);
-        return EXIT_FAILURE;
+    slow5_rec_t *srec = NULL;
+    rec_t *rrec = &rec_list[i];
+    const slow5_hdr_t* header = sp->header; //pointer to the SLOW5 header
+
+    if(slow5_decode(&mem_records[i], &mem_bytes[i], &srec, sp)!=0){
+        fprintf(stderr,"Error parsing the record %s",srec->read_id);
+        exit(EXIT_FAILURE);
     }
 
-    int batch_size = atoi(argv[3]);
-    int num_thread = atoi(argv[2]);
-    int ret=batch_size;
-    omp_set_num_threads(num_thread);
+    uint32_t read_group = srec->read_group;
+    rrec->run_acquisition_start_time = slow5_hdr_get("acquisition_start_time", read_group, header);
+    rrec->sampling_rate = srec->sampling_rate;
+    rrec->read_id = srec->read_id;
+    rrec->len_raw_signal = srec->len_raw_signal;
+    rrec->raw_signal = srec->raw_signal;
+    rrec->start_sample =  slow5_aux_get_uint64(srec, "start_time", NULL);
+    rrec->scale = srec->range/ srec->digitisation;
+    rrec->offset = srec->offset;
+    rrec->read_number = slow5_aux_get_int32(srec, "read_number", NULL);
+    rrec->mux = slow5_aux_get_uint8(srec, "start_mux", NULL);
+    rrec->channel_number = atoi(slow5_aux_get_string(srec, "channel_number", NULL, NULL));
+    rrec->run_id = slow5_hdr_get("run_id", read_group, header);
+    rrec->flowcell_id = slow5_hdr_get("flow_cell_id", read_group, header);
+    rrec->position_id = slow5_hdr_get("sequencer_position", read_group, header);
+    rrec->experiment_id = slow5_hdr_get("experiment_name", read_group, header);
 
-    int read_count = 0;
+    srec->raw_signal = NULL;
+    srec->read_id = NULL;
 
-    double *sums = malloc(sizeof(uint64_t)*batch_size);
+    slow5_rec_free(srec);
+    free(mem_records[i]);
+
+    return 0;
+}
+
+int read_and_process_slow5_file(const char *path, int num_thread, int batch_size, double *tot_time_p, double *disc_time_p){
+
     double tot_time = 0;
     double disc_time = 0;
     double t0 = 0;
     double t1 = 0;
+    int ret = batch_size;
+    int read_count = 0;
 
     /**** Initialisation and opening of the file ***/
     t0 = realtime();
 
-    slow5_file_t *sp = slow5_open(argv[1],"r");
+    slow5_file_t *sp = slow5_open(path,"r");
     if(sp==NULL){
        fprintf(stderr,"Error in opening file\n");
        perror("perr: ");
@@ -98,51 +160,32 @@ int main(int argc, char *argv[]) {
 
         /**** Fetching a batch (disk loading, decompression, parsing in to memory arrays) ***/
         t0 = realtime();
-        char **mem_records = NULL;
-        size_t *mem_bytes = NULL;
-        ret = load_raw_batch(&mem_records, &mem_bytes, sp, batch_size);
+        char **mem = NULL;
+        size_t *bytes = NULL;
+        ret = load_raw_batch(&mem, &bytes, sp, batch_size);
         t1= realtime() - t0;
         tot_time += t1;
         disc_time += t1;
 
         t0 = realtime();
         read_count += ret;
-        slow5_rec_t **rec = (slow5_rec_t**)calloc(batch_size,sizeof(slow5_rec_t*));
+        rec_t *rec = (rec_t*)malloc(batch_size * sizeof(rec_t));
+
         #pragma omp parallel for
         for(int i=0;i<ret;i++){
-            if(slow5_rec_depress_parse(&mem_records[i], &mem_bytes[i], NULL, &rec[i], sp)!=0){
-                fprintf(stderr,"Error parsing the record %s",rec[i]->read_id);
-                exit(EXIT_FAILURE);
-            }
+            load_slow5_read(mem, bytes, rec, sp, i);
         }
         tot_time += realtime() - t0;
         /**** Batch fetched ***/
 
         fprintf(stderr,"batch loaded with %d reads\n",ret);
 
-        //process and print (time not measured as we want to compare to the time it takes to read the file)
-        #pragma omp parallel for
-        for(int i=0;i<ret;i++){
-            uint64_t sum = 0;
-            double scale = rec[i]->range / rec[i]->digitisation;
-            for(int j=0; j<rec[i]->len_raw_signal; j++){
-                sum += ((rec[i]->raw_signal[j] + rec[i]->offset) * scale);
-            }
-            sums[i] = sum;
-        }
-        fprintf(stderr,"batch processed with %d reads\n",ret);
-        for(int i=0;i<ret;i++){
-            fprintf(stdout,"%s\t%f\n",rec[i]->read_id,sums[i]);
-        }
-        fprintf(stderr,"batch printed with %d reads\n",ret);
+        process_read_batch(rec, ret);
 
         /**** Deinit ***/
         t0 = realtime();
-        free_raw_batch(mem_records, mem_bytes, ret);
-        for(int i=0;i<ret;i++){
-            slow5_rec_free(rec[i]);
-        }
-        free(rec);
+        free(mem);
+        free(bytes);
         tot_time += realtime() - t0;
         /**** End of Deinit***/
 
@@ -154,8 +197,30 @@ int main(int argc, char *argv[]) {
     tot_time += realtime() - t0;
     /**** End of Deinit***/
 
-    free(sums);
+    *tot_time_p = tot_time;
+    *disc_time_p = disc_time;
+    return read_count;
+}
 
+
+
+int main(int argc, char *argv[]) {
+
+    if(argc != 4) {
+        fprintf(stderr, "Usage: %s reads.blow5 num_thread batch_size\n", argv[0]);
+        return EXIT_FAILURE;
+    }
+
+    const char *path = argv[1];
+    int batch_size = atoi(argv[3]);
+    int num_thread = atoi(argv[2]);
+    fprintf(stderr,"Using %d threads\n", num_thread);
+    omp_set_num_threads(num_thread);
+
+    int read_count = 0;
+    double tot_time = 0;
+    double disc_time = 0;
+    read_count = read_and_process_slow5_file(path, num_thread, batch_size, &tot_time, &disc_time);
     fprintf(stderr,"Reads: %d\n",read_count);
     fprintf(stderr,"Time for disc reading %f\n",disc_time);
     fprintf(stderr,"Time for getting samples (disc+depress+parse) %f\n", tot_time);
