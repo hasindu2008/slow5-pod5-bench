@@ -77,3 +77,13 @@ Using the environment variables described [here](https://arrow.apache.org/docs/c
 3. [OMP_THREAD_LIMIT](https://arrow.apache.org/docs/cpp/env_vars.html#envvar-OMP_THREAD_LIMIT)
 
 
+# Quick benchmark single threaded
+
+```
+export POD5_DISABLE_MMAP_OPEN=1
+taskset -c 8 /usr/bin/time -v  ./pod5/pod5_convert_to_pa /data/slow5-testdata/hg2_prom_lsk114_5khz_subsubsample/PGXXXX230339_reads_20k.pod5 1 > a.txt
+
+taskset -c 8 /usr/bin/time -v  slow5/slow5_sequential /data/slow5-testdata/hg2_prom_lsk114_5khz_subsubsample/PGXXXX230339_reads_20k_zstd-svb16-zd.blow5 1 1000 > b.txt
+
+```
+
