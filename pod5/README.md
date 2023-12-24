@@ -13,7 +13,7 @@ export LD_LIBRARY_PATH=$PWD/pod5_format/lib
 
 3. Run sequential
 ```
-./pod5_convert_to_pa reads.pod5 8
+./pod5_sequential reads.pod5 8
 ```
 4. Run random (not finalized)
 ```

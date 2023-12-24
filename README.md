@@ -87,7 +87,7 @@ slow5lib dev branch
 pod5 library  v0.0.15
   
   
-### Code
+### Code (outdated)
   
 The benchmark code for SLOW5 is available in the [slow5lib repository](https://github.com/hasindu2008/slow5lib/blob/dev/test/bench/convert_to_pa.c). See the comments for more information.
 
@@ -101,7 +101,7 @@ gcc -Wall -O2 -I include/ -o convert_to_pa test/bench/convert_to_pa.c lib/libslo
   
 The benchmark code for POD5 is available [in this reposity](https://github.com/hasindu2008/slow5-pod5-bench/blob/master/pod5_convert_to_pa.c).  See the comments for more information. Compilation of pod5 library is hard. I downloaded POD5 library binaries and used g++9
 ```
-g++-9 -Wall -O2 -I pod5_format/include/ -o pod5_convert_to_pa pod5_convert_to_pa.c pod5_format/lib64/libpod5_format.a  -lm -lz -lzstd -fopenmp  
+g++-9 -Wall -O2 -I pod5_format/include/ -o pod5_sequential sequential.c pod5_format/lib64/libpod5_format.a  -lm -lz -lzstd -fopenmp  
 ```  
   
  

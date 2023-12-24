@@ -57,10 +57,10 @@ Full prom 5KHz: available via
 See if using traditional I/O instead of mmap
 ```
 unset POD5_DISABLE_MMAP_OPEN
-strace -c -f -w ./pod5/build/pod5_convert_to_pa /data/slow5-testdata/hg2_prom_lsk114_5khz_subsubsample/PGXXXX230339_reads_20k.pod5 1
+strace -c -f -w ./pod5/build/pod5_sequential /data/slow5-testdata/hg2_prom_lsk114_5khz_subsubsample/PGXXXX230339_reads_20k.pod5 1
 
 export POD5_DISABLE_MMAP_OPEN=1 
-strace -c -f -w ./pod5/build/pod5_convert_to_pa /data/slow5-testdata/hg2_prom_lsk114_5khz_subsubsample/PGXXXX230339_reads_20k.pod5 1
+strace -c -f -w ./pod5/build/pod5_sequential  /data/slow5-testdata/hg2_prom_lsk114_5khz_subsubsample/PGXXXX230339_reads_20k.pod5 1
 ```
 
 See the perf profile to see if SIMD is used
