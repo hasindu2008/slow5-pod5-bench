@@ -42,7 +42,8 @@ Full prom 5KHz: available via
 
 1. What are the compiler versions used in pod5?
 2. What are the compiler flags used in pod5?
-3. What is the zstd version used in pod5?
+3. What is the zstd version used in pod5? [zstd/1.5.4](https://github.com/nanoporetech/pod5-file-format/blob/0ba232d6304dd1eebd60d331a6f7c15099dcd04f/conanfile.py#L60)
+4. What is the zlib version used in pod5? [zlib/1.2.13](https://github.com/nanoporetech/pod5-file-format/blob/0ba232d6304dd1eebd60d331a6f7c15099dcd04f/conanfile.py#L61C24-L61C35)
 
 - SIMD accelerated version of svb in slow5lib
 - POD5 must use streaming I/O (opposed to memory mapping)
@@ -68,3 +69,11 @@ perf record slow5/slow5_convert_to_pa /data/slow5-testdata/hg2_prom_lsk114_5khz_
 perf report -n
 vtune -collect hotspots   slow5/slow5_convert_to_pa /data/slow5-testdata/hg2_prom_lsk114_5khz_subsubsample/PGXXXX230339_reads_20k_zstd-svb16-zd.blow5 1 1000
 ```
+
+LIMIT ARROW THREADS
+Using the environment variables described [here](https://arrow.apache.org/docs/cpp/env_vars.html#environment-variables)
+1. [ARROW_IO_THREADS](https://arrow.apache.org/docs/cpp/env_vars.html#envvar-ARROW_IO_THREADS)
+2. [OMP_NUM_THREADS](https://arrow.apache.org/docs/cpp/env_vars.html#envvar-OMP_NUM_THREADS)
+3. [OMP_THREAD_LIMIT](https://arrow.apache.org/docs/cpp/env_vars.html#envvar-OMP_THREAD_LIMIT)
+
+
