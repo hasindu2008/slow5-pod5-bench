@@ -1,7 +1,6 @@
-//loads a batch of reads (signal+information needed for pA conversion) from file, process the batch (convert to pA and sum), and write output
-//only the time for loading a batch is measured
+//sequentially loads a batch of reads from a SLOW5 file (reading fileds relavent to basecalling), process the batch (sum), and write output
 //make zstd=1
-//gcc -Wall -O2 -g -I include/ -o convert_to_pa test/bench/convert_to_pa.c lib/libslow5.a  -lm -lz -lzstd -fopenmp
+//gcc -Wall -O2 -g -I include/ -o slow5_sequential test/bench/sequential.c lib/libslow5.a  -lm -lz -lzstd -fopenmp
 //only the time for loading a batch to memory (Disk I/O + decompression + parsing and filling the memory arrays) is measured
 
 #include <stdio.h>
@@ -65,28 +64,68 @@ int load_raw_batch(char ***mem_a, size_t **bytes_a, slow5_file_t *sf, int batch_
     return i;
 }
 
-void process_read_batch(rec_t *rec_list, int n){
-    double *sums = malloc(sizeof(uint64_t)*n);
+void print_header(){
 
-    //process and print (time not measured as we want to compare to the time it takes to read the file)
+    fprintf(stdout, "read_id\t");
+    fprintf(stdout, "scale\t");
+    fprintf(stdout, "offset\t");
+    fprintf(stdout, "sampling_rate\t");
+    fprintf(stdout, "len_raw_signal\t");
+    fprintf(stdout, "signal_sums\t");
+
+    fprintf(stdout, "channel_number\t");
+    fprintf(stdout, "read_number\t");
+    fprintf(stdout, "mux\t");
+    fprintf(stdout, "start_sample\t");
+
+    fprintf(stdout, "run_id\t");
+    fprintf(stdout, "experiment_id\t");
+    fprintf(stdout, "flowcell_id\t");
+    fprintf(stdout, "position_id\t");
+    fprintf(stdout, "run_acquisition_start_time\t");
+
+    fprintf(stdout, "\n");
+}
+
+void process_read_batch(rec_t *rec_list, int n){
+    uint64_t *sums = malloc(sizeof(uint64_t)*n);
+
     #pragma omp parallel for
     for(int i=0;i<n;i++){
         rec_t *rec = &rec_list[i];
         uint64_t sum = 0;
-        double scale = rec->scale;
         for(int j=0; j<rec->len_raw_signal; j++){
-            sum += ((rec->raw_signal[j] + rec->offset) * scale);
+            sum += (rec->raw_signal[j]);
         }
         sums[i] = sum;
     }
     fprintf(stderr,"batch processed with %d reads\n",n);
+
     for(int i=0;i<n;i++){
         rec_t *rec = &rec_list[i];
-        fprintf(stdout,"%s\t%f\n",rec->read_id,sums[i]);
+        fprintf(stdout, "%s\t", rec->read_id);
+        fprintf(stdout, "%.2f\t", rec->scale);
+        fprintf(stdout, "%.2f\t", rec->offset);
+        fprintf(stdout, "%" PRIu16 "\t", rec->sampling_rate);
+        fprintf(stdout, "%" PRIu64 "\t", rec->len_raw_signal);
+        fprintf(stdout,"%"  PRIu64 "\t",sums[i]);
+
+        fprintf(stdout, "%" PRIu16 "\t", rec->channel_number);
+        fprintf(stdout, "%" PRIu32 "\t",rec->read_number);
+        fprintf(stdout, "%" PRIu8 "\t", rec->mux);
+        fprintf(stdout, "%" PRIu64 "\t", rec->start_sample);
+
+        fprintf(stdout, "%s\t", rec->run_id == NULL ? "." : rec->run_id);
+        fprintf(stdout, "%s\t", rec->experiment_id == NULL ? "." : rec->experiment_id);
+        fprintf(stdout, "%s\t", rec->flowcell_id == NULL ? "." : rec->flowcell_id);
+        fprintf(stdout, "%s\t", rec->position_id == NULL ? "." : rec->position_id);
+        fprintf(stdout, "%s\t", rec->run_acquisition_start_time == NULL ? "." : rec->run_acquisition_start_time);
+
+        fprintf(stdout, "\n");
     }
     fprintf(stderr,"batch printed with %d reads\n",n);
-    free(sums);
 
+    free(sums);
     for(int i=0;i<n;i++){
         rec_t *rec = &rec_list[i];
         free(rec->raw_signal);
@@ -143,6 +182,8 @@ int read_and_process_slow5_file(const char *path, int num_thread, int batch_size
     int ret = batch_size;
     int read_count = 0;
 
+    print_header();
+
     /**** Initialisation and opening of the file ***/
     t0 = realtime();
 
@@ -167,10 +208,10 @@ int read_and_process_slow5_file(const char *path, int num_thread, int batch_size
         tot_time += t1;
         disc_time += t1;
 
-        t0 = realtime();
         read_count += ret;
-        rec_t *rec = (rec_t*)malloc(batch_size * sizeof(rec_t));
 
+        t0 = realtime();
+        rec_t *rec = (rec_t*)malloc(batch_size * sizeof(rec_t));
         #pragma omp parallel for
         for(int i=0;i<ret;i++){
             load_slow5_read(mem, bytes, rec, sp, i);
@@ -180,6 +221,7 @@ int read_and_process_slow5_file(const char *path, int num_thread, int batch_size
 
         fprintf(stderr,"batch loaded with %d reads\n",ret);
 
+        //process and print (time not measured as we want to compare to the time it takes to read the file)
         process_read_batch(rec, ret);
 
         /**** Deinit ***/
@@ -216,6 +258,8 @@ int main(int argc, char *argv[]) {
     int num_thread = atoi(argv[2]);
     fprintf(stderr,"Using %d threads\n", num_thread);
     omp_set_num_threads(num_thread);
+
+
 
     int read_count = 0;
     double tot_time = 0;
