@@ -1,17 +1,16 @@
-//g++-9  -Wall -O2 -I pod5_format/include/ -o pod5_convert_to_pa pod5_convert_to_pa.c pod5_format/lib64/libpod5_format.a  pod5_format/lib64/libarrow.a pod5_format/lib64/libboost_filesystem.a -lm -lz -lzstd -fopenmp
-//loads a batch of reads (signal+information needed for pA conversion) from file, process the batch (convert to pA and sum), and write output
+//sequentially loads a batch of reads from a POD5 file (reading fileds relavent to basecalling), process the batch (sum), and write output
+//make zstd=1
+//gcc -Wall -O2 -g -I pod5_format/include -I cxxpool/src -o pod5_sequential pod5_convert_to_pa.cpp pod5_format/lib/libpod5_format.so -lm -lz -lzstd -lpthread -fopenmp
 //only the time for loading a batch to memory (Disk I/O + decompression + parsing and filling the memory arrays) is measured
-
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
+#include <omp.h>
 #include <sys/time.h>
-#include <iostream>
 #include "pod5_format/c_api.h"
 #include "cxxpool.h"
 #include <inttypes.h>
-//#include <omp.h>
+#include <string.h>
 
 // 37 = number of bytes in UUID (32 hex digits + 4 dashes + null terminator)
 const uint32_t POD5_READ_ID_LEN = 37;
@@ -24,7 +23,7 @@ static inline double realtime(void) {
 }
 
 typedef struct {
-    int64_t run_acquisition_start_time_ms;
+    int64_t run_acquisition_start_time;
     uint16_t sampling_rate;
     char* read_id;
     uint64_t len_raw_signal;
@@ -32,55 +31,86 @@ typedef struct {
     uint64_t start_sample;
     double scale;
     double offset;
-    uint32_t read_number;
+    int32_t read_number;
     uint8_t mux;
     uint16_t channel_number;
-    char* run_id;
-    char* flowcell_id;
-    char* position_id;
-    char* experiment_id;
-    uint64_t signal_sum;
+    const char* run_id;
+    const char* flowcell_id;
+    const char* position_id;
+    const char* experiment_id;
 } rec_t;
 
-void print_func(rec_t *rec, std::size_t batch_row_count){
-    for(size_t i=0;i<batch_row_count;i++){
-        fprintf(stdout, "%" PRId64 ",", rec[i].run_acquisition_start_time_ms);
-        fprintf(stdout, "%" PRIu16 ",", rec[i].sampling_rate);
-        fprintf(stdout, "%s,", rec[i].read_id);
-        fprintf(stdout, "%" PRIu64 ",", rec[i].len_raw_signal);
-        fprintf(stdout, "%" PRIu64 ",", rec[i].start_sample);
-        fprintf(stdout, "%lf,", rec[i].scale);
-        fprintf(stdout, "%lf,", rec[i].offset);
-        fprintf(stdout, "%" PRIu32 ",", rec[i].read_number);
-        fprintf(stdout, "%" PRIu8 ",", rec[i].mux);
-        fprintf(stdout, "%" PRIu16 ",", rec[i].channel_number);
-        fprintf(stdout, "%s,", rec[i].run_id);
-        fprintf(stdout, "%s,", rec[i].flowcell_id);
-        fprintf(stdout, "%s,", rec[i].position_id);
-        fprintf(stdout, "%s,", rec[i].experiment_id);
-        fprintf(stdout, "%" PRIu64 "\n", rec[i].signal_sum);
-//        fprintf(stdout,"%f\n", rec[i].signal_sum);
-    }
-    fprintf(stderr,"batch printed with %zu reads\n",batch_row_count);
-    for (size_t row = 0; row < batch_row_count; ++row) {
-        free(rec[row].read_id);
-        free(rec[row].raw_signal);
-        free(rec[row].run_id);
-        free(rec[row].flowcell_id);
-        free(rec[row].position_id);
-        free(rec[row].experiment_id);
-    }
-    free(rec);
+void print_header(){
+
+    fprintf(stdout, "read_id\t");
+    fprintf(stdout, "scale\t");
+    fprintf(stdout, "offset\t");
+    fprintf(stdout, "sampling_rate\t");
+    fprintf(stdout, "len_raw_signal\t");
+    fprintf(stdout, "signal_sums\t");
+
+    fprintf(stdout, "channel_number\t");
+    fprintf(stdout, "read_number\t");
+    fprintf(stdout, "mux\t");
+    fprintf(stdout, "start_sample\t");
+
+    fprintf(stdout, "run_id\t");
+    fprintf(stdout, "experiment_id\t");
+    fprintf(stdout, "flowcell_id\t");
+    fprintf(stdout, "position_id\t");
+    fprintf(stdout, "run_acquisition_start_time\t");
+
+    fprintf(stdout, "\n");
 }
 
-int process_pod5_read_set_func_1(rec_t *rec) {
-    uint64_t sum = 0;
-    for(uint64_t j=0; j<rec->len_raw_signal; j++){
-        sum += ((rec->raw_signal[j] + rec->offset) * rec->scale);
+void process_read_batch(rec_t *rec_list, int n){
+    uint64_t *sums = (uint64_t*)malloc(sizeof(uint64_t)*n);
+
+#pragma omp parallel for
+    for(int i=0;i<n;i++){
+        rec_t *rec = &rec_list[i];
+        uint64_t sum = 0;
+        for(size_t j=0; j<rec->len_raw_signal; j++){
+            sum += (rec->raw_signal[j]);
+        }
+        sums[i] = sum;
     }
-    rec->signal_sum = sum;
-    return 0;
+    fprintf(stderr,"batch processed with %d reads\n",n);
+
+    for(int i=0;i<n;i++){
+        rec_t *rec = &rec_list[i];
+        fprintf(stdout, "%s\t", rec->read_id);
+        fprintf(stdout, "%.2f\t", rec->scale);
+        fprintf(stdout, "%.2f\t", rec->offset);
+        fprintf(stdout, "%" PRIu16 "\t", rec->sampling_rate);
+        fprintf(stdout, "%" PRIu64 "\t", rec->len_raw_signal);
+        fprintf(stdout,"%"  PRIu64 "\t",sums[i]);
+
+        fprintf(stdout, "%" PRIu16 "\t", rec->channel_number);
+        fprintf(stdout, "%" PRIu32 "\t",rec->read_number);
+        fprintf(stdout, "%" PRIu8 "\t", rec->mux);
+        fprintf(stdout, "%" PRIu64 "\t", rec->start_sample);
+
+        fprintf(stdout, "%s\t", rec->run_id == NULL ? "." : rec->run_id);
+        fprintf(stdout, "%s\t", rec->experiment_id == NULL ? "." : rec->experiment_id);
+        fprintf(stdout, "%s\t", rec->flowcell_id == NULL ? "." : rec->flowcell_id);
+        fprintf(stdout, "%s\t", rec->position_id == NULL ? "." : rec->position_id);
+        fprintf(stdout, "%" PRId64 "\t", rec->run_acquisition_start_time);
+
+        fprintf(stdout, "\n");
+    }
+    fprintf(stderr,"batch printed with %d reads\n",n);
+
+    free(sums);
+    for(int i=0;i<n;i++){
+        rec_t *rec = &rec_list[i];
+        free(rec->raw_signal);
+        free(rec->read_id);
+    }
+    free(rec_list);
+
 }
+
 
 int load_pod5_read(size_t row, Pod5ReadRecordBatch* batch, Pod5FileReader* file, rec_t *rec) {
     uint16_t read_table_version = 0;
@@ -96,7 +126,7 @@ int load_pod5_read(size_t row, Pod5ReadRecordBatch* batch, Pod5FileReader* file,
         fprintf(stderr, "Failed to get Run Info %zu %s\n", row, pod5_get_error_string());
         return EXIT_FAILURE;
     }
-    rec->run_acquisition_start_time_ms = run_info_data->acquisition_start_time_ms;
+    rec->run_acquisition_start_time = run_info_data->acquisition_start_time_ms;
     rec->sampling_rate = run_info_data->sample_rate;
     char read_id_tmp[POD5_READ_ID_LEN];
     if (pod5_format_read_id(read_data.read_id, read_id_tmp) != POD5_OK) {
@@ -121,7 +151,6 @@ int load_pod5_read(size_t row, Pod5ReadRecordBatch* batch, Pod5FileReader* file,
     rec->flowcell_id = strdup(run_info_data->flow_cell_id);
     rec->position_id = strdup(run_info_data->sequencer_position);
     rec->experiment_id = strdup(run_info_data->experiment_name);
-    rec->signal_sum = 100;
     if (pod5_free_run_info(run_info_data) != POD5_OK) {
         fprintf(stderr, "Failed to free run info\n");
         return EXIT_FAILURE;
@@ -129,12 +158,20 @@ int load_pod5_read(size_t row, Pod5ReadRecordBatch* batch, Pod5FileReader* file,
     return 0;
 }
 
-int load_pod5_reads_from_file_0(const std::string& path, size_t m_num_worker_threads, double* tot_time_ptr) {
+int read_and_process_pod5_file(const std::string& path, size_t m_num_worker_threads, double* tot_time_p, double *disc_time_p) {
+
+    double tot_time = 0;
+    double disc_time = 0;
     double t0 = 0;
+    double t1 = 0;
+    int read_count = 0;
+
+    print_header();
+
     /**** Initialisation and opening of the file ***/
     t0 = realtime();
+
     pod5_init();
-    // Open the file ready for walking:
     Pod5FileReader_t* file = pod5_open_file(path.c_str());
     if (!file) {
         fprintf(stderr, "Failed to open file %s: %s\n", path.c_str(), pod5_get_error_string());
@@ -147,68 +184,92 @@ int load_pod5_reads_from_file_0(const std::string& path, size_t m_num_worker_thr
     }
     fprintf(stderr, "batch_count: %zu\n", batch_count);
     cxxpool::thread_pool pool{m_num_worker_threads};
-    (*tot_time_ptr) += realtime() - t0;
+
+    tot_time += realtime() - t0;
+    /**** End of init ***/
 
     for (std::size_t batch_index = 0; batch_index < batch_count; ++batch_index) {
+
+        /**** Fetching a batch ***/
         t0 = realtime();
         Pod5ReadRecordBatch_t* batch = nullptr;
         if (pod5_get_read_batch(&batch, file, batch_index) != POD5_OK) {
             fprintf(stderr, "Failed to get batch: %s\n", pod5_get_error_string());
             exit(EXIT_FAILURE);
         }
-        std::size_t batch_row_count = 0;
-        std::vector<std::future<int>> futures;
 
+        std::size_t batch_row_count = 0;
         if (pod5_get_read_batch_row_count(&batch_row_count, batch) != POD5_OK) {
             fprintf(stderr, "Failed to get batch row count\n");
             exit(EXIT_FAILURE);
         }
-        fprintf(stderr, "batch_row_count: %zu\n", batch_row_count);
+        t1= realtime() - t0;
+        tot_time += t1;
+        disc_time += t1;
+
+        read_count += batch_row_count;
+
+        t0 = realtime();
         rec_t *rec = (rec_t*)malloc(batch_row_count * sizeof(rec_t));
+        std::vector<std::future<int>> futures;
         for (std::size_t row = 0; row < batch_row_count; ++row) {
             futures.push_back(pool.push(load_pod5_read,row, batch, file, &rec[row]));
-//            load_pod5_read(row, batch, file, &rec[row]);
         }
         for (auto& v : futures) {
             v.get();
         }
+        tot_time += realtime() - t0;
+        /**** Batch fetched ***/
+
+        fprintf(stderr,"batch loaded with %zu reads\n", batch_row_count);
+
+        //process and print (time not measured as we want to compare to the time it takes to read the file)
+        process_read_batch(rec, batch_row_count);
+
+        /**** Deinit ***/
+        t0 = realtime();
         if (pod5_free_read_batch(batch) != POD5_OK) {
             fprintf(stderr, "Failed to release batch\n");
             exit(EXIT_FAILURE);
         }
-        (*tot_time_ptr) += realtime() - t0;
-        //process and print (time not measured as we want to compare to the time it takes to read the file)
-        futures.clear();
-        for (std::size_t row = 0; row < batch_row_count; ++row) {
-            futures.push_back(pool.push(process_pod5_read_set_func_1, &rec[row]));
-        }
-        for (auto& v : futures) {
-            v.get();
-        }
-//        process_pod5_read_set_func_0(rec, batch_row_count);
-        print_func(rec, batch_row_count);
+        tot_time += realtime() - t0;
+        /**** End of Deinit***/
+
     }
+
+    /**** Deinit ***/
     t0 = realtime();
     if (pod5_close_and_free_reader(file) != POD5_OK) {
         fprintf(stderr, "Failed to close and free POD5 reader\n");
         exit(EXIT_FAILURE);
     }
-    (*tot_time_ptr) += realtime() - t0;
-    return 0;
+    tot_time += realtime() - t0;
+    /**** End of Deinit***/
+
+    *tot_time_p = tot_time;
+    *disc_time_p = disc_time;
+    return read_count;
 }
 
-int main(int argc, char *argv[]){
+int main(int argc, char *argv[]) {
+
     if(argc != 3) {
-        fprintf(stderr, "Usage: %s reads.pod5 num_thread\n", argv[0]);
+        fprintf(stderr, "Usage: %s reads.blow5 num_thread\n", argv[0]);
         return EXIT_FAILURE;
     }
+
+    const char *path = argv[1];
     int num_thread = atoi(argv[2]);
     fprintf(stderr,"Using %d threads\n", num_thread);
-//    omp_set_num_threads(num_thread);
+    omp_set_num_threads(num_thread);
 
+    int read_count = 0;
     double tot_time = 0;
-    load_pod5_reads_from_file_0(std::string(argv[1]), num_thread, &tot_time);
-    fprintf(stderr,"Time for getting samples %f (%d threads)\n", tot_time, num_thread);
+    double disc_time = 0;
+    read_count = read_and_process_pod5_file(path, num_thread, &tot_time, &disc_time);
+    fprintf(stderr,"Reads: %d\n",read_count);
+    fprintf(stderr,"Time for disc reading %f\n",disc_time);
+    fprintf(stderr,"Time for getting samples (disc+depress+parse) %f\n", tot_time);
+
     return 0;
 }
-
