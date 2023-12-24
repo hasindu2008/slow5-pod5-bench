@@ -254,7 +254,7 @@ int read_and_process_pod5_file(const std::string& path, size_t m_num_worker_thre
 int main(int argc, char *argv[]) {
 
     if(argc != 3) {
-        fprintf(stderr, "Usage: %s reads.blow5 num_thread\n", argv[0]);
+        fprintf(stderr, "Usage: %s reads.pod5 num_thread\n", argv[0]);
         return EXIT_FAILURE;
     }
 
