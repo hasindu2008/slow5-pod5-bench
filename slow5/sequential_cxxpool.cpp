@@ -10,6 +10,27 @@
 #include <sys/time.h>
 #include "cxxpool.h"
 #include <inttypes.h>
+#include <sys/resource.h>
+
+// From minimap2
+static inline long peakrss(void) {
+    struct rusage r;
+    getrusage(RUSAGE_SELF, &r);
+#ifdef __linux__
+    return r.ru_maxrss * 1024;
+#else
+    return r.ru_maxrss;
+#endif
+
+}
+
+// From minimap2/misc
+static inline double cputime(void) {
+    struct rusage r;
+    getrusage(RUSAGE_SELF, &r);
+    return r.ru_utime.tv_sec + r.ru_stime.tv_sec +
+           1e-6 * (r.ru_utime.tv_usec + r.ru_stime.tv_usec);
+}
 
 static inline double realtime(void) {
     struct timeval tp;
@@ -255,9 +276,9 @@ int read_and_process_slow5_file(const char *path, int num_thread, int batch_size
     return read_count;
 }
 
-
-
 int main(int argc, char *argv[]) {
+    // Initial time
+    double init_realtime = realtime();
 
     if(argc != 4) {
         fprintf(stderr, "Usage: %s reads.blow5 num_thread batch_size\n", argv[0]);
@@ -277,6 +298,7 @@ int main(int argc, char *argv[]) {
     fprintf(stderr,"Reads: %d\n",read_count);
     fprintf(stderr,"Time for disc reading %f\n",disc_time);
     fprintf(stderr,"Time for getting samples (disc+depress+parse) %f\n", tot_time);
-
+    fprintf(stderr,"real time = %.3f sec | CPU time = %.3f sec | peak RAM = %.3f GB\n",
+            realtime() - init_realtime, cputime(), peakrss() / 1024.0 / 1024.0 / 1024.0);
     return 0;
 }
