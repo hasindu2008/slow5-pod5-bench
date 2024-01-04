@@ -2,6 +2,8 @@
 
 For equivalent conditions with vbz in POD5, must use svb16 in BLOW5.
 
+Compilation of pod5 library is hard. So let us download POD5 library binaries.
+
 1. Download prebuilt pod5 library binaries
 
 ```
