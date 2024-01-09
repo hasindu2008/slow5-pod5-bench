@@ -8,5 +8,6 @@ slow5/slow5_sequential_cxxpool
 slow5/slow5_random
 *.gz
 pod5/pod5_sequential
+pod5/pod5_random
 *.blow5
 zstd/

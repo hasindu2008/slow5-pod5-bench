@@ -214,6 +214,7 @@ int read_and_process_pod5_file(const std::string& path, size_t m_num_worker_thre
 
         /**** Fetching a batch ***/
         t0 = realtime();
+
         Pod5ReadRecordBatch_t* batch = nullptr;
         if (pod5_get_read_batch(&batch, file, batch_index) != POD5_OK) {
             fprintf(stderr, "Failed to get batch: %s\n", pod5_get_error_string());
@@ -240,6 +241,7 @@ int read_and_process_pod5_file(const std::string& path, size_t m_num_worker_thre
         for (auto& v : futures) {
             v.get();
         }
+
         tot_time += realtime() - t0;
         /**** Batch fetched ***/
 
