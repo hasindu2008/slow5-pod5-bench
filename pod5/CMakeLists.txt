@@ -7,4 +7,6 @@ include_directories(pod5_format/include)
 include_directories(cxxpool/src)
 
 add_executable(pod5_sequential sequential.cpp)
+add_executable(pod5_random random.cpp)
 target_link_libraries(pod5_sequential ${CMAKE_CURRENT_SOURCE_DIR}/pod5_format/lib/libpod5_format.so -lpthread -fopenmp)
+target_link_libraries(pod5_random ${CMAKE_CURRENT_SOURCE_DIR}/pod5_format/lib/libpod5_format.so -lpthread -fopenmp)
