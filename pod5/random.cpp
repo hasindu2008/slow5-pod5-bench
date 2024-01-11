@@ -293,7 +293,7 @@ int read_and_process_pod5_file(const std::string& path, const char *rid_list_pat
             std::vector<std::future<int>> futures;
             for (std::size_t row_idx = 0; row_idx < traversal_batch_counts[batch_index]; row_idx++) {
                 uint32_t row = traversal_batch_rows[row_idx + row_offset];
-                futures.push_back(pool.push(load_pod5_read,row, batch, file, &rec[row_idx + row_offset]));
+                futures.push_back(pool.push(load_pod5_read,row, batch, file, &rec[row_idx]));
             }
             for (auto& v : futures) {
                 v.get();
