@@ -91,7 +91,7 @@ void print_header(){
 void process_read_batch(rec_t *rec_list, int n){
     uint64_t *sums = (uint64_t*)malloc(sizeof(uint64_t)*n);
 
-#pragma omp parallel for
+    #pragma omp parallel for
     for(int i=0;i<n;i++){
         rec_t *rec = &rec_list[i];
         uint64_t sum = 0;
@@ -131,6 +131,10 @@ void process_read_batch(rec_t *rec_list, int n){
         rec_t *rec = &rec_list[i];
         free(rec->raw_signal);
         free(rec->read_id);
+        free((char*)rec->run_id);
+        free((char*)rec->flowcell_id);
+        free((char*)rec->position_id);
+        free((char*)rec->experiment_id);
     }
     free(rec_list);
 
