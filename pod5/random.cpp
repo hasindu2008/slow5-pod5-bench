@@ -305,7 +305,7 @@ int read_and_process_pod5_file(const std::string& path, const char *rid_list_pat
 //        fprintf(stderr,"batch loaded with %zu reads\n", batch_row_count);
 
             //process and print (time not measured as we want to compare to the time it takes to read the file)
-            process_read_batch(rec, ret);
+            process_read_batch(rec, mini_batch_size);
 
             /**** Deinit ***/
             t0 = realtime();
