@@ -2,13 +2,13 @@
 
 **UPDATE**
 
-In this repository, we benchmark the S/BLOW5 format vs POD5 format using the C API (actually C++). C is close to the file system than high-level languages like Python and therefore in my opinion it is a better choice to benchmark a file format. When using high level languages like Python, data type conversion that happens under the hood can dominate the execution time, thus would not be respresetative of the file format performance. However, despite being close to  the file system, even in the C API, this will be the case to a certain degree. That is, the library implementation and optimisations done would affect the runtime considerablu and if that is the case we will end up comparing the implementation rather than the file format. See caveats below before interpreting the results.
+In this repository, we benchmark the S/BLOW5 format vs POD5 format using the C API (actually C++). C is closer to the file system than high-level languages like Python and therefore in my opinion it is a better choice to benchmark a file format. When using high level languages like Python, data type conversion that happens under the hood can dominate the execution time, thus would not be representative of the file format performance. However, despite being close to the file system, even in the C API, this will be the case to a certain degree. That is, the library implementation and optimisations done would affect the runtime considerably and if that is the case we will end up comparing the implementation rather than the file format. See caveats below before interpreting the results.
 
 
 ## Benchmark details
 
 **UPDATE**
-Accessing all the signal data and associated parameters required for pico-ampere conversion. This mimicks a typical basecalling workflow. We load a batch of reads from the disk, decompress and parse them into memory arrays; do the processing (in this case I just convert the raw signal to picoampere and sum them up); and, output the sum. Only the time for loading a batch of reads from the disk, decompressing and parsing them into memory arrays is measured.
+Accessing all the signal data and associated parameters required for pico-ampere conversion. This mimics a typical basecalling workflow. We load a batch of reads from the disk, decompress and parse them into memory arrays; do the processing (in this case I just convert the raw signal to picoampere and sum them up); and, output the sum. Only the time for loading a batch of reads from the disk, decompressing and parsing them into memory arrays is measured.
 
 
 
