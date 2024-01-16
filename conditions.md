@@ -5,7 +5,7 @@
 1. sequential [basecall/methcall]
 2. random [duplex/f5c/squigualiser]
 
-The fields accessed (in order) are (https://github.com/nanoporetech/dorado/blob/0d932c0539a8d81fedb5c98931475e69dd97df93/dorado/data_loader/DataLoader.cpp#L112)
+The fields accessed (in order) are [here](https://github.com/nanoporetech/dorado/blob/0d932c0539a8d81fedb5c98931475e69dd97df93/dorado/data_loader/DataLoader.cpp#L112)
 1. run_acquisition_start_time_ms
 2. sample_rate
 3. read_id
@@ -76,6 +76,7 @@ Using the environment variables described [here](https://arrow.apache.org/docs/c
 2. [OMP_NUM_THREADS](https://arrow.apache.org/docs/cpp/env_vars.html#envvar-OMP_NUM_THREADS)
 3. [OMP_THREAD_LIMIT](https://arrow.apache.org/docs/cpp/env_vars.html#envvar-OMP_THREAD_LIMIT)
 
+# Checklist
 
 
 # Quick benchmark single threaded
