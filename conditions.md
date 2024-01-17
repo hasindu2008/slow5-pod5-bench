@@ -78,6 +78,20 @@ Using the environment variables described [here](https://arrow.apache.org/docs/c
 
 # Checklist
 
+| Conditions                         | pod5 IO stream             | pod5 mmap        | blow5 IO stream        | blow5 mmap             |
+| ---------------------------------- | -------------------------- | ---------------- | ---------------------- | ---------------------- |
+| File compression/version           | File v0.3.2, read table v3 | zstd-sv16-zd     |
+| Disk                               | SSD                        |
+| Benchmark program compiler version | g++ 7.5.0                  | g++ 7.5.0        | gcc 7.5.0              | gcc 7.5.0              |
+| Bencmark program compiler flags    | g++ -Wall -O2 -g           | g++ -Wall -O2 -g | gcc -Wall -O2 -g       | gcc -Wall -O2 -g       |
+| Library compiler version           | not known                  | not known        | gcc 7.5.0              | gcc 7.5.0              |
+| Libarry compiler flags             | \-g -Wall -O3              | \-g -Wall -O3    | \-g -Wall -O3 -std=c99 | \-g -Wall -O2 -std=c99 |
+| Taskset                            | used                       |
+| zstd version                       | 1.5.4                      |
+| POD5_DISABLE_MMAP_OPEN             | set                        | not set          |                        |                        |
+
+
+
 
 # Quick benchmark single threaded
 
