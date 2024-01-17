@@ -87,9 +87,9 @@ Using the environment variables described [here](https://arrow.apache.org/docs/c
 | Library compiler version           | not known                  | not known        | gcc 7.5.0              | gcc 7.5.0              |
 | Libarry compiler flags             | \-g -Wall -O3              | \-g -Wall -O3    | \-g -Wall -O3 -std=c99 | \-g -Wall -O2 -std=c99 |
 | Taskset                            | used                       |
+| streamvbyte                        | not relevant               | not relevant     | \-g -Wall -O3          | \-g -Wall -O3          |
 | zstd version                       | 1.5.4                      |
-| POD5_DISABLE_MMAP_OPEN             | set                        | not set          |                        |                        |
-
+| POD5_DISABLE_MMAP_OPEN             | set                        | not set          | not relevant           | not relevant           |
 
 
 
