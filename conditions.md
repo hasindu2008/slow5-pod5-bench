@@ -40,10 +40,11 @@ Full prom 5KHz: available via
 
 ## Match conditions
 
-1. What are the compiler versions used in pod5?
-2. What are the compiler flags used in pod5?
+1. What are the compiler versions used in pod5? TODO
+2. What are the compiler flags used in pod5? TODO
 3. What is the zstd version used in pod5? [zstd/1.5.4](https://github.com/nanoporetech/pod5-file-format/blob/0ba232d6304dd1eebd60d331a6f7c15099dcd04f/conanfile.py#L60)
-4. What is the zlib version used in pod5? [zlib/1.2.13](https://github.com/nanoporetech/pod5-file-format/blob/0ba232d6304dd1eebd60d331a6f7c15099dcd04f/conanfile.py#L61C24-L61C35)
+
+Make sure:
 
 - SIMD accelerated version of svb in slow5lib
 - POD5 must use streaming I/O (opposed to memory mapping)
@@ -51,6 +52,22 @@ Full prom 5KHz: available via
 
 - use taskset command to force using N number of CPUs
 - clean_fscache to prevent caching
+
+# Checklist
+
+| Conditions                         | pod5 IO stream             | pod5 mmap        | blow5 IO stream        | blow5 mmap             |
+| ---------------------------------- | -------------------------- | ---------------- | ---------------------- | ---------------------- |
+| File compression/version           | File v0.3.2, read table v3 | File v0.3.2, read table v3                 | zstd-sv16-zd           |  zstd-sv16-zd          |
+| Disk                               | SSD                        | SSD              | SSD                    | SSD                    |
+| Benchmark program compiler version | g++ 7.5.0                  | g++ 7.5.0        | gcc 7.5.0              | gcc 7.5.0              |
+| Bencmark program compiler flags    | g++ -Wall -O2 -g           | g++ -Wall -O2 -g | gcc -Wall -O2 -g       | gcc -Wall -O2 -g       |
+| Library compiler version           | not known                  | not known        | gcc 7.5.0              | gcc 7.5.0              |
+| Libarry compiler flags             | \-g -Wall -O3              | \-g -Wall -O3    | \-g -Wall -O3 -std=c99 | \-g -Wall -O2 -std=c99 |
+| Taskset                            | used                       | used             | used                   | used                   |
+| streamvbyte                        | N/A               | N/A     | \-g -Wall -O3          | \-g -Wall -O3          |
+| zstd version                       | 1.5.4                      | 1.5.4            | 1.5.4                  | 1.5.4                        |  
+| POD5_DISABLE_MMAP_OPEN             | set                        | not set          | N/A                    | N/A                    |
+
 
 # Misc
 
@@ -75,23 +92,6 @@ Using the environment variables described [here](https://arrow.apache.org/docs/c
 1. [ARROW_IO_THREADS](https://arrow.apache.org/docs/cpp/env_vars.html#envvar-ARROW_IO_THREADS)
 2. [OMP_NUM_THREADS](https://arrow.apache.org/docs/cpp/env_vars.html#envvar-OMP_NUM_THREADS)
 3. [OMP_THREAD_LIMIT](https://arrow.apache.org/docs/cpp/env_vars.html#envvar-OMP_THREAD_LIMIT)
-
-# Checklist
-
-| Conditions                         | pod5 IO stream             | pod5 mmap        | blow5 IO stream        | blow5 mmap             |
-| ---------------------------------- | -------------------------- | ---------------- | ---------------------- | ---------------------- |
-| File compression/version           | File v0.3.2, read table v3 | zstd-sv16-zd     |
-| Disk                               | SSD                        |
-| Benchmark program compiler version | g++ 7.5.0                  | g++ 7.5.0        | gcc 7.5.0              | gcc 7.5.0              |
-| Bencmark program compiler flags    | g++ -Wall -O2 -g           | g++ -Wall -O2 -g | gcc -Wall -O2 -g       | gcc -Wall -O2 -g       |
-| Library compiler version           | not known                  | not known        | gcc 7.5.0              | gcc 7.5.0              |
-| Libarry compiler flags             | \-g -Wall -O3              | \-g -Wall -O3    | \-g -Wall -O3 -std=c99 | \-g -Wall -O2 -std=c99 |
-| Taskset                            | used                       |
-| streamvbyte                        | not relevant               | not relevant     | \-g -Wall -O3          | \-g -Wall -O3          |
-| zstd version                       | 1.5.4                      |
-| POD5_DISABLE_MMAP_OPEN             | set                        | not set          | not relevant           | not relevant           |
-
-
 
 # Quick benchmark single threaded
 
