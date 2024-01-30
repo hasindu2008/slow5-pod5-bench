@@ -77,7 +77,7 @@ LIB_COMMIT=a90d45cf0aa53a32205f1fbadb8b8b1a132cd085 # latest local bench
 RAND=slow5_random
 SEQ=slow5_sequential
 SEQ_CXX=slow5_sequential_cxxpool
-THREADS='1 2 4 8 16 32'
+THREADS='1 2 4 8 16'
 BATCH_SZ=1024
 TASKSET_CPUS=1
 
