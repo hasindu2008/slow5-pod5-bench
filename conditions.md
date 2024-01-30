@@ -52,6 +52,7 @@ Make sure:
 
 - use taskset command to force using N number of CPUs
 - clean_fscache to prevent caching
+- **note** : use jemalloc https://github.com/nanoporetech/pod5-file-format/blob/6b8bbc7bd6e51e878a933cef32fc94a9cb30443a/conanfile.py#L69C28-L69C36
 
 # Checklist
 
