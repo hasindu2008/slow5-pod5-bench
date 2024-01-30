@@ -43,8 +43,8 @@
 
 # Set this path to the blow5 file to run the benchmarks on. Note that it can be
 # any valid blow5 or slow5 file; we will convert it in this script and write the
-# file to BLOW5_OUT. In which case, you may want to set BLOW5_OUT to a path which
-# will have enough space.
+# file to BLOW5_OUT. In which case, you may want to set BLOW5_OUT to a path
+# which will have enough space.
 
 BLOW5_IN= # TODO
 
@@ -60,6 +60,7 @@ fi
 
 BLOW5_OUT=out.blow5 # path to output blow5 file
 IDS=reads.list # path to output readid list
+TMP="$BLOW5_OUT.tmp" # temporary benchmarking output
 
 ZSTD=zstd # path to local zstd repo
 ZSTD_INC="$ZSTD/lib"
@@ -77,6 +78,9 @@ LIB_COMMIT=a90d45cf0aa53a32205f1fbadb8b8b1a132cd085 # latest local bench
 RAND=slow5_random
 SEQ=slow5_sequential
 SEQ_CXX=slow5_sequential_cxxpool
+RAND_OUT="$BLOW5_OUT.$RAND.stdout"
+SEQ_OUT="$BLOW5_OUT.$SEQ.stdout"
+SEQ_CXX_OUT="$SEQ_OUT" # SEQ_CXX output does not differ from SEQ
 THREADS='1 2 4 8 16'
 BATCH_SZ=1024
 TASKSET_CPUS=1
@@ -87,6 +91,15 @@ function clfs {
 
 function bench {
 	/usr/bin/time -v taskset -c $TASKSET_CPUS $@
+}
+
+function diffchk {
+	if ! [ -e "$1" ]
+	then
+		cp "$2" "$1" || die "copy '$2' to '$1' failed"
+	else
+		diff -q "$1" "$2" || die "'$1' and '$2' differ"
+	fi
 }
 
 # log information
@@ -153,30 +166,35 @@ fi
 ./build.sh || die 'build.sh failed'
 ./build_cxxpool.sh || die 'build_cxxpool.sh failed'
 
+# prep for diffchk
+rm -f "$RAND_OUT" "$SEQ_OUT" "$SEQ_CXX_OUT"
+
 # run the benchmark
 for i in $THREADS
 do
 	# random test
-	stdout="$BLOW5_OUT.$RAND.$i.$BATCH_SZ.stdout"
 	stderr="$BLOW5_OUT.$RAND.$i.$BATCH_SZ.stderr"
-	#clfs
+	clfs
 	bench "./$RAND" "$BLOW5_OUT" "$IDS" "$i" "$BATCH_SZ" \
-		> "$stdout" 2> "$stderr" \
+		> "$TMP" 2> "$stderr" \
 		|| die "$RAND failed for $i threads"
+	diffchk "$RAND_OUT" "$TMP"
 
 	# sequential test
-	stdout="$BLOW5_OUT.$SEQ.$i.$BATCH_SZ.stdout"
 	stderr="$BLOW5_OUT.$SEQ.$i.$BATCH_SZ.stderr"
-	#clfs
+	clfs
 	bench "./$SEQ" "$BLOW5_OUT" "$i" "$BATCH_SZ" \
-		> "$stdout" 2> "$stderr" \
+		> "$TMP" 2> "$stderr" \
 		|| die "$SEQ failed for $i threads"
+	diffchk "$SEQ_OUT" "$TMP"
 
 	# sequential cxxpool test
-	stdout="$BLOW5_OUT.$SEQ_CXX.$i.$BATCH_SZ.stdout"
 	stderr="$BLOW5_OUT.$SEQ_CXX.$i.$BATCH_SZ.stderr"
-	#clfs
+	clfs
 	bench "./$SEQ_CXX" "$BLOW5_OUT" "$i" "$BATCH_SZ" \
-		> "$stdout" 2> "$stderr" \
+		> "$TMP" 2> "$stderr" \
 		|| die "$SEQ_CXX failed for $i threads"
+	diffchk "$SEQ_CXX_OUT" "$TMP"
 done
+
+rm -f "$TMP"
