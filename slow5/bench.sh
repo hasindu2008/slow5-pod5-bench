@@ -48,8 +48,9 @@
 
 BLOW5_IN= # TODO
 
-function die {
-	echo $1 1>&2
+die()
+{
+	echo "$1" 1>&2
 	exit 1
 }
 
@@ -85,15 +86,18 @@ THREADS='1 2 4 8 16'
 BATCH_SZ=1024
 TASKSET_CPUS=1
 
-function clfs {
+clfs()
+{
 	clean_fscache || die 'Failed to clean the file system cache'
 }
 
-function bench {
-	/usr/bin/time -v taskset -c $TASKSET_CPUS $@
+bench()
+{
+	/usr/bin/time -v taskset -c "$TASKSET_CPUS" $@
 }
 
-function diffchk {
+diffchk()
+{
 	if ! [ -e "$1" ]
 	then
 		cp "$2" "$1" || die "copy '$2' to '$1' failed"
@@ -103,19 +107,19 @@ function diffchk {
 }
 
 # log information
-echo -e \
-"cmd: $0 $@\n"\
-"$(date)\n"\
-"cc version: $(cc --version)\n"\
-"gcc version: $(gcc --version)\n"\
-"g++ version: $(g++ --version)\n"\
-"zstd version: $ZSTD_VER\n"\
-"slow5tools commit: $TOOLS_COMMIT\n"\
-"slow5tools slow5lib commit: $TOOLS_LIB_COMMIT\n"\
-"local slow5lib commit: $LIB_COMMIT\n"\
-"slow5-pod5-bench commit: $(git log | head -n1)\n"\
-"BLOW5_IN: $BLOW5_IN\n"\
-"BLOW5_OUT: $BLOW5_OUT\n"
+echo \
+"cmd: $0 $*
+$(date)
+cc version: $(cc --version)
+gcc version: $(gcc --version)
+g++ version: $(g++ --version)
+zstd version: $ZSTD_VER
+slow5tools commit: $TOOLS_COMMIT
+slow5tools slow5lib commit: $TOOLS_LIB_COMMIT
+local slow5lib commit: $LIB_COMMIT
+slow5-pod5-bench commit: $(git log | head -n1)
+BLOW5_IN: $BLOW5_IN
+BLOW5_OUT: $BLOW5_OUT"
 
 # checkout local slow5lib
 git -C "$LIB_LOCAL" checkout "$LIB_COMMIT" \
