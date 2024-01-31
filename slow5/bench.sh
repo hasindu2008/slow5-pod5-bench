@@ -36,7 +36,7 @@
 # - slow5 library uses
 #   - options -g -Wall -O3 -std=c99
 #   - streamvbyte16 compiled with
-#     - SIMD enabled -msse4.1 -mssse3
+#     - SIMD enabled -msse4.1
 #     - options -O3
 # - benchmark compiled with
 #   - options -g -Wall -O2
