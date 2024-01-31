@@ -1,8 +1,7 @@
 #!/bin/sh
-# you set BLOW5_IN then benchmark slow5lib
+# You should run prep.sh beforehand to obtain blow5 and ids.
 #
-# usage: ./bench.sh
-# recommended: ./bench.sh > bench.out 2>&1
+# usage: ./bench.sh <blow5> <ids>
 #
 # logs are printed
 # - script invocation
@@ -12,19 +11,10 @@
 # - slow5tools commits used (set in TOOLS_COMMIT and TOOLS_LIB_COMMIT)
 # - slow5lib commit used (set in LIB_COMMIT)
 # - slow5-pod5-bench commit used
-# - BLOW5_IN path
-# - BLOW5_OUT path
 #
 # local zstd library is created if not already and the version is checked
 # slow5tools is cloned if not already and compiled using latest vbz commits and
 # local zstd library
-#
-# blow5 is created with zstd record and svb16-zd signal compression using local
-# slow5tools to BLOW5_OUT, indexed and random readid list created
-#
-# to skip creating the blow5 set BLOW5_IN and BLOW5_OUT to the same path
-# note that using a different zstd library version to create the blow5 may give
-# different benchmarking results
 #
 # local slow5lib is compiled using latest bench commit and the build scripts are
 # run
@@ -41,12 +31,7 @@
 # - benchmark compiled with
 #   - options -g -Wall -O2
 
-# Set this path to the blow5 file to run the benchmarks on. Note that it can be
-# any valid blow5 or slow5 file; we will convert it in this script and write the
-# file to BLOW5_OUT. In which case, you may want to set BLOW5_OUT to a path
-# which will have enough space.
-
-BLOW5_IN= # TODO
+USAGE="usage: $0 <blow5> <ids>"
 
 die()
 {
@@ -54,38 +39,41 @@ die()
 	exit 1
 }
 
-if [ -z "$BLOW5_IN" ]
+if [ $# -ne 2 ]
 then
-	die 'Edit this file and set BLOW5_IN'
+	die "$USAGE"
 fi
 
-BLOW5_OUT=out.blow5 # path to output blow5 file
-IDS=reads.list # path to output readid list
-TMP="$BLOW5_OUT.tmp" # temporary benchmarking output
+BLOW5=$1
+IDS=$2
+
+TMP=$BLOW5.tmp # temporary benchmarking output
 RUN_CXX= # set to non-empty to also run SEQ_CXX benchmark
 
 ZSTD=zstd # path to local zstd repo
-ZSTD_INC="$ZSTD/lib"
+ZSTD_INC=$ZSTD/lib
 ZSTD_VER=1.5.4
-ZSTD_STATIC="$ZSTD/lib/libzstd.a"
-ZSTD_SHARED="$ZSTD/lib/libzstd.so.$ZSTD_VER"
+ZSTD_STATIC=$ZSTD/lib/libzstd.a
+ZSTD_SHARED=$ZSTD/lib/libzstd.so.$ZSTD_VER
 TOOLS_LOCAL=slow5tools # path to local slow5tools repo
 TOOLS_URL=https://github.com/hasindu2008/slow5tools
 TOOLS_COMMIT=8a366bf6dffe0c94fd0ec148cca22f09e47c31e5 # latest upstream vbz
 TOOLS_LIB_COMMIT=8efc1f704f864ba5e29c75ffa85ebb248007bb46 # latest upstream vbz
-TOOLS="$TOOLS_LOCAL/slow5tools"
+TOOLS=$TOOLS_LOCAL/slow5tools
 TOOLS_ZSTD=../ # relative path from TOOLS_LOCAL to ZSTD
 LIB_LOCAL=slow5lib # path to local slow5lib repo
 LIB_COMMIT=a90d45cf0aa53a32205f1fbadb8b8b1a132cd085 # latest local bench
 RAND=slow5_random
 SEQ=slow5_sequential
 SEQ_CXX=slow5_sequential_cxxpool
-RAND_OUT="$BLOW5_OUT.$RAND.stdout"
-SEQ_OUT="$BLOW5_OUT.$SEQ.stdout"
-SEQ_CXX_OUT="$SEQ_OUT" # SEQ_CXX output does not differ from SEQ
+RAND_OUT=$BLOW5.$RAND.stdout
+SEQ_OUT=$BLOW5.$SEQ.stdout
+SEQ_CXX_OUT=$SEQ_OUT # SEQ_CXX output does not differ from SEQ
 THREADS='1 2 4 8 16'
 BATCH_SZ=1024
 TASKSET_CPUS=1
+REC_PRESS=zstd # expected record compression
+SIG_PRESS=svb16-zd # expected signal compression
 
 clfs()
 {
@@ -118,9 +106,7 @@ zstd version: $ZSTD_VER
 slow5tools commit: $TOOLS_COMMIT
 slow5tools slow5lib commit: $TOOLS_LIB_COMMIT
 local slow5lib commit: $LIB_COMMIT
-slow5-pod5-bench commit: $(git log | head -n1)
-BLOW5_IN: $BLOW5_IN
-BLOW5_OUT: $BLOW5_OUT"
+slow5-pod5-bench commit: $(git log | head -n1)"
 
 # checkout local slow5lib
 git -C "$LIB_LOCAL" checkout "$LIB_COMMIT" \
@@ -154,18 +140,12 @@ make -C "$TOOLS_LOCAL" -j slow5_mt=1 zstd_local="$TOOLS_ZSTD/$ZSTD_INC" \
 	disable_hdf5=1 LIBS="$TOOLS_ZSTD/$ZSTD_STATIC" \
 	|| die "make failed in $TOOLS_LOCAL"
 
-if [ "$BLOW5_IN" != "$BLOW5_OUT" ]
-then
-	# create blow5 with zstd/svb16-zd record/signal compression
-	"$TOOLS" view "$BLOW5_IN" -c zstd -s svb16-zd -o "$BLOW5_OUT" \
-		|| die "Failed to create $BLOW5_OUT"
-fi
-# index the blow5
-"$TOOLS" index "$BLOW5_OUT" \
-	|| die "Failed to index $BLOW5_OUT"
-# generate random readid list
-"$TOOLS" skim --rid "$BLOW5_OUT" | sort -R > "$IDS" \
-	|| die 'Failed to generate random readid list'
+# check blow5 compression
+# hacky, may break in the future
+"$TOOLS" stats "$BLOW5" | head -n8 \
+	| grep "record compression method	$REC_PRESS
+signal compression method	$SIG_PRESS" \
+	|| die "$BLOW5 must have $REC_PRESS record and $SIG_PRESS signal compression"
 
 # compile slow5lib and benchmarks
 ./build.sh || die 'build.sh failed'
@@ -181,17 +161,17 @@ rm -f "$RAND_OUT" "$SEQ_OUT" "$SEQ_CXX_OUT"
 for i in $THREADS
 do
 	# random test
-	stderr="$BLOW5_OUT.$RAND.$i.$BATCH_SZ.stderr"
+	stderr="$BLOW5.$RAND.$i.$BATCH_SZ.stderr"
 	clfs
-	bench "./$RAND" "$BLOW5_OUT" "$IDS" "$i" "$BATCH_SZ" \
+	bench "./$RAND" "$BLOW5" "$IDS" "$i" "$BATCH_SZ" \
 		> "$TMP" 2> "$stderr" \
 		|| die "$RAND failed for $i threads"
 	diffchk "$RAND_OUT" "$TMP"
 
 	# sequential test
-	stderr="$BLOW5_OUT.$SEQ.$i.$BATCH_SZ.stderr"
+	stderr="$BLOW5.$SEQ.$i.$BATCH_SZ.stderr"
 	clfs
-	bench "./$SEQ" "$BLOW5_OUT" "$i" "$BATCH_SZ" \
+	bench "./$SEQ" "$BLOW5" "$i" "$BATCH_SZ" \
 		> "$TMP" 2> "$stderr" \
 		|| die "$SEQ failed for $i threads"
 	diffchk "$SEQ_OUT" "$TMP"
@@ -199,9 +179,9 @@ do
 	if [ -n "$RUN_CXX" ]
 	then
 		# sequential cxxpool test
-		stderr="$BLOW5_OUT.$SEQ_CXX.$i.$BATCH_SZ.stderr"
+		stderr="$BLOW5.$SEQ_CXX.$i.$BATCH_SZ.stderr"
 		clfs
-		bench "./$SEQ_CXX" "$BLOW5_OUT" "$i" "$BATCH_SZ" \
+		bench "./$SEQ_CXX" "$BLOW5" "$i" "$BATCH_SZ" \
 			> "$TMP" 2> "$stderr" \
 			|| die "$SEQ_CXX failed for $i threads"
 		diffchk "$SEQ_CXX_OUT" "$TMP"
