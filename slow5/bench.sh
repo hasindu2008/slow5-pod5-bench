@@ -29,8 +29,8 @@
 # local slow5lib is compiled using latest bench commit and the build scripts are
 # run
 #
-# benchmarch scripts RAND, SEQ and SEQ_CXX are run using a range of THREADS and
-# fixed BATCH_SZ with the file system cache cleared using clean_fscache
+# benchmarch scripts RAND, SEQ (and optionally SEQ_CXX) are run using a range of
+# THREADS and fixed BATCH_SZ with the file system cache cleared using clean_fscache
 #
 # compilation output can be used by you to check that
 # - slow5 library uses
@@ -62,6 +62,7 @@ fi
 BLOW5_OUT=out.blow5 # path to output blow5 file
 IDS=reads.list # path to output readid list
 TMP="$BLOW5_OUT.tmp" # temporary benchmarking output
+RUN_CXX= # set to non-empty to also run SEQ_CXX benchmark
 
 ZSTD=zstd # path to local zstd repo
 ZSTD_INC="$ZSTD/lib"
@@ -168,7 +169,10 @@ fi
 
 # compile slow5lib and benchmarks
 ./build.sh || die 'build.sh failed'
-./build_cxxpool.sh || die 'build_cxxpool.sh failed'
+if [ -n "$RUN_CXX" ]
+then
+	./build_cxxpool.sh || die 'build_cxxpool.sh failed'
+fi
 
 # prep for diffchk
 rm -f "$RAND_OUT" "$SEQ_OUT" "$SEQ_CXX_OUT"
@@ -192,13 +196,16 @@ do
 		|| die "$SEQ failed for $i threads"
 	diffchk "$SEQ_OUT" "$TMP"
 
-	# sequential cxxpool test
-	stderr="$BLOW5_OUT.$SEQ_CXX.$i.$BATCH_SZ.stderr"
-	clfs
-	bench "./$SEQ_CXX" "$BLOW5_OUT" "$i" "$BATCH_SZ" \
-		> "$TMP" 2> "$stderr" \
-		|| die "$SEQ_CXX failed for $i threads"
-	diffchk "$SEQ_CXX_OUT" "$TMP"
+	if [ -n "$RUN_CXX" ]
+	then
+		# sequential cxxpool test
+		stderr="$BLOW5_OUT.$SEQ_CXX.$i.$BATCH_SZ.stderr"
+		clfs
+		bench "./$SEQ_CXX" "$BLOW5_OUT" "$i" "$BATCH_SZ" \
+			> "$TMP" 2> "$stderr" \
+			|| die "$SEQ_CXX failed for $i threads"
+		diffchk "$SEQ_CXX_OUT" "$TMP"
+	fi
 done
 
 rm -f "$TMP"
