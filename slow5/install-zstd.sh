@@ -6,8 +6,7 @@
 
 # terminate script
 die() {
-    echo -e "${RED}$1${NC}" >&2
-    echo
+    echo "$1" >&2
     exit 1
 }
 
