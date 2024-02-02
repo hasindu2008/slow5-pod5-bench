@@ -19,6 +19,7 @@ fi
 SLOW5=$1
 IDS=$2
 
+echo "$0 $*"
 ./stat.sh
 
 ./chklib.sh || exit 1
