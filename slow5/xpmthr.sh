@@ -7,7 +7,6 @@ USAGE="usage: $0 <slow5> <ids>"
 
 THREADS='1 2 4 8 16'
 BATCH_SZ=1024
-TASKSET_CPUS=1
 
 die()
 {
@@ -36,7 +35,7 @@ clfs()
 
 bench()
 {
-	/usr/bin/time -v taskset -c "$TASKSET_CPUS" $@
+	/usr/bin/time -v $@
 }
 
 diffchk()
