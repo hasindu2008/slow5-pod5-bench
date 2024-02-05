@@ -35,7 +35,7 @@ clfs()
 bench()
 {
 	nthr=$1
-	lastproc=$(echo "$nthr-1"| bc)
+	lastproc=$(echo "$nthr-1" | bc)
 	shift
 	/usr/bin/time -v taskset -a -c 0-"$lastproc" $@
 }
