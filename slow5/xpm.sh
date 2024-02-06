@@ -35,7 +35,7 @@ bench()
 {
 	pgr=$1
 	shift
-	
+
 	pre="$OUT_PREFIX"_"$pgr"
 	out="$pre"_out
 	err="$pre"_err
