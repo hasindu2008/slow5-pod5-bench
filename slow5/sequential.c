@@ -120,7 +120,7 @@ void process_read_batch(rec_t *rec_list, int n){
         }
         sums[i] = sum;
     }
-    fprintf(stderr,"batch processed with %d reads\n",n);
+//    fprintf(stderr,"batch processed with %d reads\n",n);
 
     for(int i=0;i<n;i++){
         rec_t *rec = &rec_list[i];
@@ -145,7 +145,7 @@ void process_read_batch(rec_t *rec_list, int n){
 
         fprintf(stdout, "\n");
     }
-    fprintf(stderr,"batch printed with %d reads\n",n);
+//    fprintf(stderr,"batch printed with %d reads\n",n);
 
     free(sums);
     for(int i=0;i<n;i++){
@@ -241,7 +241,7 @@ int read_and_process_slow5_file(const char *path, int num_thread, int batch_size
         tot_time += realtime() - t0;
         /**** Batch fetched ***/
 
-        fprintf(stderr,"batch loaded with %d reads\n",ret);
+//        fprintf(stderr,"batch loaded with %d reads\n",ret);
 
         //process and print (time not measured as we want to compare to the time it takes to read the file)
         process_read_batch(rec, ret);
@@ -281,13 +281,18 @@ int main(int argc, char *argv[]) {
     int batch_size = atoi(argv[3]);
     int num_thread = atoi(argv[2]);
     fprintf(stderr,"Using %d threads\n", num_thread);
+    fprintf(stderr,"Using batch size %d\n", batch_size);
     omp_set_num_threads(num_thread);
 
     int read_count = 0;
+    int max_batch_size = batch_size;
     double tot_time = 0;
     double disc_time = 0;
     read_count = read_and_process_slow5_file(path, num_thread, batch_size, &tot_time, &disc_time);
+    if (read_count < batch_size)
+        max_batch_size = read_count;
     fprintf(stderr,"Reads: %d\n",read_count);
+    fprintf(stderr,"Largest batch: %d\n", max_batch_size);
     fprintf(stderr,"Time for disc reading %f\n",disc_time);
     fprintf(stderr,"Time for getting samples (disc+depress+parse) %f\n", tot_time);
     fprintf(stderr,"real time = %.3f sec | CPU time = %.3f sec | peak RAM = %.3f GB\n",
