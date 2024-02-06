@@ -1,5 +1,5 @@
 #!/bin/sh
-# run all experiments
+# run experiments using one SLOW5 file
 
 USAGE="usage: $0 <slow5> <ids>"
 
@@ -21,29 +21,26 @@ IDS=$2
 
 echo "$0 $*"
 ./stat.sh
+./setup.sh
 
-./chklib.sh || exit 1
-./build.sh || die 'build.sh failed'
-if [ -n "$RUN_CXX" ]
+if ! [ -e "$SLOW5".idx ]
 then
-	./build_cxxpool.sh || die 'build_cxxpool.sh failed'
+	"$TOOLS_EXEC" index "$SLOW5" || die "Failed to index $SLOW5"
 fi
-
-./install-tools.sh || exit 1
 ./chkb5.sh "$SLOW5" || exit 1
 
-thr=$(../scripts/geomseqproc.sh)
-bat=1024
-for i in $thr
+t=$(../scripts/geomseqproc.sh)
+b=1024
+for i in $t
 do
-	./xpm.sh "$SLOW5" "$IDS" "$i" "$bat" || die 'Threads experiment failed'
+	./xpm.sh "$SLOW5" "$IDS" "$i" "$b" || die 'Threads experiment failed'
 done
 
-thr=16
-bat='1 32 1024 32768 1048576'
-for i in $bat
+t=16
+b='1 32 32768 1048576'
+for i in $b
 do
-	./xpm.sh "$SLOW5" "$IDS" "$thr" "$i" || die 'Batch experiment failed'
+	./xpm.sh "$SLOW5" "$IDS" "$t" "$i" || die 'Batch experiment failed'
 done
 
 ../scripts/diffrm.sh "$SLOW5".*"$RAND"*out || die "diff $RAND output failed"
