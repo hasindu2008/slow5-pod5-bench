@@ -32,4 +32,5 @@ fi
 ./install-tools.sh || exit 1
 ./chkb5.sh "$SLOW5" || exit 1
 
-./xpmthr.sh "$SLOW5" "$IDS"
+./xpmthr.sh "$SLOW5" "$IDS" || die 'Threads experiment failed'
+./xpmbat.sh "$SLOW5" "$IDS" || die 'Batch experiment failed'
