@@ -32,5 +32,24 @@ fi
 ./install-tools.sh || exit 1
 ./chkb5.sh "$SLOW5" || exit 1
 
-./xpmthr.sh "$SLOW5" "$IDS" || die 'Threads experiment failed'
-./xpmbat.sh "$SLOW5" "$IDS" || die 'Batch experiment failed'
+thr=$(../scripts/geomseqproc.sh)
+bat=1024
+for i in $thr
+do
+	./xpm.sh "$SLOW5" "$IDS" "$i" "$bat" || die 'Threads experiment failed'
+done
+
+thr=16
+bat='1 32 1024 32768 1048576'
+for i in $bat
+do
+	./xpm.sh "$SLOW5" "$IDS" "$thr" "$i" || die 'Batch experiment failed'
+done
+
+../scripts/diffrm.sh "$SLOW5".*"$RAND"*out || die "diff $RAND output failed"
+../scripts/diffrm.sh "$SLOW5".*"$SEQ"*out || die "diff $SEQ output failed"
+if [ -n "$RUN_CXX" ]
+then
+	../scripts/diffrm.sh "$SLOW5".*"$SEQ_CXX"*out \
+		|| die "diff $SEQ_CXX output failed"
+fi
