@@ -4,8 +4,9 @@
 # disk_sec: time taken to fetch reads from memory in seconds
 # tot_sec: total time taken in seconds
 # maxrss_gb: maximum resident set size (RAM usage) in gigabytes
+# maxbat: size of the largest batch
 # usage: cat *.stderr | ./res2tsv.sh
-hdr='thr	disk_sec	tot_sec	maxrss_gb'
+hdr='thr	disk_sec	tot_sec	maxrss_gb	maxbat'
 
 in=$(mktemp)
 cat /dev/stdin > "$in"
@@ -24,5 +25,8 @@ grep '^Time for getting samples' "$in" \
 grep 'peak RAM' "$in" \
 	| cut -d '|' -f3 | cut -d ' ' -f5 \
 	| paste "$out1" - > "$out2"
+grep 'Largest batch' "$in" \
+	| cut -d ' ' -f3 \
+	| paste "$out2" - > "$out1"
 
-echo "$hdr" | cat - "$out2"
+echo "$hdr" | cat - "$out1"

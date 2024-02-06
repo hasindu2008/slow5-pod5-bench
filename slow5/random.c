@@ -277,13 +277,18 @@ int main(int argc, char *argv[]) {
     int batch_size = atoi(argv[4]);
     int num_thread = atoi(argv[3]);
     fprintf(stderr,"Using %d threads\n", num_thread);
+    fprintf(stderr,"Using batch size %d\n", batch_size);
     omp_set_num_threads(num_thread);
 
     int read_count = 0;
+    int max_batch_size = batch_size;
     double tot_time = 0;
 
     read_count = read_and_process_slow5_file(slow5_path, rid_list_path, num_thread, batch_size, &tot_time);
+    if (read_count < batch_size)
+        max_batch_size = read_count;
     fprintf(stderr,"Reads: %d\n",read_count);
+    fprintf(stderr,"Largest batch: %d\n", max_batch_size);
     fprintf(stderr,"Time for getting samples (disc+depress+parse) %f\n", tot_time);
     fprintf(stderr,"real time = %.3f sec | CPU time = %.3f sec | peak RAM = %.3f GB\n",
             realtime() - init_realtime, cputime(), peakrss() / 1024.0 / 1024.0 / 1024.0);
