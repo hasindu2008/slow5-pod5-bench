@@ -28,7 +28,7 @@ while [ $# -ne 0 ]
 do
 	slow5=$1
 	ids=$2
-	
+
 	if ! [ -e "$slow5".idx ]
 	then
 		"$TOOLS_EXEC" index "$slow5" || die "Failed to index $slow5"
@@ -36,5 +36,5 @@ do
 	./chkb5.sh "$slow5" || exit 1
 	./xpm.sh "$slow5" "$ids" "$t" "$b" || die 'Experiment failed'
 
-	shift 2	
+	shift 2
 done
