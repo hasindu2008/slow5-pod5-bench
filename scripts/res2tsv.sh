@@ -14,7 +14,7 @@ cat /dev/stdin > "$in"
 out1=$(mktemp)
 out2=$(mktemp)
 
-grep -E '^Using [1-9]+ threads' "$in" \
+grep -E '^Using [0-9]+ threads' "$in" \
 	| cut -d ' ' -f2 > "$out1"
 grep '^Time for disc reading' "$in" \
 	| cut -d ' ' -f5 \
