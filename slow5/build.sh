@@ -8,7 +8,7 @@ set -e
 test -e "$ZSTD_SHARED" || ./install-zstd.sh
 
 make -C "$LIB" clean
-make -C "$LIB" -j slow5_mt=1 zstd_local="$LIB_ZSTD/$ZSTD_INC"
+make -C "$LIB" -j slow5_mt=1 zstd_local="$(readlink -f $ZSTD_INC)"
 
 gcc $CCFLAGS -I "$LIB_INC" -o "$SEQ" sequential.c "$LIB_STATIC" "$ZSTD_STATIC" $LDFLAGS
 gcc $CCFLAGS -I "$LIB_INC" -o "$RAND" random.c "$LIB_STATIC" "$ZSTD_STATIC" $LDFLAGS
