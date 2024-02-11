@@ -25,6 +25,6 @@ git -C "$TOOLS" checkout "$TOOLS_COMMIT" \
 git -C "$TOOLS/slow5lib" checkout "$TOOLS_LIB_COMMIT" \
 	|| die "git failed to checkout $TOOLS/slow5lib to commit $TOOLS_LIB_COMMIT"
 make -C "$TOOLS" clean || die "make clean failed in $TOOLS"
-make -C "$TOOLS" -j slow5_mt=1 zstd_local="$TOOLS_ZSTD/$ZSTD_INC" \
-	disable_hdf5=1 LIBS="$TOOLS_ZSTD/$ZSTD_STATIC" \
+make -C "$TOOLS" -j slow5_mt=1 zstd_local="$(readlink -f $ZSTD_INC)" \
+	disable_hdf5=1 LIBS="$(readlink -f $ZSTD_STATIC)" \
 	|| die "make failed in $TOOLS"

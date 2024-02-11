@@ -12,13 +12,11 @@ export TOOLS_URL=https://github.com/hasindu2008/slow5tools
 export TOOLS_COMMIT=8a366bf6dffe0c94fd0ec148cca22f09e47c31e5 # latest upstream vbz
 export TOOLS_LIB_COMMIT=8efc1f704f864ba5e29c75ffa85ebb248007bb46 # latest upstream vbz
 export TOOLS_EXEC=$TOOLS/slow5tools
-export TOOLS_ZSTD=../ # relative path from TOOLS to ZSTD
 
 export LIB=slow5lib
 export LIB_COMMIT=a90d45cf0aa53a32205f1fbadb8b8b1a132cd085 # latest local bench
 export LIB_INC=$LIB/include
 export LIB_STATIC=$LIB/lib/libslow5.a
-export LIB_ZSTD=../ # relative path from LIB to ZSTD
 
 export REC_PRESS=zstd # record compression
 export SIG_PRESS=svb16-zd # signal compression
