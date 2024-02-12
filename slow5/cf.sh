@@ -10,11 +10,11 @@ export ZSTD_SHARED=$ZSTD/lib/libzstd.so.$ZSTD_VER
 export TOOLS=slow5tools # path to slow5tools repo
 export TOOLS_URL=https://github.com/hasindu2008/slow5tools
 export TOOLS_COMMIT=8a366bf6dffe0c94fd0ec148cca22f09e47c31e5 # latest upstream vbz
-export TOOLS_LIB_COMMIT=8efc1f704f864ba5e29c75ffa85ebb248007bb46 # latest upstream vbz
+export TOOLS_LIB_COMMIT=819e525166ae69a96b5e496ffc5357b99ec98e9a # latest upstream vbz
 export TOOLS_EXEC=$TOOLS/slow5tools
 
 export LIB=slow5lib
-export LIB_COMMIT=a90d45cf0aa53a32205f1fbadb8b8b1a132cd085 # latest local bench
+export LIB_COMMIT=f3256b6b2aa6ba07a9c1cfddc32d68a840da3a62 # latest local bench
 export LIB_INC=$LIB/include
 export LIB_STATIC=$LIB/lib/libslow5.a
 
