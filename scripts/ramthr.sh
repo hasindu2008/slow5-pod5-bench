@@ -1,8 +1,22 @@
 #!/bin/sh
-# plot data in tsv: ram vs number of threads
-# save result to png file
+# plot data in tsv(s): ram vs number of threads
+# print result as png file
 
-USAGE="usage: $0 <tsv>"
+USAGE="usage: $0 <tsv>..."
+
+TITLE='Peak RAM usage'
+XLABEL='number of threads'
+YLABEL='peak RAM (gigabytes)'
+
+fmt()
+{
+	raw="$1"
+	out=$(mktemp)
+
+	tail -n+2 "$raw" | cut -f1,4 > "$out"
+
+	echo "$out"
+}
 
 die()
 {
@@ -10,14 +24,23 @@ die()
 	exit 1
 }
 
-if [ $# -ne 1 ]
+if [ $# -eq 0 ]
 then
 	die "$USAGE"
 fi
 
-TSV=$1
-DIR=$(dirname "$0")
-DATA=$(mktemp)
+dir=$(dirname "$0")
 
-tail -n+2 "$TSV" | cut -f1,4 > "$DATA"
-gnuplot -e "data='$DATA'" "$DIR/ramthr.gp" > "$TSV.ramthr.png"
+for file in $@
+do
+	xy=$(fmt "$file")
+	data="$data '$xy'"
+	name="$name '$file'"
+done
+
+gnuplot -e "TITLE=\"$TITLE\"" \
+	-e "XLABEL=\"$XLABEL\"" \
+	-e "YLABEL=\"$YLABEL\"" \
+	-e "DATA=\"$data\"" \
+	-e "NAME=\"$name\"" \
+	"$dir/yx.gp"
