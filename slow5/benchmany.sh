@@ -20,7 +20,7 @@ fi
 
 echo "$0 $*"
 ./stat.sh
-./setup.sh
+./setup.sh || exit 1
 
 t=16
 b=1024

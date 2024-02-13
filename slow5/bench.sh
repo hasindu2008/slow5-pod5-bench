@@ -21,7 +21,7 @@ IDS=$2
 
 echo "$0 $*"
 ./stat.sh
-./setup.sh
+./setup.sh || exit 1
 
 if ! [ -e "$SLOW5".idx ]
 then
