@@ -37,7 +37,7 @@ do
 done
 
 t=16
-b='1 32 32768 1048576'
+b='256 512 2048 4096 8192'
 for i in $b
 do
 	./xpm.sh "$SLOW5" "$IDS" "$t" "$i" || die 'Batch experiment failed'
