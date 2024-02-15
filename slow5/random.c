@@ -8,35 +8,7 @@
 #include <stdlib.h>
 #include <slow5/slow5.h>
 #include <omp.h>
-#include <sys/time.h>
-#include <sys/resource.h>
-
-// From minimap2
-static inline long peakrss(void) {
-    struct rusage r;
-    getrusage(RUSAGE_SELF, &r);
-#ifdef __linux__
-    return r.ru_maxrss * 1024;
-#else
-    return r.ru_maxrss;
-#endif
-
-}
-
-// From minimap2/misc
-static inline double cputime(void) {
-    struct rusage r;
-    getrusage(RUSAGE_SELF, &r);
-    return r.ru_utime.tv_sec + r.ru_stime.tv_sec +
-           1e-6 * (r.ru_utime.tv_usec + r.ru_stime.tv_usec);
-}
-
-static inline double realtime(void) {
-    struct timeval tp;
-    struct timezone tzp;
-    gettimeofday(&tp, &tzp);
-    return tp.tv_sec + tp.tv_usec * 1e-6;
-}
+#include "result.h"
 
 typedef struct {
     const char *run_acquisition_start_time; //can we convert to match pod5
@@ -167,10 +139,10 @@ int load_slow5_read(rec_t *rec_list, slow5_file_t *sp, char **rid_list, int i){
     return 0;
 }
 
-int read_and_process_slow5_file(const char *slow5_path, const char *rid_list_path, int num_thread, int batch_size, double *tot_time_p){
+int read_and_process_slow5_file(const char *slow5_path, const char *rid_list_path, int num_thread, int batch_size, struct result *tot){
 
-    double tot_time = 0;
-    double t0 = 0;
+    struct result r0;
+    struct result r1;
     int ret = batch_size;
     int read_count = 0;
 
@@ -188,7 +160,7 @@ int read_and_process_slow5_file(const char *slow5_path, const char *rid_list_pat
     char tmp[1024];
 
     /**** Initialisation and opening of the file ***/
-    t0 = realtime();
+    getresbef(&r0);
 
     slow5_file_t *sp = slow5_open(slow5_path,"r");
     if(sp==NULL){
@@ -203,7 +175,8 @@ int read_and_process_slow5_file(const char *slow5_path, const char *rid_list_pat
         exit(EXIT_FAILURE);
     }
 
-    tot_time += realtime() - t0;
+    getresaft(&r1);
+    subincres(tot, &r1, &r0);
     /**** End of init ***/
 
     while(1){
@@ -222,13 +195,14 @@ int read_and_process_slow5_file(const char *slow5_path, const char *rid_list_pat
 
         /**** Fetching a batch (disk loading, decompression, parsing in to memory arrays) ***/
 
-        t0 = realtime();
+        getresbef(&r0);
         rec_t *rec = (rec_t*)malloc(batch_size * sizeof(rec_t));
         #pragma omp parallel for
         for(int i=0;i<ret;i++){
             load_slow5_read(rec, sp, rid, i);
         }
-        tot_time += realtime() - t0;
+        getresaft(&r1);
+        subincres(tot, &r1, &r0);
         /**** Batch fetched ***/
 
 //        fprintf(stderr,"batch loaded with %d reads\n",ret);
@@ -248,16 +222,16 @@ int read_and_process_slow5_file(const char *slow5_path, const char *rid_list_pat
     }
 
     /**** Deinit ***/
-    t0 = realtime();
+    getresbef(&r0);
     slow5_idx_unload(sp);
     slow5_close(sp);
-    tot_time += realtime() - t0;
+    getresaft(&r1);
+    subincres(tot, &r1, &r0);
     /**** End of Deinit***/
 
     fclose(fpr);
     free(rid);
 
-    *tot_time_p = tot_time;
     return read_count;
 
 }
@@ -282,14 +256,16 @@ int main(int argc, char *argv[]) {
 
     int read_count = 0;
     int max_batch_size = batch_size;
-    double tot_time = 0;
+    struct result tot = { 0 };
 
-    read_count = read_and_process_slow5_file(slow5_path, rid_list_path, num_thread, batch_size, &tot_time);
+    read_count = read_and_process_slow5_file(slow5_path, rid_list_path, num_thread, batch_size, &tot);
     if (read_count < batch_size)
         max_batch_size = read_count;
     fprintf(stderr,"Reads: %d\n",read_count);
     fprintf(stderr,"Largest batch: %d\n", max_batch_size);
-    fprintf(stderr,"Time for getting samples (disc+depress+parse) %f\n", tot_time);
+    fprintf(stderr,"Time for getting samples (disc+depress+parse) %f\n", tot.time);
+    fputs("--- total results ---\n", stderr);
+    fprintres(&tot, stderr);
     fprintf(stderr,"real time = %.3f sec | CPU time = %.3f sec | peak RAM = %.3f GB\n",
             realtime() - init_realtime, cputime(), peakrss() / 1024.0 / 1024.0 / 1024.0);
     return 0;
