@@ -266,7 +266,7 @@ int main(int argc, char *argv[]) {
     fprintf(stderr,"Time for getting samples (disc+depress+parse) %f\n", tot.time);
     fputs("--- total results ---\n", stderr);
     fprintres(&tot, stderr);
-    fprintf(stderr,"real time = %.3f sec | CPU time = %.3f sec | peak RAM = %.3f GB\n",
+    fprintf(stderr,"real time = %.3f sec | CPU time = %.3f sec | peak RAM = %.3f GiB\n",
             realtime() - init_realtime, cputime(), peakrss() / 1024.0 / 1024.0 / 1024.0);
     return 0;
 }
