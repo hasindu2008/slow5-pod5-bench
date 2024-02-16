@@ -38,7 +38,7 @@ disk_sec)
 	ycol() { cut -f2; }
 	;;
 disk_upr)
-	title='Time to get each read on average from memory'
+	title='Time to get each read from memory on average'
 	ylabel='disk time per read (usec/read)'
 	ycol() { cut -f2,6 | awk '{ print $1/$2*1e6 }'; }
 	;;
@@ -46,6 +46,16 @@ disk_rps)
 	title='Number of reads retrieved from memory per second on average'
 	ylabel='reads per second'
 	ycol() { cut -f2,6 | awk '{ print $2/$1 }'; }
+	;;
+disk_spg)
+	title='Time to get each gigabyte from memory on average'
+	ylabel='disk time per gigabyte (sec/GB)'
+	ycol() { cut -f2,7 | awk '{ print $1/$2*1e9 }'; }
+	;;
+disk_gps)
+	title='Number of gigabytes retrieved from memory per second on average'
+	ylabel='gigabytes per second'
+	ycol() { cut -f2,7 | awk '{ print $2/$1/1e9 }'; }
 	;;
 tot_sec)
 	title='Time to get all reads'
@@ -62,9 +72,19 @@ tot_rps)
 	ylabel='reads per second'
 	ycol() { cut -f3,6 | awk '{ print $2/$1 }'; }
 	;;
+tot_spg)
+	title='Time to get each gigabyte on average'
+	ylabel='total time per gigabyte (sec/GB)'
+	ycol() { cut -f3,7 | awk '{ print $1/$2*1e9 }'; }
+	;;
+tot_gps)
+	title='Number of gigabytes processed per second on average'
+	ylabel='gigabytes per second'
+	ycol() { cut -f3,7 | awk '{ print $2/$1/1e9 }'; }
+	;;
 maxrss_gb)
 	title='Peak RAM usage'
-	ylabel='peak RAM (gigabytes)'
+	ylabel='peak RAM (GiB)'
 	ycol() { cut -f4; }
 	;;
 *) die "invalid y var: $y";;
@@ -82,6 +102,10 @@ maxbat)
 nread)
 	xlabel='total number of reads'
 	xcol() { cut -f6; }
+	;;
+bytes)
+	xlabel='file size (bytes)'
+	xcol() { cut -f7; }
 	;;
 *) die "invalid x var: $x";;
 esac

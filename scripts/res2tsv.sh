@@ -3,11 +3,12 @@
 # thr: number of threads used
 # disk_sec: time taken to fetch reads from memory in seconds
 # tot_sec: total time taken in seconds
-# maxrss_gb: maximum resident set size (RAM usage) in gigabytes
+# maxrss_gb: maximum resident set size (RAM usage) in gibibytes
 # maxbat: size of the largest batch
 # nread: number of reads
+# bytes: file size in bytes
 # usage: cat *.stderr | ./res2tsv.sh
-hdr='thr	disk_sec	tot_sec	maxrss_gb	maxbat	nread'
+hdr='thr	disk_sec	tot_sec	maxrss_gb	maxbat	nread	bytes'
 
 in=$(mktemp)
 cat /dev/stdin > "$in"
@@ -32,5 +33,8 @@ grep 'Largest batch' "$in" \
 grep 'Reads' "$in" \
 	| cut -d ' ' -f2 \
 	| paste "$out1" - > "$out2"
+grep 'File size (bytes)' "$in" \
+	| cut -d ' ' -f4 \
+	| paste "$out2" - > "$out1"
 
-echo "$hdr" | cat - "$out2"
+echo "$hdr" | cat - "$out1"
