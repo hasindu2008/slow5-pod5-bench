@@ -41,8 +41,11 @@ bench()
 	err="$pre"_err
 
 	clfs
-	/usr/bin/time -v taskset -a -c 0-"$LAST_PROC" $@ \
-		> "$out" 2> "$err" || die "$pgr $TOMB"
+	{
+		printf '%s' 'File size (bytes): ' 1>&2
+		wc -c "$2" 1>&2
+		/usr/bin/time -v taskset -a -c 0-"$LAST_PROC" $@;
+	} > "$out" 2> "$err" || die "$pgr $TOMB"
 }
 
 if ! [ -e "$SLOW5".idx ]
