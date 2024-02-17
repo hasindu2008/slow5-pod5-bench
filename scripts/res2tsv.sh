@@ -7,8 +7,12 @@
 # maxbat: size of the largest batch
 # nread: number of reads
 # bytes: file size in bytes
+# diskminflt: number of soft page faults (without I/O) while fetching reads
+# diskmajflt: number of hard page faults (with I/O) while fetching reads
+# totminflt: total number of soft page faults
+# totmajflt: total number of hard page faults
 # usage: cat *.stderr | ./res2tsv.sh
-hdr='thr	disk_sec	tot_sec	maxrss_gb	maxbat	nread	bytes'
+hdr='thr	disk_sec	tot_sec	maxrss_gb	maxbat	nread	bytes	diskminflt	diskmajflt	totminflt	totmajflt'
 
 in=$(mktemp)
 cat /dev/stdin > "$in"
@@ -35,6 +39,22 @@ grep 'Reads' "$in" \
 	| paste "$out1" - > "$out2"
 grep 'File size (bytes)' "$in" \
 	| cut -d ' ' -f4 \
+	| paste "$out2" - > "$out1"
+grep -e '--- disc results ---' "$in" -A17 \
+	| grep 'page reclaims (soft page faults)' \
+	| cut -d ' ' -f6 \
+	| paste "$out1" - > "$out2"
+grep -e '--- disc results ---' "$in" -A17 \
+	| grep 'page faults (hard page faults)' \
+	| cut -d ' ' -f6 \
+	| paste "$out2" - > "$out1"
+grep -e '--- total results ---' "$in" -A17 \
+	| grep 'page reclaims (soft page faults)' \
+	| cut -d ' ' -f6 \
+	| paste "$out1" - > "$out2"
+grep -e '--- total results ---' "$in" -A17 \
+	| grep 'page faults (hard page faults)' \
+	| cut -d ' ' -f6 \
 	| paste "$out2" - > "$out1"
 
 echo "$hdr" | cat - "$out1"

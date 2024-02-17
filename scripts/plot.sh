@@ -87,6 +87,26 @@ maxrss_gb)
 	ylabel='peak RAM (GiB)'
 	ycol() { cut -f4; }
 	;;
+diskminflt)
+	title='Number of soft page faults (without I/O) while retrieving reads'
+	ylabel='soft page faults'
+	ycol() { cut -f8; }
+	;;
+diskmajflt)
+	title='Number of hard page faults (with I/O) while retrieving reads'
+	ylabel='hard page faults'
+	ycol() { cut -f9; }
+	;;
+totminflt)
+	title='Number of soft page faults (without I/O)'
+	ylabel='soft page faults'
+	ycol() { cut -f10; }
+	;;
+totmajflt)
+	title='Number of hard page faults (with I/O)'
+	ylabel='hard page faults'
+	ycol() { cut -f11; }
+	;;
 *) die "invalid y var: $y";;
 esac
 
