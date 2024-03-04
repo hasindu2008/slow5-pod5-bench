@@ -1,0 +1,89 @@
+scripts
+=======
+
+res2tsv.sh
+----------
+Converts the stderr output from benchmarking; that is
+
+- stderr output from slow5_random, slow5_sequential or slow5_sequential_cxxpool
+- *_err files produced by xpm.sh, bench.sh and benchmany.sh
+
+into a tsv format.
+
+For a description of the fields, see res2tsv.sh.
+
+Usage:
+
+	cat <stderr>... | ./res2tsv.sh
+
+Example:
+
+Convert all stderr files for slow5_sequential produced by bench.sh to a tsv
+named 'seq.tsv'.
+
+	cat *sequential_err | ./res2tsv.sh > seq.tsv
+
+plot.sh
+-------
+Plot the tsv data given the y and x variables. The resulting png file is printed
+to stdout. To view all valid y and x variables, see plot.sh.
+
+Usage:
+
+	./plot.sh <y> <x> <tsv>...
+
+Examples:
+
+Plot the total seconds vs number of threads and save the output.
+
+	./plot.sh tot_sec thr in.tsv > out.png
+
+Plot the average speed of data retrieval from memory (gigabytes per second) vs
+the maximum batch size used, and save the output.
+
+	./plot.sh disk_gps maxbat dox_seq.tsv mmap_seq.tsv > seq.png
+
+diffrm.sh
+---------
+Diff files and if they are the same remove all except the first file.
+
+Usage:
+
+	./diffrm.sh <file1> <file2>...
+
+geomseq.sh
+----------
+Print the geometric sequence from start to end with ratio r.
+
+Usage:
+
+	./geomseq.sh <start> <end> <r>
+
+Example:
+
+	./geomseq.sh 1 16 2
+
+Output:
+1
+2
+4
+8
+16
+
+Example:
+
+	./geomseq.sh 6 66 6
+
+Output:
+6
+36
+66
+
+geomseqproc.sh
+--------------
+Print the geometric sequence with ratio 2 from 1 to the number of available
+processing units.
+
+Usage:
+
+	./geomseqproc.sh
