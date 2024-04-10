@@ -30,13 +30,14 @@ The fields accessed (in order) are [here](https://github.com/nanoporetech/dorado
 ## Dataset
 
 Full prom 5KHz: available via
-- https://gtgseq.s3.amazonaws.com/index.html#ont-r10-5khz-dna/NA24385/raw/
-- gtgpu:/home/hasindu/scratch/hg2_prom_lsk114_5khz/PGXXXX230339_reads.blow5
+- gtgpu:/home/hasindu/scratch/hg2_prom_lsk114_5khz_2/PGXXSX240041_reads.blow5
 
 ## systems
 
 1. Server
-2. Embedded system
+2. Embedded system - Jetson Xavier
+3. Mac Mini?
+4. tablet/mobile phone/ipad?
 
 ## Match conditions
 
@@ -45,11 +46,14 @@ Full prom 5KHz: available via
 3. What is the zstd version used in pod5? [zstd/1.5.4](https://github.com/nanoporetech/pod5-file-format/blob/0ba232d6304dd1eebd60d331a6f7c15099dcd04f/conanfile.py#L60)
 
 Make sure:
-
+- access same fields in same order
+- match compiler versions and flags
+- compression method should match (svb12+zigzag+zstd) 
 - SIMD accelerated version of svb in slow5lib
+- zstd version should match
 - POD5 must use streaming I/O (opposed to memory mapping)
 - POD5 must use default chunk size as in MinKNOW, as it was the reason why ONT could not integrate SLOW5 to their minKNOW
-
+- GLIBC and other system library versions must match
 - use taskset command to force using N number of CPUs
 - clean_fscache to prevent caching
 - **note** : use jemalloc https://github.com/nanoporetech/pod5-file-format/blob/6b8bbc7bd6e51e878a933cef32fc94a9cb30443a/conanfile.py#L69C28-L69C36
