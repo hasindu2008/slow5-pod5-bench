@@ -65,9 +65,9 @@ Make sure:
 | File compression/version           | File v0.3.2, read table v3 | File v0.3.2, read table v3                 | zstd-sv16-zd           |  zstd-sv16-zd          |
 | Disk                               | SSD                        | SSD              | SSD                    | SSD                    |
 | Benchmark program compiler version | g++ 7.5.0                  | g++ 7.5.0        | gcc 7.5.0              | gcc 7.5.0              |
-| Bencmark program compiler flags    | g++ -Wall -O2 -g           | g++ -Wall -O2 -g | gcc -Wall -O2 -g       | gcc -Wall -O2 -g       |
-| Library compiler version           | not known                  | not known        | gcc 7.5.0              | gcc 7.5.0              |
-| Libarry compiler flags             | \-g -Wall -O3              | \-g -Wall -O3    | \-g -Wall -O3 -std=c99 | \-g -Wall -O2 -std=c99 |
+| Bencmark program compiler flags    | g++ -Wall -O3 -g           | g++ -Wall -O3 -g | gcc -Wall -O3 -g       | gcc -Wall -O3 -g       |
+| Library compiler version           | gcc 10.2                 | gcc 10.2        | gcc 7.5.0              | gcc 7.5.0              |
+| Libarry compiler flags             | \-g -Wall -O3              | \-g -Wall -O3    | \-g -Wall -O3 -std=c99 | \-g -Wall -O3 -std=c99 |
 | Taskset                            | used                       | used             | used                   | used                   |
 | streamvbyte                        | N/A               | N/A     | \-g -Wall -O3          | \-g -Wall -O3          |
 | zstd version                       | 1.5.4                      | 1.5.4            | 1.5.4                  | 1.5.4                        |  
