@@ -41,9 +41,27 @@ Full prom 5KHz: available via
 
 ## Match conditions
 
-1. What are the compiler versions used in pod5? TODO
-2. What are the compiler flags used in pod5? TODO
-3. What is the zstd version used in pod5? [zstd/1.5.4](https://github.com/nanoporetech/pod5-file-format/blob/0ba232d6304dd1eebd60d331a6f7c15099dcd04f/conanfile.py#L60)
+1. What are the compiler versions used in pod5?
+
+```
+objdump -s --section .comment lib/libpod5_format.so 
+
+lib/libpod5_format.so:     file format elf64-x86-64
+
+Contents of section .comment:
+ 0000 4743433a 2028474e 55292031 302e322e  GCC: (GNU) 10.2.
+ 0010 31203230 32313031 33302028 52656420  1 20210130 (Red 
+ 0020 48617420 31302e32 2e312d31 31290047  Hat 10.2.1-11).G
+ 0030 43433a20 28474e55 2920392e 332e3120  CC: (GNU) 9.3.1 
+ 0040 32303230 30343038 20285265 64204861  20200408 (Red Ha
+ 0050 7420392e 332e312d 32290047 43433a20  t 9.3.1-2).GCC: 
+ 0060 28474e55 2920342e 382e3520 32303135  (GNU) 4.8.5 2015
+ 0070 30363233 20285265 64204861 7420342e  0623 (Red Hat 4.
+ 0080 382e352d 34342900                    8.5-44).        
+```
+
+3. What are the compiler flags used in pod5? 
+4. What is the zstd version used in pod5? [zstd/1.5.4](https://github.com/nanoporetech/pod5-file-format/blob/0ba232d6304dd1eebd60d331a6f7c15099dcd04f/conanfile.py#L60)
 
 Make sure:
 - access same fields in same order
@@ -59,6 +77,8 @@ Make sure:
 - **note** : use jemalloc https://github.com/nanoporetech/pod5-file-format/blob/6b8bbc7bd6e51e878a933cef32fc94a9cb30443a/conanfile.py#L69C28-L69C36
 
 # Checklist
+
+POD5 version: 0.3.10
 
 | Conditions                         | pod5 IO stream             | pod5 mmap        | blow5 IO stream        | blow5 mmap             |
 | ---------------------------------- | -------------------------- | ---------------- | ---------------------- | ---------------------- |
