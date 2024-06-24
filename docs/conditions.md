@@ -44,29 +44,31 @@ Full prom 5KHz: available via
 1. What are the compiler versions used in pod5?
 
 ```
-objdump -s --section .comment lib/libpod5_format.so 
+objdump -s --section .comment lib/libpod5_format.so
 
 lib/libpod5_format.so:     file format elf64-x86-64
 
 Contents of section .comment:
  0000 4743433a 2028474e 55292031 302e322e  GCC: (GNU) 10.2.
- 0010 31203230 32313031 33302028 52656420  1 20210130 (Red 
+ 0010 31203230 32313031 33302028 52656420  1 20210130 (Red
  0020 48617420 31302e32 2e312d31 31290047  Hat 10.2.1-11).G
- 0030 43433a20 28474e55 2920392e 332e3120  CC: (GNU) 9.3.1 
+ 0030 43433a20 28474e55 2920392e 332e3120  CC: (GNU) 9.3.1
  0040 32303230 30343038 20285265 64204861  20200408 (Red Ha
- 0050 7420392e 332e312d 32290047 43433a20  t 9.3.1-2).GCC: 
+ 0050 7420392e 332e312d 32290047 43433a20  t 9.3.1-2).GCC:
  0060 28474e55 2920342e 382e3520 32303135  (GNU) 4.8.5 2015
  0070 30363233 20285265 64204861 7420342e  0623 (Red Hat 4.
- 0080 382e352d 34342900                    8.5-44).        
+ 0080 382e352d 34342900                    8.5-44).
 ```
 
-3. What are the compiler flags used in pod5? 
-4. What is the zstd version used in pod5? [zstd/1.5.4](https://github.com/nanoporetech/pod5-file-format/blob/0ba232d6304dd1eebd60d331a6f7c15099dcd04f/conanfile.py#L60)
+3. What are the compiler flags used in pod5?
+
+4. What is the zstd version used in pod5? [zstd/1.5.5](https://github.com/nanoporetech/pod5-file-format/blob/0.3.10/conanfile.py#L63)
 
 Make sure:
+
 - access same fields in same order
 - match compiler versions and flags
-- compression method should match (svb12+zigzag+zstd) 
+- compression method should match (svb12+zigzag+zstd)
 - SIMD accelerated version of svb in slow5lib
 - zstd version should match
 - POD5 must use streaming I/O (opposed to memory mapping)
@@ -74,7 +76,7 @@ Make sure:
 - GLIBC and other system library versions must match
 - use taskset command to force using N number of CPUs
 - clean_fscache to prevent caching
-- **note** : use jemalloc https://github.com/nanoporetech/pod5-file-format/blob/6b8bbc7bd6e51e878a933cef32fc94a9cb30443a/conanfile.py#L69C28-L69C36
+- **note** : use [jemalloc  5.2.1](https://github.com/nanoporetech/pod5-file-format/blob/0.3.10/conanfile.py#L70)
 
 # Checklist
 
@@ -84,13 +86,13 @@ POD5 version: 0.3.10
 | ---------------------------------- | -------------------------- | ---------------- | ---------------------- | ---------------------- |
 | File compression/version           | File v0.3.2, read table v3 | File v0.3.2, read table v3                 | zstd-sv16-zd           |  zstd-sv16-zd          |
 | Disk                               | SSD                        | SSD              | SSD                    | SSD                    |
-| Benchmark program compiler version | g++ 7.5.0                  | g++ 7.5.0        | gcc 7.5.0              | gcc 7.5.0              |
+| Benchmark program compiler version | g++ 10                 | g++ 10        | gcc 10              | gcc 10              |
 | Bencmark program compiler flags    | g++ -Wall -O3 -g           | g++ -Wall -O3 -g | gcc -Wall -O3 -g       | gcc -Wall -O3 -g       |
-| Library compiler version           | gcc 10.2                 | gcc 10.2        | gcc 7.5.0              | gcc 7.5.0              |
+| Library compiler version           | gcc 10                 | gcc 10        | gcc 10               | gcc 10 0              |
 | Libarry compiler flags             | \-g -Wall -O3              | \-g -Wall -O3    | \-g -Wall -O3 -std=c99 | \-g -Wall -O3 -std=c99 |
 | Taskset                            | used                       | used             | used                   | used                   |
 | streamvbyte                        | N/A               | N/A     | \-g -Wall -O3          | \-g -Wall -O3          |
-| zstd version                       | 1.5.4                      | 1.5.4            | 1.5.4                  | 1.5.4                        |  
+| zstd version                       | 1.5.5                      | 1.5.5            | 1.5.5                  | 1.5.5                        |
 | POD5_DISABLE_MMAP_OPEN             | set                        | not set          | N/A                    | N/A                    |
 
 
