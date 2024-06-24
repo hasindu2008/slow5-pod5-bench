@@ -9,9 +9,12 @@ die() {
     exit 1
 }
 
-ZSTD_VERSION=1.5.4
+ZSTD_VERSION=1.5.5
 test -e zstd-v${ZSTD_VERSION}.tar.gz && rm zstd-v${ZSTD_VERSION}.tar.gz
 test -d zstd && rm -r zstd
+
+export CC=gcc-10
+export CXX=g++-10
 
 wget https://github.com/facebook/zstd/archive/refs/tags/v${ZSTD_VERSION}.tar.gz -O zstd-v${ZSTD_VERSION}.tar.gz || die "Downloading zstd source failed"
 tar -xzf zstd-v${ZSTD_VERSION}.tar.gz || die "extracting failed"
