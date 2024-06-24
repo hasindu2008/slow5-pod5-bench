@@ -1,15 +1,43 @@
 //sequentially loads a batch of reads from a SLOW5 file (reading fileds relavent to basecalling), process the batch (sum), and write output
 //make zstd=1
-//gcc -Wall -O2 -g -I include/ -o slow5_sequential_cxxpool sequential_cxxpool.cpp result.c lib/libslow5.a  -lm -lz -lzstd -fopenmp
+//gcc -Wall -O2 -g -I include/ -o slow5_sequential_cxxpool sequential_cxxpool.cpp lib/libslow5.a  -lm -lz -lzstd -fopenmp
 //only the time for loading a batch to memory (Disk I/O + decompression + parsing and filling the memory arrays) is measured
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <slow5/slow5.h>
 #include <omp.h>
+#include <sys/time.h>
 #include "cxxpool.h"
 #include <inttypes.h>
-#include "result.h"
+#include <sys/resource.h>
+
+// From minimap2
+static inline long peakrss(void) {
+    struct rusage r;
+    getrusage(RUSAGE_SELF, &r);
+#ifdef __linux__
+    return r.ru_maxrss * 1024;
+#else
+    return r.ru_maxrss;
+#endif
+
+}
+
+// From minimap2/misc
+static inline double cputime(void) {
+    struct rusage r;
+    getrusage(RUSAGE_SELF, &r);
+    return r.ru_utime.tv_sec + r.ru_stime.tv_sec +
+           1e-6 * (r.ru_utime.tv_usec + r.ru_stime.tv_usec);
+}
+
+static inline double realtime(void) {
+    struct timeval tp;
+    struct timezone tzp;
+    gettimeofday(&tp, &tzp);
+    return tp.tv_sec + tp.tv_usec * 1e-6;
+}
 
 typedef struct {
     const char *run_acquisition_start_time; //can we convert to match pod5
@@ -94,7 +122,7 @@ void process_read_batch(rec_t *rec_list, int n){
         }
         sums[i] = sum;
     }
-//    fprintf(stderr,"batch processed with %d reads\n",n);
+    fprintf(stderr,"batch processed with %d reads\n",n);
 
     for(int i=0;i<n;i++){
         rec_t *rec = &rec_list[i];
@@ -119,7 +147,7 @@ void process_read_batch(rec_t *rec_list, int n){
 
         fprintf(stdout, "\n");
     }
-//    fprintf(stderr,"batch printed with %d reads\n",n);
+    fprintf(stderr,"batch printed with %d reads\n",n);
 
     free(sums);
     for(int i=0;i<n;i++){
@@ -169,18 +197,19 @@ int load_slow5_read(char **mem_records, size_t *mem_bytes, rec_t *rec_list, slow
     return 0;
 }
 
-int read_and_process_slow5_file(const char *path, int num_thread, int batch_size, struct
-result *tot, struct result *disc){
+int read_and_process_slow5_file(const char *path, int num_thread, int batch_size, double *tot_time_p, double *disc_time_p){
 
-    struct result r0;
-    struct result r1;
+    double tot_time = 0;
+    double disc_time = 0;
+    double t0 = 0;
+    double t1 = 0;
     int ret = batch_size;
     int read_count = 0;
 
     print_header();
 
     /**** Initialisation and opening of the file ***/
-    getresbef(&r0);
+    t0 = realtime();
 
     slow5_file_t *sp = slow5_open(path,"r");
     if(sp==NULL){
@@ -190,24 +219,23 @@ result *tot, struct result *disc){
     }
     cxxpool::thread_pool pool{(size_t)num_thread};
 
-    getresaft(&r1);
-    subincres(tot, &r1, &r0);
+    tot_time += realtime() - t0;
     /**** End of init ***/
 
     while(ret == batch_size){
 
         /**** Fetching a batch (disk loading, decompression, parsing in to memory arrays) ***/
-        getresbef(&r0);
+        t0 = realtime();
         char **mem = NULL;
         size_t *bytes = NULL;
         ret = load_raw_batch(&mem, &bytes, sp, batch_size);
-        getresaft(&r1);
-        subincres(tot, &r1, &r0);
-        subincres(disc, &r1, &r0);
+        t1= realtime() - t0;
+        tot_time += t1;
+        disc_time += t1;
 
         read_count += ret;
 
-        getresbef(&r0);
+        t0 = realtime();
         rec_t *rec = (rec_t*)malloc(batch_size * sizeof(rec_t));
         std::vector<std::future<int>> futures;
         for (int i = 0; i < ret; ++i) {
@@ -220,32 +248,31 @@ result *tot, struct result *disc){
 //        for(int i=0;i<ret;i++){
 //            load_slow5_read(mem, bytes, rec, sp, i);
 //        }
-        getresaft(&r1);
-        subincres(tot, &r1, &r0);
+        tot_time += realtime() - t0;
         /**** Batch fetched ***/
 
-//        fprintf(stderr,"batch loaded with %d reads\n",ret);
+        fprintf(stderr,"batch loaded with %d reads\n",ret);
 
         //process and print (time not measured as we want to compare to the time it takes to read the file)
         process_read_batch(rec, ret);
 
         /**** Deinit ***/
-        getresbef(&r0);
+        t0 = realtime();
         free(mem);
         free(bytes);
-        getresaft(&r1);
-        subincres(tot, &r1, &r0);
+        tot_time += realtime() - t0;
         /**** End of Deinit***/
 
     }
 
     /**** Deinit ***/
-    getresbef(&r0);
+    t0 = realtime();
     slow5_close(sp);
-    getresaft(&r1);
-    subincres(tot, &r1, &r0);
+    tot_time += realtime() - t0;
     /**** End of Deinit***/
 
+    *tot_time_p = tot_time;
+    *disc_time_p = disc_time;
     return read_count;
 }
 
@@ -262,25 +289,16 @@ int main(int argc, char *argv[]) {
     int batch_size = atoi(argv[3]);
     int num_thread = atoi(argv[2]);
     fprintf(stderr,"Using %d threads\n", num_thread);
-    fprintf(stderr,"Using batch size %d\n", batch_size);
     omp_set_num_threads(num_thread);
 
     int read_count = 0;
-    int max_batch_size = batch_size;
-    struct result tot = { 0 };
-    struct result disc = { 0 };
-    read_count = read_and_process_slow5_file(path, num_thread, batch_size, &tot, &disc);
-    if (read_count < batch_size)
-        max_batch_size = read_count;
+    double tot_time = 0;
+    double disc_time = 0;
+    read_count = read_and_process_slow5_file(path, num_thread, batch_size, &tot_time, &disc_time);
     fprintf(stderr,"Reads: %d\n",read_count);
-    fprintf(stderr,"Largest batch: %d\n", max_batch_size);
-    fprintf(stderr,"Time for disc reading %f\n", disc.time);
-    fprintf(stderr,"Time for getting samples (disc+depress+parse) %f\n", tot.time);
-    fputs("--- disc results ---\n", stderr);
-    fprintres(&disc, stderr);
-    fputs("--- tot results ---\n", stderr);
-    fprintres(&tot, stderr);
-    fprintf(stderr,"real time = %.3f sec | CPU time = %.3f sec | peak RAM = %.3f GiB\n",
+    fprintf(stderr,"Time for disc reading %f\n",disc_time);
+    fprintf(stderr,"Time for getting samples (disc+depress+parse) %f\n", tot_time);
+    fprintf(stderr,"real time = %.3f sec | CPU time = %.3f sec | peak RAM = %.3f GB\n",
             realtime() - init_realtime, cputime(), peakrss() / 1024.0 / 1024.0 / 1024.0);
     return 0;
 }
