@@ -27,10 +27,11 @@ The fields accessed (in order) are [here](https://github.com/nanoporetech/dorado
 1. SSD [brenner nvme]
 2. HDD [nci lustre]
 
-## Dataset
+## Datasets
 
 Full prom 5KHz: available via
-- gtgpu:/home/hasindu/scratch/hg2_prom_lsk114_5khz_2/PGXXSX240041_reads.blow5
+- [PGXXXX230339_reads.blow5](https://gtgseq.s3.amazonaws.com/ont-r10-5khz-dna/NA24385/raw/PGXXXX230339_reads.blow5)
+- [PGXXSX240041_reads.blow5](https://gtgseq.s3.amazonaws.com/ont-r10-5khz-dna/NA24385_2/raw/PGXXSX240041_reads.blow5)
 
 ## systems
 
@@ -39,7 +40,7 @@ Full prom 5KHz: available via
 3. Mac Mini?
 4. tablet/mobile phone/ipad?
 
-## Match conditions
+## Checking conditions
 
 1. What are the compiler versions used in pod5?
 
@@ -78,7 +79,7 @@ Make sure:
 - clean_fscache to prevent caching
 - **note** : use [jemalloc  5.2.1](https://github.com/nanoporetech/pod5-file-format/blob/0.3.10/conanfile.py#L70)
 
-# Checklist
+# Match conditions Checklist
 
 POD5 version: 0.3.10
 
