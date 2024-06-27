@@ -23,6 +23,8 @@ Using the environment variables described [here](https://arrow.apache.org/docs/c
 2. [OMP_NUM_THREADS](https://arrow.apache.org/docs/cpp/env_vars.html#envvar-OMP_NUM_THREADS)
 3. [OMP_THREAD_LIMIT](https://arrow.apache.org/docs/cpp/env_vars.html#envvar-OMP_THREAD_LIMIT)
 
+See the chunk size in pod5
+
 # Quick benchmark single threaded
 
 ```
