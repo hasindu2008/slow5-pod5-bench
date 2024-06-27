@@ -1,6 +1,6 @@
 # slow5 bench
 
-For equivalent conditions with vbz in POD5, must use svb16 in BLOW5. Also, make sure all compiler versions, optimisation flags and zstd versions are equivalent as explained in [here](../conditions.md)
+For equivalent conditions with vbz in POD5, must use svb16 in BLOW5. Also, make sure all compiler versions, optimisation flags and zstd versions are equivalent as explained in [here](../docs/conditions.md)
 
 1. Prepare the input for the benchmark
 
