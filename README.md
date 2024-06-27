@@ -7,7 +7,6 @@ In this repository, we benchmark the S/BLOW5 format vs POD5 format using the C A
 Accessing all the signal data and associated parameters required for basecalling.  We load a batch of reads from the disk, decompress and parse them into memory arrays; do the processing (in this case we just convert the raw signal to picoampere and sum them up); and, output the sum along with other metadata. Only the time for loading a batch of reads from the disk, decompressing and parsing them into memory arrays is measured.
 
 - [experiment conditions](docs/conditions.md)
-- [experiment setup](docs/exp.md)
 - [results](docs/res.md)
 - [misc](docs/misc.md)
   
