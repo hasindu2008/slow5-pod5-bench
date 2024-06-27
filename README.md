@@ -1,7 +1,5 @@
 # slow5-pod5-bench
 
-**UPDATE**
-
 In this repository, we benchmark the S/BLOW5 format vs POD5 format using the C API (actually C++). C is closer to the file system than high-level languages like Python and therefore in my opinion it is a better choice to benchmark a file format. When using high level languages like Python, data type conversion that happens under the hood can dominate the execution time, thus would not be representative of the file format performance. However, despite being close to the file system, even in the C API, this will be the case to a certain degree. That is, the library implementation and optimisations done would affect the runtime considerably and if that is the case we will end up comparing the implementation rather than the file format. See caveats below before interpreting the results.
 
 
