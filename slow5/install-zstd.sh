@@ -16,6 +16,9 @@ test -d zstd && rm -r zstd
 export CC=gcc-10
 export CXX=g++-10
 
+$CC --version || die "gcc-10 not found"
+$CXX --version || die "g++-10 not found"
+
 wget https://github.com/facebook/zstd/archive/refs/tags/v${ZSTD_VERSION}.tar.gz -O zstd-v${ZSTD_VERSION}.tar.gz || die "Downloading zstd source failed"
 tar -xzf zstd-v${ZSTD_VERSION}.tar.gz || die "extracting failed"
 rm zstd-v${ZSTD_VERSION}.tar.gz
