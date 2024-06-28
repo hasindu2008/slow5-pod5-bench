@@ -11,3 +11,4 @@ pod5/pod5_sequential
 pod5/pod5_random
 *.blow5
 zstd/
+/data
