@@ -18,7 +18,7 @@ Note: FOr mac https://github.com/nanoporetech/pod5-file-format/releases/download
 
 3. Run sequential benchmark
 ```
-./pod5_sequential reads.pod5 8
+./run_seq.sh reads.pod5 8
 ```
 4. Run random (not finalized)
 ```

@@ -157,11 +157,11 @@ POD5 CXX:
     Time for getting samples (disc+depress+parse) 34.798733
 ```
 
-### minifridge (16 threads, 1000 batchsize, 20X dataset)
+### minifridge (8 threads, 1000 batchsize, 20X dataset)
 
 ```
 scp gtgpu:/home/hasindu/scratch/hg2_prom_lsk114_5khz/PGXXXX230339_reads_zstd-sv16-zd.blow5 /data2/tmp/
-./run_seq.sh /data2/tmp/PGXXXX230339_reads_zstd-sv16-zd.blow5 16 1000 c &>  minifridge_PGXXXX230339_reads_zstd-sv16-zd_8_1000_c_1.log
+./run_seq.sh /data2/tmp/PGXXXX230339_reads_zstd-sv16-zd.blow5 8 1000 c &>  minifridge_PGXXXX230339_reads_zstd-sv16-zd_8_1000_c_1.log
 
 
 rm /data2/tmp/PGXXXX230339_reads_zstd-sv16-zd.blow5
@@ -172,6 +172,7 @@ rm /data2/tmp/PGXXXX230339_reads_zstd-sv16-zd.blow5
 ### fridge:
 
 ```
+cd /home/hasindu/slow5-pod5-bench/slow5
 ./run_seq.sh /data3/tmp/PGXXXX230339_reads_zstd-sv16-zd.blow5 32 1000 c &>  fridge_PGXXXX230339_reads_zstd-sv16-zd_32_1000_c_1.log
 
 ```
