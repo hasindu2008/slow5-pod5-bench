@@ -2,7 +2,7 @@
 # run a benchmark experiment
 # specify the number of threads
 
-USAGE="usage: $0 <pod5> <thr>"
+USAGE="usage: $0 <pod5> <thr> <io/mmap>"
 
 
 die()
@@ -11,7 +11,7 @@ die()
 	exit 1
 }
 
-if [ $# -ne 2 ]
+if [ $# -ne 3 ]
 then
 	die "$USAGE"
 fi
@@ -25,6 +25,15 @@ test -e "$POD5" || die "$POD5 does not exist"
 test -d pod5_format || die "pod5_format not found"
 
 export LD_LIBRARY_PATH=pod5_format/lib
+
+if [ "$3" = "io" ]
+then
+	export POD5_DISABLE_MMAP_OPEN=1
+elif [ "$3" = "mmap" ]
+then
+else
+	die "$USAGE"
+fi
 
 clean_fscache || die "clean_fscache failed"
 
