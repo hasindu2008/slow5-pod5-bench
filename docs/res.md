@@ -9,10 +9,10 @@
 
 ### System information
 
-gtgpu-ssd: 20-core (40-threads) Intel(R) Xeon(R) Silver 4114 CPU, 377 GB of RAM, Ubuntu 18.04.5 LTS, local NVME SSD storage
-gtgpu-nfs: same above server with  network file system mounted over NFS (A synology NAS with traditional spinning disks with RAID)
-xavierjet2: ARM64 Linux 8 core
-macmini: M1 8 core
+- gtgpu-ssd: 20-core (40-threads) Intel(R) Xeon(R) Silver 4114 CPU, 377 GB of RAM, Ubuntu 18.04.5 LTS, local NVME SSD storage
+- gtgpu-nfs: same above server with  network file system mounted over NFS (A synology NAS with traditional spinning disks with RAID)
+- xavierjet2: ARM64 Linux 8 core
+- macmini: M1 8 core
 
 
 ### Software versions used
@@ -41,12 +41,13 @@ rm /data/tmp/PGXXXX230339_reads_zstd-sv16-zd.blow5
 
 cd /data/hasindu/hasindu2008.git/slow5-pod5-bench/pod5
 cp /home/hasindu/scratch/hg2_prom_lsk114_5khz/PGXXXX230339_reads.pod5 /data/tmp/PGXXXX230339_reads.pod5
-./run_seq.sh /data/tmp/PGXXXX230339_reads.pod5 20 1000 &> gtgpu-ssd_PGXXXX230339_reads_20_1000_cxx_1.log
+./run_seq.sh /data/tmp/PGXXXX230339_reads.pod5 20 &> gtgpu-ssd_PGXXXX230339_reads_20_1000_cxx_1.log
 rm /data/tmp/PGXXXX230339_reads.pod5
 ```
 
 BLOW C:
 
+```
 Time for disc reading 756.184760
 Time for getting samples (disc+depress+parse) 985.309312
         Command being timed: "taskset -a -c 0-19 ./slow5_sequential /data/tmp/PGXXXX230339_reads_zstd-sv16-zd.blow5 20 1000"
@@ -55,9 +56,9 @@ Time for getting samples (disc+depress+parse) 985.309312
         Percent of CPU this job got: 991%
         Elapsed (wall clock) time (h:mm:ss or m:ss): 17:52.04
         Maximum resident set size (kbytes): 1938568
-
+```
 BLOW CXX:
-
+```
 Time for disc reading 784.479476
 Time for getting samples (disc+depress+parse) 1014.710912
 real time = 1191.439 sec | CPU time = 11450.553 sec | peak RAM = 1.499 GB
@@ -67,7 +68,7 @@ real time = 1191.439 sec | CPU time = 11450.553 sec | peak RAM = 1.499 GB
         Percent of CPU this job got: 960%
         Elapsed (wall clock) time (h:mm:ss or m:ss): 19:51.53
         Maximum resident set size (kbytes): 1571684
-
+```
 
 POD5 CXX:
 
@@ -95,12 +96,12 @@ cd /data/hasindu/slow5-pod5-bench/slow5
 
 
 cd /data/hasindu/slow5-pod5-bench/pod5
-./run_seq.sh ../data/PGXXXX230339_reads.pod5 8 1000 &> xavierjet2_PGXXXX230339_reads_8_1000_cxx_1.log
+./run_seq.sh ../data/PGXXXX230339_reads.pod5 8 &> xavierjet2_PGXXXX230339_reads_8_1000_cxx_1.log
 
 ```
 
 BLOW5 C:
-
+```
 Time for disc reading 749.030690
 Time for getting samples (disc+depress+parse) 1387.992781
     User time (seconds): 4020.51
@@ -108,9 +109,9 @@ Time for getting samples (disc+depress+parse) 1387.992781
     Percent of CPU this job got: 306%
     Elapsed (wall clock) time (h:mm:ss or m:ss): 25:16.18
     Maximum resident set size (kbytes): 1469796
-
+```
 BLOW5 CXX:
-
+```
 Time for disc reading 775.145377
 Time for getting samples (disc+depress+parse) 1304.644667
 real time = 1460.266 sec | CPU time = 4935.438 sec | peak RAM = 1.140 GB
@@ -120,10 +121,10 @@ real time = 1460.266 sec | CPU time = 4935.438 sec | peak RAM = 1.140 GB
         Percent of CPU this job got: 337%
         Elapsed (wall clock) time (h:mm:ss or m:ss): 24:20.34
         Maximum resident set size (kbytes): 1195560
-
+```
 
 POD5 CXX:
-
+```
 Time for getting samples (disc+depress+parse) 1550.907379
 real time = 1743.637 sec | CPU time = 8818.569 sec | peak RAM = 13.696 GB
         Command being timed: "taskset -a -c 0-7 ./pod5_sequential ../data/PGXXXX230339_reads.pod5 8"
@@ -132,7 +133,7 @@ real time = 1743.637 sec | CPU time = 8818.569 sec | peak RAM = 13.696 GB
         Percent of CPU this job got: 505%
         Elapsed (wall clock) time (h:mm:ss or m:ss): 29:03.79
         Maximum resident set size (kbytes): 14361208
-
+```
 #### macmini (8 threads, 1000 batchsize, 500K dataset)
 
 Note: slow5 compiled with g++-12, no clean_fscache or taskset
@@ -147,12 +148,14 @@ cd /Users/gtg/slow5-pod5-bench/pod5
 ```
 
 BLOW5 CXX:
+```
     Time for disc reading 7.625196
     Time for getting samples (disc+depress+parse) 19.595953
-
+```
 POD5 CXX:
+```
     Time for getting samples (disc+depress+parse) 34.798733
-
+```
 
 ### minifridge (16 threads, 1000 batchsize, 20X dataset)
 
