@@ -86,15 +86,15 @@ POD5 version: 0.3.10
 | Conditions                         | pod5 IO stream             | pod5 mmap        | blow5 IO stream        | blow5 mmap             |
 | ---------------------------------- | -------------------------- | ---------------- | ---------------------- | ---------------------- |
 | File compression/version           | File v0.3.2, read table v3 | File v0.3.2, read table v3                 | zstd-sv16-zd           |  zstd-sv16-zd          |
-| Disk                               | SSD                        | SSD              | SSD                    | SSD                    |
 | Benchmark program compiler version | g++ 10                 | g++ 10        | gcc 10              | gcc 10              |
-| Bencmark program compiler flags    | g++ -Wall -O3 -g           | g++ -Wall -O3 -g | gcc -Wall -O3 -g       | gcc -Wall -O3 -g       |
-| Library compiler version           | gcc 10                 | gcc 10        | gcc 10               | gcc 10 0              |
-| Libarry compiler flags             | \-g -Wall -O3              | \-g -Wall -O3    | \-g -Wall -O3 -std=c99 | \-g -Wall -O3 -std=c99 |
-| Taskset                            | used                       | used             | used                   | used                   |
-| streamvbyte                        | N/A               | N/A     | \-g -Wall -O3          | \-g -Wall -O3          |
+| Benchmark program compiler flags   | g++ -Wall -O3 -g           | g++ -Wall -O3 -g | gcc -Wall -O3 -g       | gcc -Wall -O3 -g       |
+| Library compiler version           | gcc 10                 | gcc 10        | gcc 10               | gcc 10               |
+| Library compiler flags             | \-g -Wall -O3              | \-g -Wall -O3    | \-g -Wall -O3 -std=c99 | \-g -Wall -O3 -std=c99 |
+| streamvbyte16                      | N/A               | N/A     | \-g -Wall -O3          | \-g -Wall -O3     |
+| SIMD accelerated streamvbyte16     | yes                        | yes              | \yes                   | yes|
 | zstd version                       | 1.5.5                      | 1.5.5            | 1.5.5                  | 1.5.5                        |
+| Taskset                            | used                       | used             | used                   | used                   |
+| clean_fscache                      | used                       | used             | used                   | used                   |
 | POD5_DISABLE_MMAP_OPEN             | set                        | not set          | N/A                    | N/A                    |
-
 
 
