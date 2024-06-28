@@ -23,6 +23,9 @@ LAST_PROC=$(echo "$T-1" | bc)
 SEQ_CXX=pod5_sequential
 
 test -e "$POD5" || die "$POD5 does not exist"
+test -d pod5_format || die "pod5_format not found"
+
+export LD_LIBRARY_PATH=pod5_format/
 
 clean_fscache || die "clean_fscache failed"
 
