@@ -65,36 +65,37 @@ Contents of section .comment:
 
 4. What is the zstd version used in pod5? [zstd/1.5.5](https://github.com/nanoporetech/pod5-file-format/blob/0.3.10/conanfile.py#L63)
 
-Make sure:
 
-- access same fields in same order
-- match compiler versions and flags
-- compression method should match (svb12+zigzag+zstd)
-- SIMD accelerated version of svb in slow5lib
-- zstd version should match
-- POD5 must use streaming I/O (opposed to memory mapping)
-- POD5 must use default chunk size as in MinKNOW, as it was the reason why ONT could not integrate SLOW5 to their minKNOW
-- GLIBC and other system library versions must match
-- use taskset command to force using N number of CPUs
-- clean_fscache to prevent caching
-- **note** : use [jemalloc  5.2.1](https://github.com/nanoporetech/pod5-file-format/blob/0.3.10/conanfile.py#L70)
 
 # Match conditions Checklist
 
-POD5 version: 0.3.10
+Make sure:
+
+- [x] access same fields in same order
+- [x] compression method should match (svb12+zigzag+zstd)
+- [x] match compiler versions and flags
+- [x] SIMD accelerated version of svb in slow5lib
+- [x] zstd version should match
+- [x] use taskset command to force using N number of CPUs
+- [x] clean_fscache to prevent caching
+- [x] POD5 must use streaming I/O (opposed to memory mapping)
+ 
+- [ ] POD5 must use default chunk size as in MinKNOW, as it was the reason why ONT could not integrate SLOW5 to their minKNOW
+- [ ] **note** : use [jemalloc  5.2.1](https://github.com/nanoporetech/pod5-file-format/blob/0.3.10/conanfile.py#L70)
+- [ ] GLIBC and other system library versions must match
 
 | Conditions                         | pod5 IO stream             | pod5 mmap        | blow5 IO stream        | blow5 mmap             |
 | ---------------------------------- | -------------------------- | ---------------- | ---------------------- | ---------------------- |
 | File compression/version           | File v0.3.2, read table v3 | File v0.3.2, read table v3                 | zstd-sv16-zd           |  zstd-sv16-zd          |
-| Disk                               | SSD                        | SSD              | SSD                    | SSD                    |
 | Benchmark program compiler version | g++ 10                 | g++ 10        | gcc 10              | gcc 10              |
-| Bencmark program compiler flags    | g++ -Wall -O3 -g           | g++ -Wall -O3 -g | gcc -Wall -O3 -g       | gcc -Wall -O3 -g       |
-| Library compiler version           | gcc 10                 | gcc 10        | gcc 10               | gcc 10 0              |
-| Libarry compiler flags             | \-g -Wall -O3              | \-g -Wall -O3    | \-g -Wall -O3 -std=c99 | \-g -Wall -O3 -std=c99 |
-| Taskset                            | used                       | used             | used                   | used                   |
-| streamvbyte                        | N/A               | N/A     | \-g -Wall -O3          | \-g -Wall -O3          |
+| Benchmark program compiler flags   | g++ -Wall -O3 -g           | g++ -Wall -O3 -g | gcc -Wall -O3 -g       | gcc -Wall -O3 -g       |
+| Library compiler version           | gcc 10                 | gcc 10        | gcc 10               | gcc 10               |
+| Library compiler flags             | \-g -Wall -O3              | \-g -Wall -O3    | \-g -Wall -O3 -std=c99 | \-g -Wall -O3 -std=c99 |
+| streamvbyte16                      | N/A               | N/A     | \-g -Wall -O3          | \-g -Wall -O3     |
+| SIMD accelerated streamvbyte16     | yes                        | yes              | \yes                   | yes|
 | zstd version                       | 1.5.5                      | 1.5.5            | 1.5.5                  | 1.5.5                        |
+| Taskset                            | used                       | used             | used                   | used                   |
+| clean_fscache                      | used                       | used             | used                   | used                   |
 | POD5_DISABLE_MMAP_OPEN             | set                        | not set          | N/A                    | N/A                    |
-
 
 
