@@ -1,8 +1,8 @@
 #!/bin/sh
 # run a benchmark experiment
-# specify the number of threads and batch size
+# specify the number of threads
 
-USAGE="usage: $0 <pod5> <thr> <batch>"
+USAGE="usage: $0 <pod5> <thr>"
 
 
 die()
@@ -11,14 +11,13 @@ die()
 	exit 1
 }
 
-if [ $# -ne 3 ]
+if [ $# -ne 2 ]
 then
 	die "$USAGE"
 fi
 
 POD5=$1
 T=$2
-B=$3
 LAST_PROC=$(echo "$T-1" | bc)
 SEQ_CXX=pod5_sequential
 
