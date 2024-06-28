@@ -65,23 +65,24 @@ Contents of section .comment:
 
 4. What is the zstd version used in pod5? [zstd/1.5.5](https://github.com/nanoporetech/pod5-file-format/blob/0.3.10/conanfile.py#L63)
 
-Make sure:
 
-- access same fields in same order
-- match compiler versions and flags
-- compression method should match (svb12+zigzag+zstd)
-- SIMD accelerated version of svb in slow5lib
-- zstd version should match
-- POD5 must use streaming I/O (opposed to memory mapping)
-- POD5 must use default chunk size as in MinKNOW, as it was the reason why ONT could not integrate SLOW5 to their minKNOW
-- GLIBC and other system library versions must match
-- use taskset command to force using N number of CPUs
-- clean_fscache to prevent caching
-- **note** : use [jemalloc  5.2.1](https://github.com/nanoporetech/pod5-file-format/blob/0.3.10/conanfile.py#L70)
 
 # Match conditions Checklist
 
-POD5 version: 0.3.10
+Make sure:
+
+[ ] access same fields in same order
+[ ] compression method should match (svb12+zigzag+zstd)
+[ ] match compiler versions and flags
+[ ] SIMD accelerated version of svb in slow5lib
+[ ] zstd version should match
+[ ] use taskset command to force using N number of CPUs
+[ ] clean_fscache to prevent caching
+[ ] POD5 must use streaming I/O (opposed to memory mapping)
+ 
+[ ] POD5 must use default chunk size as in MinKNOW, as it was the reason why ONT could not integrate SLOW5 to their minKNOW
+[ ] **note** : use [jemalloc  5.2.1](https://github.com/nanoporetech/pod5-file-format/blob/0.3.10/conanfile.py#L70)
+[ ] GLIBC and other system library versions must match
 
 | Conditions                         | pod5 IO stream             | pod5 mmap        | blow5 IO stream        | blow5 mmap             |
 | ---------------------------------- | -------------------------- | ---------------- | ---------------------- | ---------------------- |
