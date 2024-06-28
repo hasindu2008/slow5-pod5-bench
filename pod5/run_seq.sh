@@ -31,6 +31,7 @@ then
 	export POD5_DISABLE_MMAP_OPEN=1
 elif [ "$3" = "mmap" ]
 then
+	echo "mmap"
 else
 	die "$USAGE"
 fi
