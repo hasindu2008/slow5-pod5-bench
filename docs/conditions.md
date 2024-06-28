@@ -71,18 +71,18 @@ Contents of section .comment:
 
 Make sure:
 
-[ ] access same fields in same order
-[ ] compression method should match (svb12+zigzag+zstd)
-[ ] match compiler versions and flags
-[ ] SIMD accelerated version of svb in slow5lib
-[ ] zstd version should match
-[ ] use taskset command to force using N number of CPUs
-[ ] clean_fscache to prevent caching
-[ ] POD5 must use streaming I/O (opposed to memory mapping)
+- [x] access same fields in same order
+- [x] compression method should match (svb12+zigzag+zstd)
+- [x] match compiler versions and flags
+- [x] SIMD accelerated version of svb in slow5lib
+- [x] zstd version should match
+- [x] use taskset command to force using N number of CPUs
+- [x] clean_fscache to prevent caching
+- [x] POD5 must use streaming I/O (opposed to memory mapping)
  
-[ ] POD5 must use default chunk size as in MinKNOW, as it was the reason why ONT could not integrate SLOW5 to their minKNOW
-[ ] **note** : use [jemalloc  5.2.1](https://github.com/nanoporetech/pod5-file-format/blob/0.3.10/conanfile.py#L70)
-[ ] GLIBC and other system library versions must match
+- [ ] POD5 must use default chunk size as in MinKNOW, as it was the reason why ONT could not integrate SLOW5 to their minKNOW
+- [ ] **note** : use [jemalloc  5.2.1](https://github.com/nanoporetech/pod5-file-format/blob/0.3.10/conanfile.py#L70)
+- [ ] GLIBC and other system library versions must match
 
 | Conditions                         | pod5 IO stream             | pod5 mmap        | blow5 IO stream        | blow5 mmap             |
 | ---------------------------------- | -------------------------- | ---------------- | ---------------------- | ---------------------- |
