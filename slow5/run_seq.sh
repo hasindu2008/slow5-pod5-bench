@@ -31,7 +31,7 @@ clean_fscache || die "clean_fscache failed"
 if [ "$C" = "c" ]
 then
 	test -x "$SEQ" || die "$SEQ does not exist"
-	/usr/bin/time -v taskset -a -c 0-"$LAST_PROC" "./$SEQ" ."$SLOW5" "$T" "$B"
+	/usr/bin/time -v taskset -a -c 0-"$LAST_PROC" "./$SEQ" "$SLOW5" "$T" "$B"
 elif [ "$C" = "cxx" ]
 then
 	test -x "$SEQ_CXX" || die "$SEQ_CXX does not exist"
