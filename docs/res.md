@@ -13,6 +13,8 @@
 - gtgpu-nfs: same above server with  network file system mounted over NFS (A synology NAS with traditional spinning disks with RAID)
 - xavierjet2: ARM64 Linux 8 core
 - macmini: M1 8 core
+- minifridge
+- fridge
 
 
 ### Software versions used
@@ -41,7 +43,8 @@ rm /data/tmp/PGXXXX230339_reads_zstd-sv16-zd.blow5
 
 cd /data/hasindu/hasindu2008.git/slow5-pod5-bench/pod5
 cp /home/hasindu/scratch/hg2_prom_lsk114_5khz/PGXXXX230339_reads.pod5 /data/tmp/PGXXXX230339_reads.pod5
-./run_seq.sh /data/tmp/PGXXXX230339_reads.pod5 20 &> gtgpu-ssd_PGXXXX230339_reads_20_1000_cxx_1.log
+./run_seq.sh /data/tmp/PGXXXX230339_reads.pod5 20 io &> gtgpu-ssd_PGXXXX230339_reads_20_io_cxx_1.log
+./run_seq.sh /data/tmp/PGXXXX230339_reads.pod5 20 mmap &> gtgpu-ssd_PGXXXX230339_reads_20_mmap_cxx_1.log
 rm /data/tmp/PGXXXX230339_reads.pod5
 ```
 
@@ -70,8 +73,22 @@ real time = 1191.439 sec | CPU time = 11450.553 sec | peak RAM = 1.499 GB
         Maximum resident set size (kbytes): 1571684
 ```
 
-POD5 CXX:
+POD5 CXX IO:
+```
 
+```
+
+POD5 CXX MMAP:
+```
+Time for getting samples (disc+depress+parse) 594.012754
+real time = 829.947 sec | CPU time = 13382.208 sec | peak RAM = 363.683 GB
+        Command being timed: "taskset -a -c 0-19 ./pod5_sequential /data/tmp/PGXXXX230339_reads.pod5 20"
+        User time (seconds): 11386.80
+        System time (seconds): 1995.45
+        Percent of CPU this job got: 1612%
+        Elapsed (wall clock) time (h:mm:ss or m:ss): 13:50.04
+        Maximum resident set size (kbytes): 381349656
+```
 
 
 
@@ -174,7 +191,20 @@ rm /data2/tmp/PGXXXX230339_reads_zstd-sv16-zd.blow5
 ```
 cd /home/hasindu/slow5-pod5-bench/slow5
 ./run_seq.sh /data3/tmp/PGXXXX230339_reads_zstd-sv16-zd.blow5 32 1000 c &>  fridge_PGXXXX230339_reads_zstd-sv16-zd_32_1000_c_1.log
+./run_seq.sh /data3/tmp/PGXXXX230339_reads_zstd-sv16-zd.blow5 32 1000 cxx &>  fridge_PGXXXX230339_reads_zstd-sv16-zd_32_1000_cxx_1.log
 
+
+```
+
+```
+Time for disc reading 1478.360469
+Time for getting samples (disc+depress+parse) 1629.623530
+        Command being timed: "taskset -a -c 0-31 ./slow5_sequential /data3/tmp/PGXXXX230339_reads_zstd-sv16-zd.blow5 32 1000"
+        User time (seconds): 9546.67
+        System time (seconds): 324.26
+        Percent of CPU this job got: 560%
+        Elapsed (wall clock) time (h:mm:ss or m:ss): 29:20.17
+        Maximum resident set size (kbytes): 2629564
 ```
 
 ### Random I/O benchmark
