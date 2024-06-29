@@ -30,8 +30,19 @@ For equivalent conditions with vbz in POD5, must use svb16 in BLOW5. Also, make 
 
 2. Compile the c benchmarks using `./build.sh`. Compile the cxx threadpool-based benchmark using `./build_cxxpool.sh`
 
+```
+On gadi first do:
+ln -s /apps/gcc/10.3.0/bin/gcc ~/.local/bin/gcc-10
+ln -s /apps/gcc/10.3.0/bin/g++ ~/.local/bin/g++-10
+
+```
 
 3. Run the benchmarks
+
+on Gadi first:
+```
+ln -s /g/data/ox63/install/clean_fscache/clean_fscache ~/.local/bin/clean_fscache
+```
 
   i. sequential benchmark (c) can be run as:
   ```
@@ -48,6 +59,9 @@ For equivalent conditions with vbz in POD5, must use svb16 in BLOW5. Also, make 
   ```
   ./run_seq.sh zstd-sv16-zd.blow5 <num-threads> <batch_size> cxx
   ```
+
+
+
 
 ---
 
