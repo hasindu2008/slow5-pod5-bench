@@ -1,13 +1,13 @@
 # Results
 
-### Experiment setup
+## Experiment setup
 
-### Dataset
+## Dataset
 
 - [HG002 PromethION 20X](https://gentechgp.github.io/gtgseq/docs/data.html#na24385-hg002-promethion-data-20x)
 - 500k subsample of the above
 
-### System information
+## System information
 
 - gtgpu-ssd: 20-core (40-threads) Intel(R) Xeon(R) Silver 4114 CPU, 377 GB of RAM, Ubuntu 18.04.5 LTS, local NVME SSD storage
 - gtgpu-nfs: same above server with  network file system mounted over NFS (A synology NAS with traditional spinning disks with RAID)
@@ -17,25 +17,29 @@
 - fridge
 
 
-### Software versions used
+## Software versions used
 
 - slow5lib bench branch commit 9ebde8f
 - pod5 library 0.3.2
 
 
-### Conversion:
+## Conversion
 ```
 /home/hasindu/hasindu2008.git/slow5tools-svb16/slow5tools view -c zstd -s svb16-zd PGXXXX230339_reads.blow5 -o PGXXXX230339_reads_zstd-sv16-zd.blow5 -t 16
 /home/hasindu/hasindu2008.git/slow5tools-svb16/slow5tools index PGXXXX230339_reads_zstd-sv16-zd.blow5
 blue-crab s2p PGXXXX230339_reads.blow5 -o PGXXXX230339_reads.pod5
 ```
 
-### Sequential I/O benchmark
+## Sequential I/O benchmark
 
 
-#### gtgpu-ssd (20 threads, 1000 batchsize, 20X dataset)
+### gtgpu-ssd (20 threads, 1000 batchsize, 20X dataset)
+
 
 ```
+sudo  smartctl -i /dev/nvme0n1
+fio --name=fiotest --filename=/data/tmp/tmp  --size=16Gb --rw=read --bs=1M --direct=1 --numjobs=8 --ioengine=libaio --iodepth=8 --group_reporting
+
 cd /data/hasindu/hasindu2008.git/slow5-pod5-bench/slow5
 cp /home/hasindu/scratch/hg2_prom_lsk114_5khz/PGXXXX230339_reads_zstd-sv16-zd.blow5 /data/tmp/PGXXXX230339_reads_zstd-sv16-zd.blow5
 ./run_seq.sh /data/tmp/PGXXXX230339_reads_zstd-sv16-zd.blow5  20 1000 c &> gtgpu-ssd_PGXXXX230339_reads_zstd-sv16-zd_20_1000_c_1.log
@@ -47,10 +51,17 @@ cp /home/hasindu/scratch/hg2_prom_lsk114_5khz/PGXXXX230339_reads.pod5 /data/tmp/
 ./run_seq.sh /data/tmp/PGXXXX230339_reads.pod5 20 io &> gtgpu-ssd_PGXXXX230339_reads_20_io_cxx_1.log
 ./run_seq.sh /data/tmp/PGXXXX230339_reads.pod5 20 mmap &> gtgpu-ssd_PGXXXX230339_reads_20_mmap_cxx_1.log
 rm /data/tmp/PGXXXX230339_reads.pod5
+
+
 ```
 
-BLOW C:
+#### theoritical
+```
+Dell Express Flash PM1725b 6.4TB AIC: 6GB/s
+READ: bw=5638MiB/s (5911MB/s), 5638MiB/s-5638MiB/s (5911MB/s-5911MB/s), io=128GiB (137GB), run=23250-23250msec
+```
 
+#### BLOW C
 ```
 Time for disc reading 756.184760
 Time for getting samples (disc+depress+parse) 985.309312
@@ -61,7 +72,8 @@ Time for getting samples (disc+depress+parse) 985.309312
         Elapsed (wall clock) time (h:mm:ss or m:ss): 17:52.04
         Maximum resident set size (kbytes): 1938568
 ```
-BLOW CXX:
+
+#### BLOW CXX
 ```
 Time for disc reading 784.479476
 Time for getting samples (disc+depress+parse) 1014.710912
@@ -74,7 +86,7 @@ real time = 1191.439 sec | CPU time = 11450.553 sec | peak RAM = 1.499 GB
         Maximum resident set size (kbytes): 1571684
 ```
 
-POD5 CXX IO:
+#### POD5 CXX IO
 ```
 Time for getting samples (disc+depress+parse) 1193.171438
 real time = 1415.727 sec | CPU time = 11763.283 sec | peak RAM = 1.380 GB
@@ -86,7 +98,7 @@ real time = 1415.727 sec | CPU time = 11763.283 sec | peak RAM = 1.380 GB
         Maximum resident set size (kbytes): 1446856
 ```
 
-POD5 CXX MMAP:
+#### POD5 CXX MMAP
 ```
 Time for getting samples (disc+depress+parse) 594.012754
 real time = 829.947 sec | CPU time = 13382.208 sec | peak RAM = 363.683 GB
@@ -98,9 +110,7 @@ real time = 829.947 sec | CPU time = 13382.208 sec | peak RAM = 363.683 GB
         Maximum resident set size (kbytes): 381349656
 ```
 
-
-
-#### gtgpu-nfs (20 threads, 1000 batchsize, 20X dataset)
+### gtgpu-nfs (20 threads, 1000 batchsize, 20X dataset)
 
 ```
 cd /data/hasindu/hasindu2008.git/slow5-pod5-bench/slow5
@@ -109,24 +119,35 @@ cd /data/hasindu/hasindu2008.git/slow5-pod5-bench/slow5
 
 cd /data/hasindu/hasindu2008.git/slow5-pod5-bench/
 
-
 ```
 
-#### xavierjet (8 threads, 1000 batchsize, 20X dataset)
+### xavierjet (8 threads, 1000 batchsize, 20X dataset)
+
 
 ```
+fio --name=fiotest --filename=/data/fiotest  --size=16Gb --rw=read --bs=1M --direct=1 --numjob
+s=8 --ioengine=libaio --iodepth=8 --group_reporting
+
 cd /data/hasindu/slow5-pod5-bench/slow5
 ./run_seq.sh ../data/PGXXXX230339_reads_zstd-sv16-zd.blow5 8 1000 c &> xavierjet2_PGXXXX230339_reads_zstd-sv16-zd_8_1000_c_1.log
 ./run_seq.sh ../data/PGXXXX230339_reads_zstd-sv16-zd.blow5 8 1000 cxx &> xavierjet2_PGXXXX230339_reads_zstd-sv16-zd_8_1000_cxx_1.log
 
-
 cd /data/hasindu/slow5-pod5-bench/pod5
 ./run_seq.sh ../data/PGXXXX230339_reads.pod5 8 io &> xavierjet2_PGXXXX230339_reads_8_io_cxx_1.log
 ./run_seq.sh ../data/PGXXXX230339_reads.pod5 8 mmap &> xavierjet2_PGXXXX230339_reads_8_mmap_cxx_1.log
-
 ```
 
-BLOW5 C:
+#### Theoritical
+```
+Samsung SSD 970 EVO Plus 2TB
+3500MB/s
+```
+```
+   READ: bw=1935MiB/s (2029MB/s), 1935MiB/s-1935MiB/s (2029MB/s-2029MB/s), io=128GiB (137GB), run=67752-67752msec
+```
+
+
+#### BLOW5 C
 ```
 Time for disc reading 749.030690
 Time for getting samples (disc+depress+parse) 1387.992781
@@ -136,7 +157,8 @@ Time for getting samples (disc+depress+parse) 1387.992781
     Elapsed (wall clock) time (h:mm:ss or m:ss): 25:16.18
     Maximum resident set size (kbytes): 1469796
 ```
-BLOW5 CXX:
+
+#### BLOW5 CXX
 ```
 Time for disc reading 775.145377
 Time for getting samples (disc+depress+parse) 1304.644667
@@ -149,7 +171,7 @@ real time = 1460.266 sec | CPU time = 4935.438 sec | peak RAM = 1.140 GB
         Maximum resident set size (kbytes): 1195560
 ```
 
-POD5 CXX IO:
+#### POD5 CXX IO
 ```
 Time for getting samples (disc+depress+parse) 1186.981775
 real time = 1344.014 sec | CPU time = 5037.281 sec | peak RAM = 0.947 GB | CPU Usage = 46.8%
@@ -161,7 +183,7 @@ real time = 1344.014 sec | CPU time = 5037.281 sec | peak RAM = 0.947 GB | CPU U
         Maximum resident set size (kbytes): 993204
 ```
 
-POD5 CXX MMAP:
+#### POD5 CXX MMAP
 ```
 Time for getting samples (disc+depress+parse) 1550.907379
 real time = 1743.637 sec | CPU time = 8818.569 sec | peak RAM = 13.696 GB
@@ -172,7 +194,7 @@ real time = 1743.637 sec | CPU time = 8818.569 sec | peak RAM = 13.696 GB
         Elapsed (wall clock) time (h:mm:ss or m:ss): 29:03.79
         Maximum resident set size (kbytes): 14361208
 ```
-#### macmini (8 threads, 1000 batchsize, 500K dataset)
+### macmini (8 threads, 1000 batchsize, 500K dataset)
 
 Note: slow5 compiled with g++-12, no clean_fscache or taskset
 
@@ -185,12 +207,12 @@ cd /Users/gtg/slow5-pod5-bench/pod5
 ./pod5_sequential ../data/PGXXXX230339_reads_500k.pod5 8 > /dev/null
 ```
 
-BLOW5 CXX:
+#### BLOW5 CXX
 ```
     Time for disc reading 7.625196
     Time for getting samples (disc+depress+parse) 19.595953
 ```
-POD5 CXX:
+#### POD5 CXX
 ```
     Time for getting samples (disc+depress+parse) 34.798733
 ```
@@ -198,6 +220,8 @@ POD5 CXX:
 ### minifridge (8 threads, 1000 batchsize, 20X dataset)
 
 ```
+fio --name=fiotest --filename=/data2/tmp/fiotest  --size=16Gb --rw=read --bs=1M --direct=1 --numjobs=8 --ioengine=libaio --iodepth=8 --group_reporting
+
 scp gtgpu:/home/hasindu/scratch/hg2_prom_lsk114_5khz/PGXXXX230339_reads_zstd-sv16-zd.blow5 /data2/tmp/
 ./run_seq.sh /data2/tmp/PGXXXX230339_reads_zstd-sv16-zd.blow5 8 1000 c &>  minifridge_PGXXXX230339_reads_zstd-sv16-zd_8_1000_c_1.log
 ./run_seq.sh /data2/tmp/PGXXXX230339_reads_zstd-sv16-zd.blow5 8 1000 cxx &>  minifridge_PGXXXX230339_reads_zstd-sv16-zd_8_1000_cxx_1.log
@@ -207,10 +231,20 @@ scp gtgpu:/home/hasindu/scratch/hg2_prom_lsk114_5khz/PGXXXX230339_reads.pod5 /da
 ./run_seq.sh /data2/tmp/PGXXXX230339_reads.pod5 8 io &> minifridge_PGXXXX230339_reads_8_io_cxx_1.log
 ./run_seq.sh /data2/PGXXXX230339_reads.pod5 8 mmap &> minifridge_PGXXXX230339_reads_8_mmap_cxx_1.log
 rm /home/hasindu/scratch/hg2_prom_lsk114_5khz/PGXXXX230339_reads.pod5
+
 ```
 
-BLOW5 C:
+#### Theoritical
+```
+sudo  hdparm -I /dev/sda | less
+Samsung SSD 870 QVO 4TB
+560MB/s
+<same as fridge>
 
+READ: bw=539MiB/s (566MB/s), 539MiB/s-539MiB/s (566MB/s-566MB/s), io=128GiB (137GB), run=242980-242980msec
+```
+
+#### BLOW5 C
 ```
 Time for disc reading 1474.799860
 Time for getting samples (disc+depress+parse) 1851.329054
@@ -222,7 +256,7 @@ Time for getting samples (disc+depress+parse) 1851.329054
         Maximum resident set size (kbytes): 1522728
 ```
 
-BLOW5 CXX:
+#### BLOW5 CXX
 ```
 Time for disc reading 1471.422431
 Time for getting samples (disc+depress+parse) 1713.321039
@@ -235,8 +269,8 @@ real time = 1854.048 sec | CPU time = 6163.011 sec | peak RAM = 1.160 GB
         Maximum resident set size (kbytes): 1216760
 ```
 
-POD5 CXX IO:
-
+#### POD5 CXX IO
+```
 Time for getting samples (disc+depress+parse) 2137.447083
 real time = 2333.369 sec | CPU time = 10036.073 sec | peak RAM = 0.952 GB | CPU Usage = 53.8%
         Command being timed: "taskset -a -c 0-7 ./pod5_sequential /data2/tmp/PGXXXX230339_reads.pod5 8"
@@ -245,9 +279,10 @@ real time = 2333.369 sec | CPU time = 10036.073 sec | peak RAM = 0.952 GB | CPU 
         Percent of CPU this job got: 430%
         Elapsed (wall clock) time (h:mm:ss or m:ss): 38:53.40
         Maximum resident set size (kbytes): 997744
+```
 
-POD5 CXX MMAP:
-
+#### POD5 CXX MMAP
+```
 Time for getting samples (disc+depress+parse) 1903.859728
 real time = 1984.545 sec | CPU time = 3614.539 sec | peak RAM = 47.321 GB | CPU Usage = 22.8%
         Command being timed: "taskset -a -c 0-7 ./pod5_sequential /data2/tmp/PGXXXX230339_reads.pod5 8"
@@ -256,15 +291,21 @@ real time = 1984.545 sec | CPU time = 3614.539 sec | peak RAM = 47.321 GB | CPU 
         Percent of CPU this job got: 182%
         Elapsed (wall clock) time (h:mm:ss or m:ss): 33:04.56
         Maximum resident set size (kbytes): 49620080
+```
 
 
-### fridge:
+### fridge-ssd (32 threads, 1000 batch size, 20X):
 
 
 ```
+fio --name=fiotest --filename=/data3/tmp/fiotest  --size=16Gb --rw=read --bs=1M --direct=1 --numjobs=8 --ioengine=libaio --iodepth=8 --group_reporting
+
 cd /home/hasindu/slow5-pod5-bench/slow5
 ./run_seq.sh /data3/tmp/PGXXXX230339_reads_zstd-sv16-zd.blow5 32 1000 c &>  fridge_PGXXXX230339_reads_zstd-sv16-zd_32_1000_c_1.log
 ./run_seq.sh /data3/tmp/PGXXXX230339_reads_zstd-sv16-zd.blow5 32 1000 cxx &>  fridge_PGXXXX230339_reads_zstd-sv16-zd_32_1000_cxx_1.log
+du -h /data3/tmp/PGXXXX230339_reads_zstd-sv16-zd.blow5
+clean_fscache
+/usr/bin/time -v cat /data3/tmp/PGXXXX230339_reads_zstd-sv16-zd.blow5 > /dev/null
 
 ./run_seq.sh /data3/tmp/PGXXXX230339_reads.pod5 32 io &> fridge_PGXXXX230339_reads_32_io_cxx_1.log
 ./run_seq.sh /data3/tmp/PGXXXX230339_reads.pod5 32 mmap &> fridge_PGXXXX230339_reads_32_mmap_cxx_1.log
@@ -272,7 +313,17 @@ cd /home/hasindu/slow5-pod5-bench/slow5
 ```
 
 
-BLOW5 C:
+#### Theoritical:
+```
+740G    /data3/tmp/PGXXXX230339_reads_zstd-sv16-zd.blow5
+Disk: Samsung 870 QVO 8TB
+Seq read: 560MB/s
+best read time = 1321 s= = 22 min
+
+READ: bw=540MiB/s (566MB/s), 540MiB/s-540MiB/s (566MB/s-566MB/s), io=128GiB (137GB), run=242776-242776msec
+```
+
+#### BLOW5 C
 ```
 Time for disc reading 1478.360469
 Time for getting samples (disc+depress+parse) 1629.623530
@@ -284,7 +335,7 @@ Time for getting samples (disc+depress+parse) 1629.623530
         Maximum resident set size (kbytes): 2629564
 ```
 
-BLOW5 CXX:
+#### BLOW5 CXX
 ```
 Time for disc reading 1477.932120
 Time for getting samples (disc+depress+parse) 1674.696248
@@ -298,8 +349,18 @@ real time = 1788.522 sec | CPU time = 8497.014 sec | peak RAM = 2.020 GB
 
 ```
 
-POD5 CXX IO:
+#### cat
+```
+        Command being timed: "cat /data3/tmp/PGXXXX230339_reads_zstd-sv16-zd.blow5"
+        User time (seconds): 1.50
+        System time (seconds): 274.87
+        Percent of CPU this job got: 18%
+        Elapsed (wall clock) time (h:mm:ss or m:ss): 24:19.41
+```
 
+
+#### POD5 CXX IO
+```
 Time for getting samples (disc+depress+parse) 1588.451950
 real time = 1763.557 sec | CPU time = 10179.795 sec | peak RAM = 2.011 GB
         Command being timed: "taskset -a -c 0-31 ./pod5_sequential /data3/tmp/PGXXXX230339_reads.pod5 32"
@@ -307,10 +368,10 @@ real time = 1763.557 sec | CPU time = 10179.795 sec | peak RAM = 2.011 GB
         System time (seconds): 566.35
         Percent of CPU this job got: 577%
         Elapsed (wall clock) time (h:mm:ss or m:ss): 29:23.74
+```
 
-
-POD5 CXX MMAP:
-
+#### POD5 CXX MMAP
+```
 Time for getting samples (disc+depress+parse) 1806.573786
 real time = 1971.416 sec | CPU time = 11619.325 sec | peak RAM = 85.854 GB
         Command being timed: "taskset -a -c 0-31 ./pod5_sequential /data3/tmp/PGXXXX230339_reads.pod5 32"
@@ -323,18 +384,22 @@ real time = 1971.416 sec | CPU time = 11619.325 sec | peak RAM = 85.854 GB
         Average stack size (kbytes): 0
         Average total size (kbytes): 0
         Maximum resident set size (kbytes): 90024308
-
-
-cat:
-```
-clean_fscache
-/usr/bin/time -v cat /data3/tmp/PGXXXX230339_reads_zstd-sv16-zd.blow5 > /dev/null
-        Command being timed: "cat /data3/tmp/PGXXXX230339_reads_zstd-sv16-zd.blow5"
-        User time (seconds): 1.50
-        System time (seconds): 274.87
-        Percent of CPU this job got: 18%
-        Elapsed (wall clock) time (h:mm:ss or m:ss): 24:19.41
 ```
 
+### fridge-nvme (32 threads, 1000 batch size, 20X):
+
+```
+fio --name=fiotest --filename=/data2/tmp/tmp  --size=16Gb --rw=read --bs=1M --direct=1 --numjobs=8 --ioengine=libaio --iodepth=8 --group_reporting
+```
+#### Theoritical:
+Samsung SSD 970 EVO Plus 2TB
+3500MB/s * 3
+
+```
+
+
+   READ: bw=9031MiB/s (9469MB/s), 9031MiB/s-9031MiB/s (9469MB/s-9469MB/s), io=128GiB (137GB), run=14514-14514msec
+
+```
 
 ### Random I/O benchmark
