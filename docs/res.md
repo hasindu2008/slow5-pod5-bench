@@ -33,8 +33,6 @@ blue-crab s2p PGXXXX230339_reads.blow5 -o PGXXXX230339_reads.pod5
 ### Sequential I/O benchmark
 
 
-
-
 #### gtgpu-ssd (20 threads, 1000 batchsize, 20X dataset)
 
 ```
@@ -138,7 +136,7 @@ Time for getting samples (disc+depress+parse) 1387.992781
     Elapsed (wall clock) time (h:mm:ss or m:ss): 25:16.18
     Maximum resident set size (kbytes): 1469796
 ```
-BLOW5 CXX MMAP:
+BLOW5 CXX:
 ```
 Time for disc reading 775.145377
 Time for getting samples (disc+depress+parse) 1304.644667
@@ -151,7 +149,19 @@ real time = 1460.266 sec | CPU time = 4935.438 sec | peak RAM = 1.140 GB
         Maximum resident set size (kbytes): 1195560
 ```
 
-POD5 CXX:
+POD5 CXX IO:
+```
+Time for getting samples (disc+depress+parse) 1186.981775
+real time = 1344.014 sec | CPU time = 5037.281 sec | peak RAM = 0.947 GB | CPU Usage = 46.8%
+        Command being timed: "taskset -a -c 0-7 ./pod5_sequential ../data/PGXXXX230339_reads.pod5 8"
+        User time (seconds): 4341.19
+        System time (seconds): 696.12
+        Percent of CPU this job got: 374%
+        Elapsed (wall clock) time (h:mm:ss or m:ss): 22:24.10
+        Maximum resident set size (kbytes): 993204
+```
+
+POD5 CXX MMAP:
 ```
 Time for getting samples (disc+depress+parse) 1550.907379
 real time = 1743.637 sec | CPU time = 8818.569 sec | peak RAM = 13.696 GB
@@ -225,6 +235,29 @@ real time = 1854.048 sec | CPU time = 6163.011 sec | peak RAM = 1.160 GB
         Maximum resident set size (kbytes): 1216760
 ```
 
+POD5 CXX IO:
+
+Time for getting samples (disc+depress+parse) 2137.447083
+real time = 2333.369 sec | CPU time = 10036.073 sec | peak RAM = 0.952 GB | CPU Usage = 53.8%
+        Command being timed: "taskset -a -c 0-7 ./pod5_sequential /data2/tmp/PGXXXX230339_reads.pod5 8"
+        User time (seconds): 9480.37
+        System time (seconds): 555.71
+        Percent of CPU this job got: 430%
+        Elapsed (wall clock) time (h:mm:ss or m:ss): 38:53.40
+        Maximum resident set size (kbytes): 997744
+
+POD5 CXX MMAP:
+
+Time for getting samples (disc+depress+parse) 1903.859728
+real time = 1984.545 sec | CPU time = 3614.539 sec | peak RAM = 47.321 GB | CPU Usage = 22.8%
+        Command being timed: "taskset -a -c 0-7 ./pod5_sequential /data2/tmp/PGXXXX230339_reads.pod5 8"
+        User time (seconds): 3254.28
+        System time (seconds): 360.26
+        Percent of CPU this job got: 182%
+        Elapsed (wall clock) time (h:mm:ss or m:ss): 33:04.56
+        Maximum resident set size (kbytes): 49620080
+
+
 ### fridge:
 
 
@@ -264,5 +297,44 @@ real time = 1788.522 sec | CPU time = 8497.014 sec | peak RAM = 2.020 GB
         Maximum resident set size (kbytes): 2118020
 
 ```
+
+POD5 CXX IO:
+
+Time for getting samples (disc+depress+parse) 1588.451950
+real time = 1763.557 sec | CPU time = 10179.795 sec | peak RAM = 2.011 GB
+        Command being timed: "taskset -a -c 0-31 ./pod5_sequential /data3/tmp/PGXXXX230339_reads.pod5 32"
+        User time (seconds): 9613.53
+        System time (seconds): 566.35
+        Percent of CPU this job got: 577%
+        Elapsed (wall clock) time (h:mm:ss or m:ss): 29:23.74
+
+
+POD5 CXX MMAP:
+
+Time for getting samples (disc+depress+parse) 1806.573786
+real time = 1971.416 sec | CPU time = 11619.325 sec | peak RAM = 85.854 GB
+        Command being timed: "taskset -a -c 0-31 ./pod5_sequential /data3/tmp/PGXXXX230339_reads.pod5 32"
+        User time (seconds): 9418.19
+        System time (seconds): 2201.17
+        Percent of CPU this job got: 589%
+        Elapsed (wall clock) time (h:mm:ss or m:ss): 32:51.47
+        Average shared text size (kbytes): 0
+        Average unshared data size (kbytes): 0
+        Average stack size (kbytes): 0
+        Average total size (kbytes): 0
+        Maximum resident set size (kbytes): 90024308
+
+
+cat:
+```
+clean_fscache
+/usr/bin/time -v cat /data3/tmp/PGXXXX230339_reads_zstd-sv16-zd.blow5 > /dev/null
+        Command being timed: "cat /data3/tmp/PGXXXX230339_reads_zstd-sv16-zd.blow5"
+        User time (seconds): 1.50
+        System time (seconds): 274.87
+        Percent of CPU this job got: 18%
+        Elapsed (wall clock) time (h:mm:ss or m:ss): 24:19.41
+```
+
 
 ### Random I/O benchmark
