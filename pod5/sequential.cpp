@@ -11,7 +11,6 @@
 #include "cxxpool.h"
 #include <inttypes.h>
 #include <string.h>
-
 #include <sys/resource.h>
 
 // 37 = number of bytes in UUID (32 hex digits + 4 dashes + null terminator)
@@ -194,6 +193,10 @@ int read_and_process_pod5_file(const std::string& path, size_t m_num_worker_thre
 
     print_header();
 
+    omp_set_num_threads(m_num_worker_threads);
+    fprintf(stderr,"threads: %d\n", m_num_worker_threads);
+
+
     /**** Initialisation and opening of the file ***/
     t0 = realtime();
 
@@ -208,6 +211,7 @@ int read_and_process_pod5_file(const std::string& path, size_t m_num_worker_thre
         fprintf(stderr, "Failed to query batch count: %s\n", pod5_get_error_string());
         exit(EXIT_FAILURE);
     }
+
     fprintf(stderr, "batch_count: %zu\n", batch_count);
     cxxpool::thread_pool pool{m_num_worker_threads};
 
@@ -290,8 +294,6 @@ int main(int argc, char *argv[]) {
 
     const char *path = argv[1];
     int num_thread = atoi(argv[2]);
-    fprintf(stderr,"Using %d threads\n", num_thread);
-    omp_set_num_threads(num_thread);
 
     int read_count = 0;
     double tot_time = 0;
@@ -300,7 +302,9 @@ int main(int argc, char *argv[]) {
     fprintf(stderr,"Reads: %d\n",read_count);
     fprintf(stderr,"Time for disc reading %f\n",disc_time);
     fprintf(stderr,"Time for getting samples (disc+depress+parse) %f\n", tot_time);
-    fprintf(stderr,"real time = %.3f sec | CPU time = %.3f sec | peak RAM = %.3f GB\n",
-            realtime() - init_realtime, cputime(), peakrss() / 1024.0 / 1024.0 / 1024.0);
+    double cpu_time = cputime();
+    double real_time = realtime() - init_realtime;
+    fprintf(stderr,"real time = %.3f sec | CPU time = %.3f sec | peak RAM = %.3f GB | CPU Usage = %.1f%%\n",
+            real_time, cpu_time, peakrss() / 1024.0 / 1024.0 / 1024.0, cpu_time/(real_time*num_thread)*100);
     return 0;
 }

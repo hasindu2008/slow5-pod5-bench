@@ -32,6 +32,9 @@ blue-crab s2p PGXXXX230339_reads.blow5 -o PGXXXX230339_reads.pod5
 
 ### Sequential I/O benchmark
 
+
+
+
 #### gtgpu-ssd (20 threads, 1000 batchsize, 20X dataset)
 
 ```
@@ -75,7 +78,14 @@ real time = 1191.439 sec | CPU time = 11450.553 sec | peak RAM = 1.499 GB
 
 POD5 CXX IO:
 ```
-
+Time for getting samples (disc+depress+parse) 1193.171438
+real time = 1415.727 sec | CPU time = 11763.283 sec | peak RAM = 1.380 GB
+        Command being timed: "taskset -a -c 0-19 ./pod5_sequential /data/tmp/PGXXXX230339_reads.pod5 20"
+        User time (seconds): 11109.10
+        System time (seconds): 654.28
+        Percent of CPU this job got: 830%
+        Elapsed (wall clock) time (h:mm:ss or m:ss): 23:35.83
+        Maximum resident set size (kbytes): 1446856
 ```
 
 POD5 CXX MMAP:
@@ -113,7 +123,8 @@ cd /data/hasindu/slow5-pod5-bench/slow5
 
 
 cd /data/hasindu/slow5-pod5-bench/pod5
-./run_seq.sh ../data/PGXXXX230339_reads.pod5 8 &> xavierjet2_PGXXXX230339_reads_8_1000_cxx_1.log
+./run_seq.sh ../data/PGXXXX230339_reads.pod5 8 io &> xavierjet2_PGXXXX230339_reads_8_io_cxx_1.log
+./run_seq.sh ../data/PGXXXX230339_reads.pod5 8 mmap &> xavierjet2_PGXXXX230339_reads_8_mmap_cxx_1.log
 
 ```
 
@@ -127,7 +138,7 @@ Time for getting samples (disc+depress+parse) 1387.992781
     Elapsed (wall clock) time (h:mm:ss or m:ss): 25:16.18
     Maximum resident set size (kbytes): 1469796
 ```
-BLOW5 CXX:
+BLOW5 CXX MMAP:
 ```
 Time for disc reading 775.145377
 Time for getting samples (disc+depress+parse) 1304.644667
@@ -179,23 +190,56 @@ POD5 CXX:
 ```
 scp gtgpu:/home/hasindu/scratch/hg2_prom_lsk114_5khz/PGXXXX230339_reads_zstd-sv16-zd.blow5 /data2/tmp/
 ./run_seq.sh /data2/tmp/PGXXXX230339_reads_zstd-sv16-zd.blow5 8 1000 c &>  minifridge_PGXXXX230339_reads_zstd-sv16-zd_8_1000_c_1.log
-
-
+./run_seq.sh /data2/tmp/PGXXXX230339_reads_zstd-sv16-zd.blow5 8 1000 cxx &>  minifridge_PGXXXX230339_reads_zstd-sv16-zd_8_1000_cxx_1.log
 rm /data2/tmp/PGXXXX230339_reads_zstd-sv16-zd.blow5
 
+scp gtgpu:/home/hasindu/scratch/hg2_prom_lsk114_5khz/PGXXXX230339_reads.pod5 /data2/tmp/
+./run_seq.sh /data2/tmp/PGXXXX230339_reads.pod5 8 io &> minifridge_PGXXXX230339_reads_8_io_cxx_1.log
+./run_seq.sh /data2/PGXXXX230339_reads.pod5 8 mmap &> minifridge_PGXXXX230339_reads_8_mmap_cxx_1.log
+rm /home/hasindu/scratch/hg2_prom_lsk114_5khz/PGXXXX230339_reads.pod5
+```
 
+BLOW5 C:
+
+```
+Time for disc reading 1474.799860
+Time for getting samples (disc+depress+parse) 1851.329054
+        Command being timed: "taskset -a -c 0-7 ./slow5_sequential /data2/tmp/PGXXXX230339_reads_zstd-sv16-zd.blow5 8 1000"
+        User time (seconds): 6944.61
+        System time (seconds): 234.77
+        Percent of CPU this job got: 358%
+        Elapsed (wall clock) time (h:mm:ss or m:ss): 33:22.31
+        Maximum resident set size (kbytes): 1522728
+```
+
+BLOW5 CXX:
+```
+Time for disc reading 1471.422431
+Time for getting samples (disc+depress+parse) 1713.321039
+real time = 1854.048 sec | CPU time = 6163.011 sec | peak RAM = 1.160 GB
+        Command being timed: "taskset -a -c 0-7 ./slow5_sequential_cxxpool /data2/tmp/PGXXXX230339_reads_zstd-sv16-zd.blow5 8 1000"
+        User time (seconds): 5898.62
+        System time (seconds): 264.41
+        Percent of CPU this job got: 332%
+        Elapsed (wall clock) time (h:mm:ss or m:ss): 30:54.07
+        Maximum resident set size (kbytes): 1216760
 ```
 
 ### fridge:
+
 
 ```
 cd /home/hasindu/slow5-pod5-bench/slow5
 ./run_seq.sh /data3/tmp/PGXXXX230339_reads_zstd-sv16-zd.blow5 32 1000 c &>  fridge_PGXXXX230339_reads_zstd-sv16-zd_32_1000_c_1.log
 ./run_seq.sh /data3/tmp/PGXXXX230339_reads_zstd-sv16-zd.blow5 32 1000 cxx &>  fridge_PGXXXX230339_reads_zstd-sv16-zd_32_1000_cxx_1.log
 
+./run_seq.sh /data3/tmp/PGXXXX230339_reads.pod5 32 io &> fridge_PGXXXX230339_reads_32_io_cxx_1.log
+./run_seq.sh /data3/tmp/PGXXXX230339_reads.pod5 32 mmap &> fridge_PGXXXX230339_reads_32_mmap_cxx_1.log
 
 ```
 
+
+BLOW5 C:
 ```
 Time for disc reading 1478.360469
 Time for getting samples (disc+depress+parse) 1629.623530
@@ -205,6 +249,20 @@ Time for getting samples (disc+depress+parse) 1629.623530
         Percent of CPU this job got: 560%
         Elapsed (wall clock) time (h:mm:ss or m:ss): 29:20.17
         Maximum resident set size (kbytes): 2629564
+```
+
+BLOW5 CXX:
+```
+Time for disc reading 1477.932120
+Time for getting samples (disc+depress+parse) 1674.696248
+real time = 1788.522 sec | CPU time = 8497.014 sec | peak RAM = 2.020 GB
+        Command being timed: "taskset -a -c 0-31 ./slow5_sequential_cxxpool /data3/tmp/PGXXXX230339_reads_zstd-sv16-zd.blow5 32 1000"
+        User time (seconds): 7952.15
+        System time (seconds): 544.93
+        Percent of CPU this job got: 475%
+        Elapsed (wall clock) time (h:mm:ss or m:ss): 29:48.60
+        Maximum resident set size (kbytes): 2118020
+
 ```
 
 ### Random I/O benchmark

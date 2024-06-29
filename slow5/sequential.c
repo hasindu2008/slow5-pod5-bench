@@ -8,6 +8,26 @@
 #include <slow5/slow5.h>
 #include <omp.h>
 #include <sys/time.h>
+#include <sys/resource.h>
+
+// From minimap2
+static inline long peakrss(void) {
+    struct rusage r;
+    getrusage(RUSAGE_SELF, &r);
+#ifdef __linux__
+    return r.ru_maxrss * 1024;
+#else
+    return r.ru_maxrss;
+#endif
+}
+
+// From minimap2/misc
+static inline double cputime(void) {
+    struct rusage r;
+    getrusage(RUSAGE_SELF, &r);
+    return r.ru_utime.tv_sec + r.ru_stime.tv_sec +
+           1e-6 * (r.ru_utime.tv_usec + r.ru_stime.tv_usec);
+}
 
 static inline double realtime(void) {
     struct timeval tp;
@@ -98,8 +118,10 @@ void process_read_batch(rec_t *rec_list, int n){
             sum += (rec->raw_signal[j]);
         }
         sums[i] = sum;
+        //fprintf(stderr,"omp threads %d\n",omp_get_num_threads());
     }
-    fprintf(stderr,"batch processed with %d reads\n",n);
+
+    //fprintf(stderr,"batch processed with %d reads\n",n);
 
     for(int i=0;i<n;i++){
         rec_t *rec = &rec_list[i];
@@ -124,7 +146,7 @@ void process_read_batch(rec_t *rec_list, int n){
 
         fprintf(stdout, "\n");
     }
-    fprintf(stderr,"batch printed with %d reads\n",n);
+    //fprintf(stderr,"batch printed with %d reads\n",n);
 
     free(sums);
     for(int i=0;i<n;i++){
@@ -185,6 +207,10 @@ int read_and_process_slow5_file(const char *path, int num_thread, int batch_size
 
     print_header();
 
+    omp_set_num_threads(num_thread);
+    fprintf(stderr,"threads: %d\n", num_thread);
+    fprintf(stderr,"batchsize: %d\n", batch_size);
+
     /**** Initialisation and opening of the file ***/
     t0 = realtime();
 
@@ -216,11 +242,12 @@ int read_and_process_slow5_file(const char *path, int num_thread, int batch_size
         #pragma omp parallel for
         for(int i=0;i<ret;i++){
             load_slow5_read(mem, bytes, rec, sp, i);
+            //fprintf(stderr,"omp threads %d\n",omp_get_num_threads());
         }
         tot_time += realtime() - t0;
         /**** Batch fetched ***/
 
-        fprintf(stderr,"batch loaded with %d reads\n",ret);
+        //fprintf(stderr,"batch loaded with %d reads\n",ret);
 
         //process and print (time not measured as we want to compare to the time it takes to read the file)
         process_read_batch(rec, ret);
@@ -249,6 +276,8 @@ int read_and_process_slow5_file(const char *path, int num_thread, int batch_size
 
 int main(int argc, char *argv[]) {
 
+    double init_realtime = realtime();
+
     if(argc != 4) {
         fprintf(stderr, "Usage: %s reads.blow5 num_thread batch_size\n", argv[0]);
         return EXIT_FAILURE;
@@ -257,8 +286,6 @@ int main(int argc, char *argv[]) {
     const char *path = argv[1];
     int batch_size = atoi(argv[3]);
     int num_thread = atoi(argv[2]);
-    fprintf(stderr,"Using %d threads\n", num_thread);
-    omp_set_num_threads(num_thread);
 
     int read_count = 0;
     double tot_time = 0;
@@ -267,6 +294,9 @@ int main(int argc, char *argv[]) {
     fprintf(stderr,"Reads: %d\n",read_count);
     fprintf(stderr,"Time for disc reading %f\n",disc_time);
     fprintf(stderr,"Time for getting samples (disc+depress+parse) %f\n", tot_time);
-
+    double cpu_time = cputime();
+    double real_time = realtime() - init_realtime;
+    fprintf(stderr,"real time = %.3f sec | CPU time = %.3f sec | peak RAM = %.3f GB | CPU Usage = %.1f%%\n",
+            real_time, cpu_time, peakrss() / 1024.0 / 1024.0 / 1024.0, cpu_time/(real_time*num_thread)*100);
     return 0;
 }

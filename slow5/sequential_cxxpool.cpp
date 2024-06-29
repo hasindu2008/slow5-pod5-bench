@@ -122,7 +122,7 @@ void process_read_batch(rec_t *rec_list, int n){
         }
         sums[i] = sum;
     }
-    fprintf(stderr,"batch processed with %d reads\n",n);
+    //fprintf(stderr,"batch processed with %d reads\n",n);
 
     for(int i=0;i<n;i++){
         rec_t *rec = &rec_list[i];
@@ -147,7 +147,7 @@ void process_read_batch(rec_t *rec_list, int n){
 
         fprintf(stdout, "\n");
     }
-    fprintf(stderr,"batch printed with %d reads\n",n);
+    //fprintf(stderr,"batch printed with %d reads\n",n);
 
     free(sums);
     for(int i=0;i<n;i++){
@@ -208,6 +208,10 @@ int read_and_process_slow5_file(const char *path, int num_thread, int batch_size
 
     print_header();
 
+    omp_set_num_threads(num_thread);
+    fprintf(stderr,"threads: %d\n", num_thread);
+    fprintf(stderr,"batchsize: %d\n", batch_size);
+
     /**** Initialisation and opening of the file ***/
     t0 = realtime();
 
@@ -251,7 +255,7 @@ int read_and_process_slow5_file(const char *path, int num_thread, int batch_size
         tot_time += realtime() - t0;
         /**** Batch fetched ***/
 
-        fprintf(stderr,"batch loaded with %d reads\n",ret);
+        //fprintf(stderr,"batch loaded with %d reads\n",ret);
 
         //process and print (time not measured as we want to compare to the time it takes to read the file)
         process_read_batch(rec, ret);
