@@ -251,6 +251,7 @@ int read_and_process_pod5_file(const std::string& path, size_t m_num_worker_thre
         }
 
         tot_time += realtime() - t0;
+        disc_time += realtime() - t0;
         /**** Batch fetched ***/
 
 //        fprintf(stderr,"batch loaded with %zu reads\n", batch_row_count);
