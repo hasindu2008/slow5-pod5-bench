@@ -1,7 +1,5 @@
 #!/bin/bash
 
-USAGE="usage: $0 <slow5> <thr> <batch> <c/cxx>"
-
 die()
 {
 	echo "$1" 1>&2
