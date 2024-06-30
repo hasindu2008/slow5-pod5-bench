@@ -307,7 +307,7 @@ rm /data2/tmp/PGXXXX230339_reads_zstd-sv16-zd.blow5
 
 scp gtgpu:/home/hasindu/scratch/hg2_prom_lsk114_5khz/PGXXXX230339_reads.pod5 /data2/tmp/
 ./run_seq.sh /data2/tmp/PGXXXX230339_reads.pod5 8 io &> minifridge_PGXXXX230339_reads_8_io_cxx_1.log
-./run_seq.sh /data2/PGXXXX230339_reads.pod5 8 mmap &> minifridge_PGXXXX230339_reads_8_mmap_cxx_1.log
+./run_seq.sh /data2/tmp/PGXXXX230339_reads.pod5 8 mmap &> minifridge_PGXXXX230339_reads_8_mmap_cxx_1.log
 rm /home/hasindu/scratch/hg2_prom_lsk114_5khz/PGXXXX230339_reads.pod5
 ```
 
