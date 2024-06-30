@@ -8,16 +8,18 @@ die()
 
 cd /data/hasindu/hasindu2008.git/slow5-pod5-bench/slow5 || die "cd fail"
 
+THREADS=$(nproc)
+
 echo "BLOW5 C"
 for i in $(seq 1 5); do
 	echo "Iteration $i"
-	./run_seq.sh /home/hasindu/scratch/hg2_prom_lsk114_5khz/PGXXXX230339_reads_zstd-sv16-zd.blow5  20 1000 c &> gtgpu-nfs_PGXXXX230339_reads_zstd-sv16-zd_20_1000_c_${i}.log
+	./run_seq.sh /home/hasindu/scratch/hg2_prom_lsk114_5khz/PGXXXX230339_reads_zstd-sv16-zd.blow5  ${THREADS} 1000 c &> gtgpu-nfs_PGXXXX230339_reads_zstd-sv16-zd_${THREADS}_1000_c_${i}.log
 done
 
 echo "BLOW5 CXX"
 for i in $(seq 1 5); do
 echo "Iteration $i"
-	./run_seq.sh /home/hasindu/scratch/hg2_prom_lsk114_5khz/PGXXXX230339_reads_zstd-sv16-zd.blow5 20 1000 cxx &> gtgpu-nfs_PGXXXX230339_reads_zstd-sv16-zd_20_1000_cxx_${i}.log
+	./run_seq.sh /home/hasindu/scratch/hg2_prom_lsk114_5khz/PGXXXX230339_reads_zstd-sv16-zd.blow5 ${THREADS} 1000 cxx &> gtgpu-nfs_PGXXXX230339_reads_zstd-sv16-zd_${THREADS}_1000_cxx_${i}.log
 done
 
 echo "done"

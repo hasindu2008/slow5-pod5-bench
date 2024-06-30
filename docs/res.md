@@ -16,6 +16,7 @@
   - [minifridge (8 threads, 1000 batchsize, 20X dataset)](#minifridge-8-threads-1000-batchsize-20x-dataset)
   - [fridge-ssd (32 threads, 1000 batch size, 20X)](#fridge-ssd-32-threads-1000-batch-size-20x)
   - [fridge-nvme (32 threads, 1000 batch size, 20X)](#fridge-nvme-32-threads-1000-batch-size-20x)
+  - [extra](#extra)
 - [Random I/O Benchmark](#random-io-benchmark)
 
 
@@ -199,6 +200,7 @@ real time = 2781.651 sec | CPU time = 17150.198 sec | peak RAM = 363.705 GB
         Elapsed (wall clock) time (h:mm:ss or m:ss): 46:21.75
         Maximum resident set size (kbytes): 381372520
 ```
+
 
 ### xavierjet (8 threads, 1000 batchsize, 20X dataset)
 
@@ -458,5 +460,105 @@ fio --name=fiotest --filename=/data2/tmp/tmp  --size=16Gb --rw=read --bs=1M --di
    Samsung SSD 970 EVO Plus 2TB: 3500MB/s * 3
    READ: bw=9031MiB/s (9469MB/s), 9031MiB/s-9031MiB/s (9469MB/s-9469MB/s), io=128GiB (137GB), run=14514-14514msec
 ```
+
+#### Extra
+
+gtgpu-ssd (40 threads, 1000 batchsize, 20X dataset):
+
+BLOW5 C:
+Time for disc reading 765.783509
+Time for getting samples (disc+depress+parse) 982.726540
+real time = 1113.924 sec | CPU time = 22285.216 sec | peak RAM = 2.826 GB | CPU Usage = 50.0%
+        Command being timed: "taskset -a -c 0-39 ./slow5_sequential /data/tmp/PGXXXX230339_reads_zstd-sv16-zd.blow5 40 1000"
+        User time (seconds): 21918.94
+        System time (seconds): 366.52
+        Percent of CPU this job got: 2000%
+        Elapsed (wall clock) time (h:mm:ss or m:ss): 18:34.06
+        Maximum resident set size (kbytes): 2962792
+
+
+BLOW5 CXX:
+Time for disc reading 758.745975
+Time for getting samples (disc+depress+parse) 998.161150
+real time = 1108.882 sec | CPU time = 17864.740 sec | peak RAM = 2.347 GB
+        Command being timed: "taskset -a -c 0-39 ./slow5_sequential_cxxpool /data/tmp/PGXXXX230339_reads_zstd-sv16-zd.blow5 40 1000"
+        User time (seconds): 17200.45
+        System time (seconds): 664.40
+        Percent of CPU this job got: 1610%
+        Elapsed (wall clock) time (h:mm:ss or m:ss): 18:29.02
+        Maximum resident set size (kbytes): 2461436
+
+POD5 IO:
+Time for getting samples (disc+depress+parse) 1299.319494
+real time = 1530.052 sec | CPU time = 21545.128 sec | peak RAM = 2.480 GB
+        Command being timed: "taskset -a -c 0-39 ./pod5_sequential /data/tmp/PGXXXX230339_reads.pod5 40"
+        User time (seconds): 20662.55
+        System time (seconds): 882.74
+        Percent of CPU this job got: 1408%
+        Elapsed (wall clock) time (h:mm:ss or m:ss): 25:30.18
+
+POD5 MMAP:
+Time for getting samples (disc+depress+parse) 616.314473
+real time = 872.109 sec | CPU time = 28786.903 sec | peak RAM = 363.729 GB
+        Command being timed: "taskset -a -c 0-39 ./pod5_sequential /data/tmp/PGXXXX230339_reads.pod5 40"
+        User time (seconds): 21865.40
+        System time (seconds): 6921.56
+        Percent of CPU this job got: 3300%
+        Elapsed (wall clock) time (h:mm:ss or m:ss): 14:32.21
+        Maximum resident set size (kbytes): 381397216
+
+
+gtgpu-nfs (40 threads, 1000 batchsize, 20X dataset):
+
+BLOW5 C:
+
+Time for disc reading 1343.460526
+Time for getting samples (disc+depress+parse) 1592.375315
+real time = 1770.353 sec | CPU time = 25183.272 sec | peak RAM = 2.846 GB | CPU Usage = 35.6%
+        Command being timed: "taskset -a -c 0-39 ./slow5_sequential /home/hasindu/scratch/hg2_prom_lsk114_5khz/PGXXXX230339_reads_zstd-sv16-zd.blow5 40 1000"
+        User time (seconds): 24658.23
+        System time (seconds): 525.16
+        Percent of CPU this job got: 1422%
+        Elapsed (wall clock) time (h:mm:ss or m:ss): 29:30.48
+        Maximum resident set size (kbytes): 2983840
+
+BLOW5 CXX:
+Time for disc reading 1357.128244
+Time for getting samples (disc+depress+parse) 1601.544913
+real time = 1798.403 sec | CPU time = 21265.277 sec | peak RAM = 2.409 GB
+        Command being timed: "taskset -a -c 0-39 ./slow5_sequential_cxxpool /home/hasindu/scratch/hg2_prom_lsk114_5khz/PGXXXX230339_reads_zstd-sv16-zd.blow5 40 1000"
+        User time (seconds): 20470.80
+        System time (seconds): 794.66
+        Percent of CPU this job got: 1182%
+        Elapsed (wall clock) time (h:mm:ss or m:ss): 29:58.54
+        Maximum resident set size (kbytes): 2525532
+
+
+POD5 CXX IO:
+
+Time for getting samples (disc+depress+parse) 1684.167183
+real time = 1914.319 sec | CPU time = 21494.841 sec | peak RAM = 2.474 GB
+        Command being timed: "taskset -a -c 0-39 ./pod5_sequential /home/hasindu/scratch/hg2_prom_lsk114_5khz/PGXXXX230339_reads.pod5 40"
+        User time (seconds): 20496.04
+        System time (seconds): 999.13
+        Percent of CPU this job got: 1122%
+        Elapsed (wall clock) time (h:mm:ss or m:ss): 31:54.47
+        Average shared text size (kbytes): 0
+        Average unshared data size (kbytes): 0
+        Average stack size (kbytes): 0
+        Average total size (kbytes): 0
+        Maximum resident set size (kbytes): 2594604
+
+POD5 CXX MMAP:
+
+Time for getting samples (disc+depress+parse) 2923.834019
+real time = 3205.875 sec | CPU time = 54649.609 sec | peak RAM = 363.654 GB
+        Command being timed: "taskset -a -c 0-39 ./pod5_sequential /home/hasindu/scratch/hg2_prom_lsk114_5khz/PGXXXX230339_reads.pod5 40"
+        User time (seconds): 20175.48
+        System time (seconds): 34474.21
+        Percent of CPU this job got: 1704%
+        Elapsed (wall clock) time (h:mm:ss or m:ss): 53:25.98
+        Maximum resident set size (kbytes): 381319132
+
 
 ### Random I/O benchmark

@@ -35,17 +35,18 @@ die() {
 	exit 1
 }
 
+THREADS=${PBS_NCPUS}
 
 echo "BLOW5 C"
 for i in $(seq 1 5); do
 	echo "Iteration $i"
-	./run_seq.sh /g/data/ox63/hasindu/slow5-pod5-bench/data/PGXXXX230339_reads_zstd-sv16-zd.blow5  24 1000 c &> gadi_PGXXXX230339_reads_zstd-sv16-zd_24_1000_c_${i}.log
+	./run_seq.sh /g/data/ox63/hasindu/slow5-pod5-bench/data/PGXXXX230339_reads_zstd-sv16-zd.blow5  ${THREADS} 1000 c &> gadi_PGXXXX230339_reads_zstd-sv16-zd_${THREADS}_1000_c_${i}.log
 done
 
 echo "BLOW5 CXX"
 for i in $(seq 1 5); do
 echo "Iteration $i"
-	./run_seq.sh /g/data/ox63/hasindu/slow5-pod5-bench/data/PGXXXX230339_reads_zstd-sv16-zd.blow5  24 1000 cxx &> gadi_PGXXXX230339_reads_zstd-sv16-zd_24_1000_cxx_${i}.log
+	./run_seq.sh /g/data/ox63/hasindu/slow5-pod5-bench/data/PGXXXX230339_reads_zstd-sv16-zd.blow5  ${THREADS} 1000 cxx &> gadi_PGXXXX230339_reads_zstd-sv16-zd_${THREADS}_1000_cxx_${i}.log
 done
 
 echo "done"

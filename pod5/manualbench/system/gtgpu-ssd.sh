@@ -10,16 +10,18 @@ cd /data/hasindu/hasindu2008.git/slow5-pod5-bench/pod5 || die "cd fail"
 echo "Copying slow5 file"
 cp /home/hasindu/scratch/hg2_prom_lsk114_5khz/PGXXXX230339_reads.pod5 /data/tmp/PGXXXX230339_reads.pod5 || die "cp fail"
 
+THREADS=$(nproc)
+
 echo "POD5 IO"
 for i in $(seq 1 5); do
 	echo "Iteration $i"
-	./run_seq.sh /data/tmp/PGXXXX230339_reads.pod5  20 io &> gtgpu-ssd_PGXXXX230339_reads_20_io_${i}.log
+	./run_seq.sh /data/tmp/PGXXXX230339_reads.pod5  ${THREADS} io &> gtgpu-ssd_PGXXXX230339_reads_${THREADS}_io_${i}.log
 done
 
 echo "POD5 MMAP"
 for i in $(seq 1 5); do
 echo "Iteration $i"
-	./run_seq.sh /data/tmp/PGXXXX230339_reads.pod5 20 mmap &> gtgpu-ssd_PGXXXX230339_reads_20_mmap_${i}.log
+	./run_seq.sh /data/tmp/PGXXXX230339_reads.pod5 ${THREADS} mmap &> gtgpu-ssd_PGXXXX230339_reads_${THREADS}_mmap_${i}.log
 done
 
 echo "done, remove the file"
