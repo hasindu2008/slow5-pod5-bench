@@ -1,5 +1,5 @@
 #!/bin/bash
-#PBS -P wv19
+#PBS -P ox63
 #PBS -N BLOW5
 #PBS -q normal
 #PBS -l ncpus=48
