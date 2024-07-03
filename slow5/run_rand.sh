@@ -11,7 +11,7 @@ die()
 	exit 1
 }
 
-if [ $# -ne 4 ]
+if [ $# -ne 5 ]
 then
 	die "$USAGE"
 fi
