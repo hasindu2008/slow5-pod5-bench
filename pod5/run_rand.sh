@@ -22,7 +22,7 @@ T=$3
 B=$4
 C=$5
 LAST_PROC=$(echo "$T-1" | bc)
-RAND_CXX=pod5_rand
+RAND_CXX=pod5_random
 
 test -e "$POD5" || die "$POD5 does not exist"
 test -e "$LIST" || die "$LIST does not exist"
