@@ -10,7 +10,6 @@
 #include <sys/time.h>
 #include <sys/resource.h>
 
-// From minimap2
 static inline long peakrss(void) {
     struct rusage r;
     getrusage(RUSAGE_SELF, &r);
@@ -21,7 +20,6 @@ static inline long peakrss(void) {
 #endif
 }
 
-// From minimap2/misc
 static inline double cputime(void) {
     struct rusage r;
     getrusage(RUSAGE_SELF, &r);

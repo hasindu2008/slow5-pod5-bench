@@ -5,18 +5,16 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include "pod5_format/c_api.h"
 #include <omp.h>
 #include <sys/time.h>
-#include "pod5_format/c_api.h"
 #include "cxxpool.h"
 #include <inttypes.h>
-#include <string.h>
 #include <sys/resource.h>
-
+#include <string.h>
 // 37 = number of bytes in UUID (32 hex digits + 4 dashes + null terminator)
 const uint32_t POD5_READ_ID_LEN = 37;
 
-// From minimap2
 static inline long peakrss(void) {
     struct rusage r;
     getrusage(RUSAGE_SELF, &r);
@@ -25,10 +23,8 @@ static inline long peakrss(void) {
 #else
     return r.ru_maxrss;
 #endif
-
 }
 
-// From minimap2/misc
 static inline double cputime(void) {
     struct rusage r;
     getrusage(RUSAGE_SELF, &r);
@@ -87,7 +83,7 @@ void print_header(){
 void process_read_batch(rec_t *rec_list, int n){
     uint64_t *sums = (uint64_t*)malloc(sizeof(uint64_t)*n);
 
-#pragma omp parallel for
+    #pragma omp parallel for
     for(int i=0;i<n;i++){
         rec_t *rec = &rec_list[i];
         uint64_t sum = 0;
@@ -96,10 +92,12 @@ void process_read_batch(rec_t *rec_list, int n){
         }
         sums[i] = sum;
     }
-//    fprintf(stderr,"batch processed with %d reads\n",n);
+
+    //fprintf(stderr,"batch processed with %d reads\n",n);
 
     for(int i=0;i<n;i++){
         rec_t *rec = &rec_list[i];
+
         fprintf(stdout, "%s\t", rec->read_id);
         fprintf(stdout, "%.2f\t", rec->scale);
         fprintf(stdout, "%.2f\t", rec->offset);
@@ -120,7 +118,7 @@ void process_read_batch(rec_t *rec_list, int n){
 
         fprintf(stdout, "\n");
     }
-//    fprintf(stderr,"batch printed with %d reads\n",n);
+    //fprintf(stderr,"batch printed with %d reads\n",n);
 
     free(sums);
     for(int i=0;i<n;i++){
@@ -249,12 +247,11 @@ int read_and_process_pod5_file(const std::string& path, size_t m_num_worker_thre
         for (auto& v : futures) {
             v.get();
         }
-
         tot_time += realtime() - t0;
         disc_time += realtime() - t0;
         /**** Batch fetched ***/
 
-//        fprintf(stderr,"batch loaded with %zu reads\n", batch_row_count);
+        //fprintf(stderr,"batch loaded with %zu reads\n", batch_row_count);
 
         //process and print (time not measured as we want to compare to the time it takes to read the file)
         process_read_batch(rec, batch_row_count);
@@ -284,8 +281,10 @@ int read_and_process_pod5_file(const std::string& path, size_t m_num_worker_thre
     return read_count;
 }
 
+
+
 int main(int argc, char *argv[]) {
-    // Initial time
+
     double init_realtime = realtime();
 
     if(argc != 3) {
@@ -301,7 +300,6 @@ int main(int argc, char *argv[]) {
     double disc_time = 0;
     read_count = read_and_process_pod5_file(path, num_thread, &tot_time, &disc_time);
     fprintf(stderr,"Reads: %d\n",read_count);
-    fprintf(stderr,"Time for disc reading %f\n",disc_time);
     fprintf(stderr,"Time for getting samples (disc+depress+parse) %f\n", tot_time);
     double cpu_time = cputime();
     double real_time = realtime() - init_realtime;

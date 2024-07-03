@@ -9,6 +9,24 @@
 #include <slow5/slow5.h>
 #include <omp.h>
 #include <sys/time.h>
+#include <sys/resource.h>
+
+static inline long peakrss(void) {
+    struct rusage r;
+    getrusage(RUSAGE_SELF, &r);
+#ifdef __linux__
+    return r.ru_maxrss * 1024;
+#else
+    return r.ru_maxrss;
+#endif
+}
+
+static inline double cputime(void) {
+    struct rusage r;
+    getrusage(RUSAGE_SELF, &r);
+    return r.ru_utime.tv_sec + r.ru_stime.tv_sec +
+           1e-6 * (r.ru_utime.tv_usec + r.ru_stime.tv_usec);
+}
 
 static inline double realtime(void) {
     struct timeval tp;
@@ -57,7 +75,6 @@ void print_header(){
 
     fprintf(stdout, "\n");
 }
-
 
 void process_read_batch(rec_t *rec_list, int n){
     uint64_t *sums = malloc(sizeof(uint64_t)*n);
@@ -146,7 +163,7 @@ int load_slow5_read(rec_t *rec_list, slow5_file_t *sp, char **rid_list, int i){
     return 0;
 }
 
-int read_and_process_slow5_file(const char *slow5_path, const char *rid_list_path, int num_thread, int batch_size, double *tot_time_p){
+int read_and_process_slow5_file(const char *path, const char *rid_list_path, int num_thread, int batch_size, double *tot_time_p){
 
     double tot_time = 0;
     double t0 = 0;
@@ -154,6 +171,10 @@ int read_and_process_slow5_file(const char *slow5_path, const char *rid_list_pat
     int read_count = 0;
 
     print_header();
+
+    omp_set_num_threads(num_thread);
+    fprintf(stderr,"threads: %d\n", num_thread);
+    fprintf(stderr,"batchsize: %d\n", batch_size);
 
     //read id list
     FILE *fpr = fopen(rid_list_path,"r");
@@ -169,7 +190,7 @@ int read_and_process_slow5_file(const char *slow5_path, const char *rid_list_pat
     /**** Initialisation and opening of the file ***/
     t0 = realtime();
 
-    slow5_file_t *sp = slow5_open(slow5_path,"r");
+    slow5_file_t *sp = slow5_open(path,"r");
     if(sp==NULL){
        fprintf(stderr,"Error in opening file\n");
        perror("perr: ");
@@ -243,25 +264,26 @@ int read_and_process_slow5_file(const char *slow5_path, const char *rid_list_pat
 
 
 int main(int argc, char *argv[]) {
-
+    double init_realtime = realtime();
     if(argc != 5) {
         fprintf(stderr, "Usage: %s reads.blow5 rid_list.txt num_thread batch_size\n", argv[0]);
         return EXIT_FAILURE;
     }
 
-    const char *slow5_path = argv[1];
+    const char *path = argv[1];
     const char *rid_list_path = argv[2];
     int batch_size = atoi(argv[4]);
     int num_thread = atoi(argv[3]);
-    fprintf(stderr,"Using %d threads\n", num_thread);
-    omp_set_num_threads(num_thread);
 
     int read_count = 0;
     double tot_time = 0;
 
-    read_count = read_and_process_slow5_file(slow5_path, rid_list_path, num_thread, batch_size, &tot_time);
+    read_count = read_and_process_slow5_file(path, rid_list_path, num_thread, batch_size, &tot_time);
     fprintf(stderr,"Reads: %d\n",read_count);
     fprintf(stderr,"Time for getting samples (disc+depress+parse) %f\n", tot_time);
-
+    double cpu_time = cputime();
+    double real_time = realtime() - init_realtime;
+    fprintf(stderr,"real time = %.3f sec | CPU time = %.3f sec | peak RAM = %.3f GB | CPU Usage = %.1f%%\n",
+            real_time, cpu_time, peakrss() / 1024.0 / 1024.0 / 1024.0, cpu_time/(real_time*num_thread)*100);
     return 0;
 }
