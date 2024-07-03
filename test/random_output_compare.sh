@@ -12,21 +12,6 @@ die() { echo -e "${RED}$1${NC}" >&2 ; echo ; exit 1 ; } # terminate script
 info() {  echo ; echo -e "${GREEN}$1${NC}" >&2 ; }
 info "$(date)"
 
-if [ "$1" = 'mem' ]; then
-    mem=1
-else
-    mem=0
-fi
-
-ex() {
-    if [ $mem -eq 1 ]; then
-        valgrind --leak-check=full --error-exitcode=1 "$@"
-    else
-        "$@"
-    fi
-}
-
-
 # read_id scale   offset  sampling_rate   len_raw_signal  signal_sums channel_number  read_number mux start_sample    run_id  experiment_id   flowcell_id position_id run_acquisition_start_time
 
 BLOW5="/data/slow5-testdata/hg2_prom_lsk114_5khz_subsubsample/PGXXXX230339_reads_20k_zstd-svb-zd.blow5"
@@ -43,9 +28,9 @@ test -x ${SLOW5_SEQUENTIAL} || die "slow5_sequential not found"
 test -x ${SLOW5_SEQUENTIAL_CXX} || die "slow5_sequential_cxxpool not found"
 test -x ${POD5_SEQUENTIAL} || die "pod5_sequential not found"
 
-ex ${SLOW5_SEQUENTIAL} ${BLOW5} 16 1000 > slow5_out || die "slow5_sequential failed"
-ex ${SLOW5_SEQUENTIAL_CXX} ${BLOW5} 16 1000 > slow5_out2 || die "slow5_sequential_cxxpool failed"
-ex ${POD5_SEQUENTIAL} ${POD5} 16 > pod5_out || die "pod5_sequential failed"
+${SLOW5_SEQUENTIAL} ${BLOW5} 16 1000 > slow5_out || die "slow5_sequential failed"
+${SLOW5_SEQUENTIAL_CXX} ${BLOW5} 16 1000 > slow5_out2 || die "slow5_sequential_cxxpool failed"
+${POD5_SEQUENTIAL} ${POD5} 16 > pod5_out || die "pod5_sequential failed"
 
 cat pod5_out | cut -f 1-14 | sort -k1,1 > sorted_pod5 || die "sort failed"
 cat slow5_out | cut -f 1-14 | sort -k1,1 > sorted_slow5 || die "sort failed"
