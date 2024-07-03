@@ -254,7 +254,6 @@ int read_and_process_slow5_file(const char *path, int num_thread, int batch_size
         t0 = realtime();
         free(mem);
         free(bytes);
-        free(rec);
         tot_time += realtime() - t0;
         /**** End of Deinit***/
 
