@@ -20,7 +20,7 @@ fi
 
 ex() {
     if [ $mem -eq 1 ]; then
-        valgrind --leak-check=full --error-exitcode=1 "$@"
+        valgrind --suppressions=test/valgrind.supp --leak-check=full --error-exitcode=1 "$@"
     else
         "$@"
     fi
