@@ -44,7 +44,7 @@ test -x ${POD5_RANDOM} || die "pod5_random not found"
 slow5tools --version || die "slow5tools not found"
 
 # random list
-slow5tools skim --rid PGXXXX230339_reads_20k.blow5 | sort -R > random_list.txt || die "skim failed"
+slow5tools skim --rid /data/slow5-testdata/hg2_prom_lsk114_5khz_subsubsample/PGXXXX230339_reads_20k.blow5 | sort -R > random_list.txt || die "skim failed"
 
 ${SLOW5_RANDOM} ${BLOW5} random_list.txt 16 1000 > slow5_out || die "slow5_random failed"
 ${POD5_RANDOM} ${POD5} random_list.txt 16 > pod5_out || die "pod5_random failed"
