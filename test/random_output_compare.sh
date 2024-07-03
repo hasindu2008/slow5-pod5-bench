@@ -20,7 +20,7 @@ fi
 
 ex() {
     if [ $mem -eq 1 ]; then
-        valgrind --leak-check=full --error-exitcode=1 "$@"
+        valgrind --suppressions=test/valgrind.supp --leak-check=full --error-exitcode=1 "$@"
     else
         "$@"
     fi
@@ -46,8 +46,8 @@ slow5tools --version || die "slow5tools not found"
 # random list
 slow5tools skim --rid /data/slow5-testdata/hg2_prom_lsk114_5khz_subsubsample/PGXXXX230339_reads_20k.blow5 | sort -R > random_list.txt || die "skim failed"
 
-${SLOW5_RANDOM} ${BLOW5} random_list.txt 16 1000 > slow5_out || die "slow5_random failed"
-${POD5_RANDOM} ${POD5} random_list.txt 16 1000 > pod5_out || die "pod5_random failed"
+ex ${SLOW5_RANDOM} ${BLOW5} random_list.txt 16 1000 > slow5_out || die "slow5_random failed"
+ex ${POD5_RANDOM} ${POD5} random_list.txt 16 1000 > pod5_out || die "pod5_random failed"
 
 cat pod5_out | cut -f 1-14 | sort -k1,1 > sorted_pod5 || die "sort failed"
 cat slow5_out | cut -f 1-14 | sort -k1,1 > sorted_slow5 || die "sort failed"
