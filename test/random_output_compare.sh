@@ -55,6 +55,7 @@ cat slow5_out | cut -f 1-14 | sort -k1,1 > sorted_slow5 || die "sort failed"
 
 diff sorted_pod5 sorted_slow5 || die "diff failed"
 #diff sorted_pod5 sorted_slow52 || die "diff failed"
-rm sorted_pod5 sorted_slow5 sorted_slow52 pod5_out slow5_out slow5_out2 random_list.txt || die "rm failed"
+#rm sorted_pod5 sorted_slow5 sorted_slow52 pod5_out slow5_out slow5_out2 random_list.txt || die "rm failed"
+rm sorted_pod5 sorted_slow5 pod5_out slow5_out random_list.txt || die "rm failed"
 
 info "success!"
