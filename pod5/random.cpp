@@ -195,7 +195,7 @@ int read_and_process_pod5_file(const std::string& path, const char *rid_list_pat
     print_header();
 
     omp_set_num_threads(num_thread);
-    fprintf(stderr,"threads: %d\n\n", num_thread);
+    fprintf(stderr,"threads: %d\n", num_thread);
 
 
     //read id list

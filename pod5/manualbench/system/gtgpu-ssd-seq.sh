@@ -7,7 +7,7 @@ die()
 }
 
 cd /data/hasindu/hasindu2008.git/slow5-pod5-bench/pod5 || die "cd fail"
-echo "Copying slow5 file"
+echo "Copying pod5 file"
 cp /home/hasindu/scratch/hg2_prom_lsk114_5khz/PGXXXX230339_reads.pod5 /data/tmp/PGXXXX230339_reads.pod5 || die "cp fail"
 
 THREADS=$(nproc)
