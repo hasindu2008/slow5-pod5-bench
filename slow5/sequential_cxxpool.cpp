@@ -12,7 +12,6 @@
 #include <inttypes.h>
 #include <sys/resource.h>
 
-// From minimap2
 static inline long peakrss(void) {
     struct rusage r;
     getrusage(RUSAGE_SELF, &r);
@@ -21,10 +20,8 @@ static inline long peakrss(void) {
 #else
     return r.ru_maxrss;
 #endif
-
 }
 
-// From minimap2/misc
 static inline double cputime(void) {
     struct rusage r;
     getrusage(RUSAGE_SELF, &r);
@@ -122,6 +119,7 @@ void process_read_batch(rec_t *rec_list, int n){
         }
         sums[i] = sum;
     }
+
     //fprintf(stderr,"batch processed with %d reads\n",n);
 
     for(int i=0;i<n;i++){
@@ -248,10 +246,6 @@ int read_and_process_slow5_file(const char *path, int num_thread, int batch_size
         for (auto& v : futures) {
             v.get();
         }
-//        #pragma omp parallel for
-//        for(int i=0;i<ret;i++){
-//            load_slow5_read(mem, bytes, rec, sp, i);
-//        }
         tot_time += realtime() - t0;
         /**** Batch fetched ***/
 
@@ -280,8 +274,10 @@ int read_and_process_slow5_file(const char *path, int num_thread, int batch_size
     return read_count;
 }
 
+
+
 int main(int argc, char *argv[]) {
-    // Initial time
+
     double init_realtime = realtime();
 
     if(argc != 4) {
@@ -292,8 +288,6 @@ int main(int argc, char *argv[]) {
     const char *path = argv[1];
     int batch_size = atoi(argv[3]);
     int num_thread = atoi(argv[2]);
-    fprintf(stderr,"Using %d threads\n", num_thread);
-    omp_set_num_threads(num_thread);
 
     int read_count = 0;
     double tot_time = 0;
@@ -302,7 +296,9 @@ int main(int argc, char *argv[]) {
     fprintf(stderr,"Reads: %d\n",read_count);
     fprintf(stderr,"Time for disc reading %f\n",disc_time);
     fprintf(stderr,"Time for getting samples (disc+depress+parse) %f\n", tot_time);
-    fprintf(stderr,"real time = %.3f sec | CPU time = %.3f sec | peak RAM = %.3f GB\n",
-            realtime() - init_realtime, cputime(), peakrss() / 1024.0 / 1024.0 / 1024.0);
+    double cpu_time = cputime();
+    double real_time = realtime() - init_realtime;
+    fprintf(stderr,"real time = %.3f sec | CPU time = %.3f sec | peak RAM = %.3f GB | CPU Usage = %.1f%%\n",
+            real_time, cpu_time, peakrss() / 1024.0 / 1024.0 / 1024.0, cpu_time/(real_time*num_thread)*100);
     return 0;
 }

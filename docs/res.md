@@ -29,11 +29,11 @@
 
 ## System information
 
-- gtgpu-ssd: 20-core (40-threads) Intel(R) Xeon(R) Silver 4114 CPU, 377 GB of RAM, Ubuntu 18.04.5 LTS, local NVME SSD storage
+- gtgpu-ssd: 20-core (40-threads) Intel Xeon Silver 4114 CPU, 377 GB of RAM, Ubuntu 18.04.5 LTS, local NVME SSD storage
 - gtgpu-nfs: same above server with  network file system mounted over NFS (A synology NAS with traditional spinning disks with RAID)
 - xavierjet2: ARM64 Linux 8 core
 - macmini: M1 8 core
-- minifridge
+- minifridge: 8-core (16 threads) 11th Gen Intel i7-11700F, 64 GB of RAM,  Pop_OS 20.04, SATA SSD Storage (Samsung SSD 870 QVO 4TB), NVIDIA GeForce RTX 3090 GPU
 - fridge-ssd
 - fridge-nvme
 - gadi?

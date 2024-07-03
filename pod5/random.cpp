@@ -5,22 +5,21 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include "pod5_format/c_api.h"
 #include <omp.h>
 #include <sys/time.h>
-#include "pod5_format/c_api.h"
 #include "cxxpool.h"
 #include <inttypes.h>
+#include <sys/resource.h>
 #include <string.h>
 #include <iostream>
 #include <vector>
-#include <sys/resource.h>
 
 // 37 = number of bytes in UUID (32 hex digits + 4 dashes + null terminator)
 const uint32_t POD5_READ_ID_LEN = 37;
 constexpr size_t POD5_READ_ID_SIZE = 16;
 using ReadID = std::array<uint8_t, POD5_READ_ID_SIZE>;
 
-// From minimap2
 static inline long peakrss(void) {
     struct rusage r;
     getrusage(RUSAGE_SELF, &r);
@@ -29,10 +28,8 @@ static inline long peakrss(void) {
 #else
     return r.ru_maxrss;
 #endif
-
 }
 
-// From minimap2/misc
 static inline double cputime(void) {
     struct rusage r;
     getrusage(RUSAGE_SELF, &r);
@@ -100,10 +97,12 @@ void process_read_batch(rec_t *rec_list, int n){
         }
         sums[i] = sum;
     }
-//    fprintf(stderr,"batch processed with %d reads\n",n);
+
+    //fprintf(stderr,"batch processed with %d reads\n",n);
 
     for(int i=0;i<n;i++){
         rec_t *rec = &rec_list[i];
+
         fprintf(stdout, "%s\t", rec->read_id);
         fprintf(stdout, "%.2f\t", rec->scale);
         fprintf(stdout, "%.2f\t", rec->offset);
@@ -124,7 +123,7 @@ void process_read_batch(rec_t *rec_list, int n){
 
         fprintf(stdout, "\n");
     }
-//    fprintf(stderr,"batch printed with %d reads\n",n);
+    //fprintf(stderr,"batch printed with %d reads\n",n);
 
     free(sums);
     for(int i=0;i<n;i++){
@@ -139,6 +138,7 @@ void process_read_batch(rec_t *rec_list, int n){
     free(rec_list);
 
 }
+
 
 int load_pod5_read(size_t row, Pod5ReadRecordBatch* batch, Pod5FileReader* file, rec_t *rec) {
     uint16_t read_table_version = 0;
@@ -193,6 +193,10 @@ int read_and_process_pod5_file(const std::string& path, const char *rid_list_pat
     int read_count = 0;
 
     print_header();
+
+    omp_set_num_threads(num_thread);
+    fprintf(stderr,"threads: %d\n\n", num_thread);
+
 
     //read id list
     FILE *fpr = fopen(rid_list_path,"r");
@@ -340,8 +344,10 @@ int read_and_process_pod5_file(const std::string& path, const char *rid_list_pat
     return read_count;
 }
 
+
+
 int main(int argc, char *argv[]) {
-    // Initial time
+
     double init_realtime = realtime();
 
     if(argc != 5) {
@@ -353,15 +359,15 @@ int main(int argc, char *argv[]) {
     const char *rid_list_path = argv[2];
     int num_thread = atoi(argv[3]);
     int batch_size = atoi(argv[4]);
-    fprintf(stderr,"Using %d threads\n", num_thread);
-    omp_set_num_threads(num_thread);
 
     int read_count = 0;
     double tot_time = 0;
     read_count = read_and_process_pod5_file(path, rid_list_path, num_thread, batch_size, &tot_time);
     fprintf(stderr,"Reads: %d\n",read_count);
     fprintf(stderr,"Time for getting samples (disc+depress+parse) %f\n", tot_time);
-    fprintf(stderr,"real time = %.3f sec | CPU time = %.3f sec | peak RAM = %.3f GB\n",
-            realtime() - init_realtime, cputime(), peakrss() / 1024.0 / 1024.0 / 1024.0);
+    double cpu_time = cputime();
+    double real_time = realtime() - init_realtime;
+    fprintf(stderr,"real time = %.3f sec | CPU time = %.3f sec | peak RAM = %.3f GB | CPU Usage = %.1f%%\n",
+            real_time, cpu_time, peakrss() / 1024.0 / 1024.0 / 1024.0, cpu_time/(real_time*num_thread)*100);
     return 0;
 }
