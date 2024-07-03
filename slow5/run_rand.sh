@@ -26,6 +26,7 @@ RAND=slow5_random
 #SEQ_CXX=slow5_sequential_cxxpool
 
 test -e "$SLOW5" || die "$SLOW5 does not exist"
+test -e "$SLOW5".idx || die "$SLOW5.idx does not exist"
 test -e "$LIST" || die "$LIST does not exist"
 
 clean_fscache || die "clean_fscache failed"
