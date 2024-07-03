@@ -20,7 +20,7 @@ POD5="/data/slow5-testdata/hg2_prom_lsk114_5khz_subsubsample/PGXXXX230339_reads_
 SLOW5_SEQUENTIAL="slow5/slow5_sequential"
 SLOW5_SEQUENTIAL_CXX="slow5/slow5_sequential_cxxpool"
 POD5_SEQUENTIAL="pod5/pod5_sequential"
-export LD_LIBRARY_PATH=$PWD/pod5_format/lib
+export LD_LIBRARY_PATH=$PWD/pod5/pod5_format/lib
 
 test -f ${BLOW5} || die "blow5 file not found"
 test -f ${POD5} || die "pod5 file not found"
