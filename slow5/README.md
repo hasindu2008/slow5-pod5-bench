@@ -52,7 +52,7 @@ ln -s /g/data/ox63/install/clean_fscache/clean_fscache ~/.local/bin/clean_fscach
   ii. random benchmark (c) can be run as:
   ```
   # make sure a SLOW5 index exist before running this
-  slow5_random zstd-sv16-zd.blow5 ridlist.txt <num-threads> <batch_size>
+  ./run_rand.sh zstd-sv16-zd.blow5 ridlist.txt <num-threads> <batch_size> c
   ```
 
   iii. sequential benchmark (cxx) can be run as:
