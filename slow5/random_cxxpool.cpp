@@ -233,7 +233,6 @@ int read_and_process_slow5_file(const char *path, const char *rid_list_path, int
             v.get();
         }
         tot_time += realtime() - t0;
-
         /**** Batch fetched ***/
 
         //fprintf(stderr,"batch loaded with %d reads\n",ret);
