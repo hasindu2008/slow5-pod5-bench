@@ -1,8 +1,7 @@
 //loads a batch of reads (fileds relavent to basecalling) as specified through a list of readIDs, process the batch (sum), and write output
-//make zstd=1
+//gcc -Wall -O2 -g -I include/ -o slow5_random slow5_random.c lib/libslow5.a  -lm -lz -lzstd -fopenmp
 //only the time for loading a batch to memory (Disk I/O + decompression + parsing and filling the memory arrays) is measured
-
-// to generate read id list in genomics coordinate order: samtools view reads.sorted.bam | awk '{print $1}' > rid.txt
+//to generate read id list in genomics coordinate order: samtools view reads.sorted.bam | awk '{print $1}' > rid.txt
 
 #include <stdio.h>
 #include <stdlib.h>
