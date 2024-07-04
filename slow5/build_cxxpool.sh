@@ -16,4 +16,5 @@ $CXX --version || die "g++-10 not found"
 cd slow5lib && make clean
 make -j CC=$CC slow5_mt=1 zstd_local=../zstd/lib/  || die "Building slow5lib failed"
 cd ..
-$CXX -Wall -O3 -g -I slow5lib/include/ -I ../pod5/cxxpool/src -o slow5_sequential_cxxpool sequential_cxxpool.cpp slow5lib/lib/libslow5.a zstd/lib/libzstd.a -lm -lz -fopenmp -lpthread
+$CXX -Wall -O3 -g -I slow5lib/include/ -I ../pod5/cxxpool/src -o slow5_sequential_cxxpool sequential_cxxpool.cpp slow5lib/lib/libslow5.a zstd/lib/libzstd.a -lm -lz -fopenmp -lpthread || die "compilation failed"
+$CXX -Wall -O3 -g -I slow5lib/include/ -I ../pod5/cxxpool/src -o slow5_random_cxxpool random_cxxpool.cpp slow5lib/lib/libslow5.a zstd/lib/libzstd.a -lm -lz -fopenmp -lpthread || die "compilation failed"
