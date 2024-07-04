@@ -23,7 +23,7 @@ B=$4
 C=$5
 LAST_PROC=$(echo "$T-1" | bc)
 RAND=slow5_random
-#SEQ_CXX=slow5_sequential_cxxpool
+RAND_CXX=slow5_random_cxxpool
 
 test -e "$SLOW5" || die "$SLOW5 does not exist"
 test -e "$SLOW5".idx || die "$SLOW5.idx does not exist"
@@ -35,10 +35,10 @@ if [ "$C" = "c" ]
 then
 	test -x "$RAND" || die "$RAND does not exist"
 	/usr/bin/time -v taskset -a -c 0-"$LAST_PROC" "./$RAND" "$SLOW5" "$LIST" "$T" "$B" > /dev/null
-# elif [ "$C" = "cxx" ]
-# then
-# 	test -x "$SEQ_CXX" || die "$SEQ_CXX does not exist"
-# 	/usr/bin/time -v taskset -a -c 0-"$LAST_PROC" "./$SEQ_CXX" "$SLOW5" "$T" "$B" > /dev/null
+elif [ "$C" = "cxx" ]
+then
+	test -x "$RAND_CXX" || die "$RAND_CXX does not exist"
+	/usr/bin/time -v taskset -a -c 0-"$LAST_PROC" "./$RAND_CXX" "$SLOW5" "$LIST" "$T" "$B" > /dev/null
 else
 	die "$USAGE"
 fi
