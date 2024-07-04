@@ -36,17 +36,18 @@ die() {
 }
 
 THREADS=${PBS_NCPUS}
+POD5=/g/data/ox63/hasindu/slow5-pod5-bench/data/PGXXXX230339_reads.pod5
 
 echo "POD5 IO"
 for i in $(seq 1 5); do
 	echo "Iteration $i"
-	./run_seq.sh /g/data/ox63/hasindu/slow5-pod5-bench/data/PGXXXX230339_reads.pod5  ${THREADS} io &> gadi_PGXXXX230339_reads_${THREADS}_io_${i}.log
+	./run_seq.sh ${POD5} ${THREADS} io &> gadi_PGXXXX230339_reads_${THREADS}_io_${i}.log
 done
 
 echo "POD5 MMAP"
 for i in $(seq 1 5); do
 echo "Iteration $i"
-	./run_seq.sh /g/data/ox63/hasindu/slow5-pod5-bench/data/PGXXXX230339_reads.pod5 ${THREADS} mmap &> gadi_PGXXXX230339_reads_${THREADS}_mmap_${i}.log
+	./run_seq.sh ${POD5} ${THREADS} mmap &> gadi_PGXXXX230339_reads_${THREADS}_mmap_${i}.log
 done
 
 echo "done"

@@ -1,5 +1,4 @@
 //sequentially loads a batch of reads from a POD5 file (reading fileds relavent to basecalling), process the batch (sum), and write output
-//make zstd=1
 //gcc -Wall -O2 -g -I pod5_format/include -I cxxpool/src -o pod5_sequential sequential.cpp pod5_format/lib/libpod5_format.so -lm -lz -lzstd -lpthread -fopenmp
 //only the time for loading a batch to memory (Disk I/O + decompression + parsing and filling the memory arrays) is measured
 

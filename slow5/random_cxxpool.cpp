@@ -1,8 +1,7 @@
 //loads a batch of reads (fileds relavent to basecalling) as specified through a list of readIDs, process the batch (sum), and write output
-//make zstd=1
+//g++ -Wall -O2 -g -I include/ -o slow5_random_cxxpool random_cxxpool.cpp lib/libslow5.a  -lm -lz -lzstd -fopenmp
 //only the time for loading a batch to memory (Disk I/O + decompression + parsing and filling the memory arrays) is measured
-
-// to generate read id list in genomics coordinate order: samtools view reads.sorted.bam | awk '{print $1}' > rid.txt
+//to generate read id list in genomics coordinate order: samtools view reads.sorted.bam | awk '{print $1}' > rid.txt
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -89,6 +88,7 @@ void process_read_batch(rec_t *rec_list, int n){
         }
         sums[i] = sum;
     }
+
     //fprintf(stderr,"batch processed with %d reads\n",n);
 
     for(int i=0;i<n;i++){
@@ -263,12 +263,14 @@ int read_and_process_slow5_file(const char *path, const char *rid_list_path, int
 
     *tot_time_p = tot_time;
     return read_count;
-
 }
 
 
+
 int main(int argc, char *argv[]) {
+
     double init_realtime = realtime();
+
     if(argc != 5) {
         fprintf(stderr, "Usage: %s reads.blow5 rid_list.txt num_thread batch_size\n", argv[0]);
         return EXIT_FAILURE;
@@ -276,12 +278,11 @@ int main(int argc, char *argv[]) {
 
     const char *path = argv[1];
     const char *rid_list_path = argv[2];
-    int batch_size = atoi(argv[4]);
     int num_thread = atoi(argv[3]);
+    int batch_size = atoi(argv[4]);
 
     int read_count = 0;
     double tot_time = 0;
-
     read_count = read_and_process_slow5_file(path, rid_list_path, num_thread, batch_size, &tot_time);
     fprintf(stderr,"Reads: %d\n",read_count);
     fprintf(stderr,"Time for getting samples (disc+depress+parse) %f\n", tot_time);

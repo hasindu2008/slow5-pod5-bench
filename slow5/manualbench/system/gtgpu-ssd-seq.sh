@@ -24,6 +24,6 @@ echo "Iteration $i"
 	./run_seq.sh /data/tmp/PGXXXX230339_reads_zstd-sv16-zd.blow5  ${THREADS} 1000 cxx &> gtgpu-ssd_PGXXXX230339_reads_zstd-sv16-zd_${THREADS}_1000_cxx_${i}.log
 done
 
-echo "done, remove the file"
-rm /data/tmp/PGXXXX230339_reads_zstd-sv16-zd.blow5 || die "rm fail"
+echo "done"
+#rm /data/tmp/PGXXXX230339_reads_zstd-sv16-zd.blow5 || die "rm fail"
 

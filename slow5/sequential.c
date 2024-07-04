@@ -1,5 +1,4 @@
 //sequentially loads a batch of reads from a SLOW5 file (reading fileds relavent to basecalling), process the batch (sum), and write output
-//make zstd=1
 //gcc -Wall -O2 -g -I include/ -o slow5_sequential sequential.c lib/libslow5.a  -lm -lz -lzstd -fopenmp
 //only the time for loading a batch to memory (Disk I/O + decompression + parsing and filling the memory arrays) is measured
 
