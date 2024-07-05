@@ -1,6 +1,6 @@
 #!/bin/bash
 #PBS -P ox63
-#PBS -N BLOW5
+#PBS -N POD5
 #PBS -q normal
 #PBS -l ncpus=48
 #PBS -l mem=192GB
@@ -39,13 +39,13 @@ benchmark (){
 	echo "POD5 IO"
 	for i in $(seq 1 1); do
 		echo "Iteration $i"
-		./run_rand.sh ${POD5} ${LIST} ${THREADS} io &> rand_pod5_${MACHINE}_${FILE}_${THREADS}_io_${i}.log
+		./run_rand.sh ${POD5} ${LIST} ${THREADS} 1000 io &> rand_pod5_${MACHINE}_${FILE}_${THREADS}_io_${i}.log
 	done
 
 	echo "POD5 MMAP"
 	for i in $(seq 1 1); do
 	echo "Iteration $i"
-		./run_rand.sh ${POD5} ${LIST} ${THREADS} mmap &> rand_pod5_${MACHINE}_${FILE}_${THREADS}_mmap_${i}.log
+		./run_rand.sh ${POD5} ${LIST} ${THREADS} 1000 mmap &> rand_pod5_${MACHINE}_${FILE}_${THREADS}_mmap_${i}.log
 	done
 }
 
