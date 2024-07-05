@@ -39,13 +39,13 @@ benchmark (){
 	echo "POD5 IO"
 	for i in $(seq 1 1); do
 		echo "Iteration $i"
-		./run_rand.sh ${POD5} ${THREADS} io &> rand_pod5_${MACHINE}_${FILE}_${THREADS}_io_${i}.log
+		./run_rand.sh ${POD5} ${LIST} ${THREADS} io &> rand_pod5_${MACHINE}_${FILE}_${THREADS}_io_${i}.log
 	done
 
 	echo "POD5 MMAP"
 	for i in $(seq 1 1); do
 	echo "Iteration $i"
-		./run_rand.sh ${POD5} ${THREADS} mmap &> rand_pod5_${MACHINE}_${FILE}_${THREADS}_mmap_${i}.log
+		./run_rand.sh ${POD5} ${LIST} ${THREADS} mmap &> rand_pod5_${MACHINE}_${FILE}_${THREADS}_mmap_${i}.log
 	done
 }
 
