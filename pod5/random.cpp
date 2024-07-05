@@ -1,6 +1,7 @@
 //loads a batch of reads (fileds relavent to basecalling) as specified through a list of readIDs, process the batch (sum), and write output
 //gcc -Wall -O2 -g -I pod5_format/include -I cxxpool/src -o pod5_sequential sequential.cpp pod5_format/lib/libpod5_format.so -lm -lz -lzstd -lpthread -fopenmp
 //only the time for loading a batch to memory (Disk I/O + decompression + parsing and filling the memory arrays) is measured
+//The code for multi-threaded random access of POD5 files is based on the code used in Dorado v0.7.0 (https://github.com/nanoporetech/dorado/blob/9ac85c65fc873a956bda00b2f5608b2bf72d9e7c/dorado/data_loader/DataLoader.cpp#L782)
 
 #include <stdio.h>
 #include <stdlib.h>

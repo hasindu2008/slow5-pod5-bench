@@ -58,6 +58,10 @@ FILE=PGXXXX230339
 BLOW5=/g/data/ox63/hasindu/slow5-pod5-bench/data/PGXXXX230339_reads_zstd-sv16-zd.blow5
 LIST=/g/data/ox63/hasindu/slow5-pod5-bench/data/500k.list
 
+test -e ${BLOW5} || die "ERROR: BLOW5 file not found: ${BLOW5}"
+test -e ${BLOW5}.idx || die "ERROR: BLOW5 file index not found: ${BLOW5}.idx"
+test -e ${LIST} || die "ERROR: LIST file not found: ${LIST}"
+
 benchmark
 
 echo "done"
