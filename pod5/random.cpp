@@ -243,7 +243,7 @@ int read_and_process_pod5_file(const std::string& path, const char *rid_list_pat
                 fprintf(stderr,"Parsing uuid failed. Return val %d\n",ret);
                 exit(1);
             }
-            // Store the read_id in the channel's list.
+
             ReadID read_id;
             memcpy(read_id.data(), arr, POD5_READ_ID_SIZE);
             read_ids.push_back(std::move(read_id));
