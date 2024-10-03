@@ -51,7 +51,9 @@ benchmark (){
 }
 
 
-THREADS=${PBS_NCPUS}
+CPU=${PBS_NCPUS}
+THREADS=$(echo "${CPU}*2" | bc)
+
 MACHINE=gadi
 FILE=PGXXXX230339
 

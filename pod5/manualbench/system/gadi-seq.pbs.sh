@@ -35,7 +35,9 @@ die() {
 	exit 1
 }
 
-THREADS=${PBS_NCPUS}
+CPU=${PBS_NCPUS}
+THREADS=$(echo "${CPU}*2" | bc)
+
 POD5=/g/data/ox63/hasindu/slow5-pod5-bench/data/PGXXXX230339_reads.pod5
 
 echo "POD5 IO"
