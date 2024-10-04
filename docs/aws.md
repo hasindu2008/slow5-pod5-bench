@@ -31,4 +31,25 @@ export LD_LIBRARY_PATH=$PWD/pod5_format/lib
 ./build.sh
 ```
 
+8. clean_fscache
+```
+git clone https://github.com/hasindu2008/biorand/
+cd biorand
+gcc-10 -Wall clean_fscache.c -o clean_fscache
+sudo chown root:root clean_fscache && sudo chmod +s clean_fscache
+sudo mv clean_fscache /usr/local/bin/
+```
+
+
+# S3fs
+
+```
+sudo apt install s3fs
+mkdir ./s3
+s3fs slow5test ./s3/ -o public_bucket=1  -o url=http://s3.amazonaws.com/ -o dbglevel=info -o curldbg -o umask=0005 -o  uid=$(id -u)
+```
+```
+manualbench/system/run-seq-aws-s3.sh
+```
+
    
