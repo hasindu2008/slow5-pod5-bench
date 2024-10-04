@@ -23,5 +23,6 @@ Note: FOr mac https://github.com/nanoporetech/pod5-file-format/releases/download
 ```
 4. Run random (not finalized)
 ```
-./pod5_convert_to_pa_rand reads.pod5 readlist 1 100
+./run_rand.sh <pod5> <list> <thr> <batch> io # traditional io
+./run_rand.sh <pod5> <list> <thr> <batch> mmap # mmap
 ```
