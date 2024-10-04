@@ -60,8 +60,11 @@ ln -s /g/data/ox63/install/clean_fscache/clean_fscache ~/.local/bin/clean_fscach
   ./run_seq.sh zstd-sv16-zd.blow5 <num-threads> <batch_size> cxx
   ```
 
-
-
+  iv. random benchmark (cxx) can be run as:
+  ```
+  # make sure a SLOW5 index exist before running this
+  ./run_rand.sh zstd-sv16-zd.blow5 ridlist.txt <num-threads> <batch_size> cxx
+  ```
 
 ---
 
