@@ -14,8 +14,8 @@ aws s3 cp /home/hasindu/scratch/hg2_prom_lsk114_5khz/PGXXXX230339_reads_zstd-sv1
 sudo apt-get update
 sudo apt-get install -y gcc-10 g++-10 zlib1g-dev make
 ```
-5. follow instructions in [slow5-pod5-bench/slow5](../slow5-pod5-bench/slow5) to build the slow5 benchmarks
+5. follow instructions in [slow5-pod5-bench/slow5](../slow5) to build the slow5 benchmarks
 
-6. follow instructions in [slow5-pod5-bench/pod5](../slow5-pod5-bench/pod5) to build the pod5 benchmarks
+6. follow instructions in [slow5-pod5-bench/pod5](../pod5) to build the pod5 benchmarks
 
    
