@@ -6,4 +6,4 @@ export FILE=PGXXXX230339
 export SOURCE_DIR=/home/hasindu/slow5-pod5-bench/slow5
 export BLOW5=/data3/tmp/PGXXXX230339_reads_zstd-sv16-zd.blow5
 
-./linux-seq.sh
+./manualbench/system/linux-seq.sh
