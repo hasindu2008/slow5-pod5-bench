@@ -1,10 +1,9 @@
 cmake-build-debug
 .idea
 build
-slow5/slow5_convert_to_pa
-slow5/slow5_convert_to_pa_rand
 slow5/slow5_sequential
 slow5/slow5_sequential_cxxpool
+slow5/slow5_random_cxxpool
 slow5/slow5_random
 *.gz
 pod5/pod5_sequential
