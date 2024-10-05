@@ -35,6 +35,9 @@ On gadi first do:
 ln -s /apps/gcc/10.3.0/bin/gcc ~/.local/bin/gcc-10
 ln -s /apps/gcc/10.3.0/bin/g++ ~/.local/bin/g++-10
 
+On Pawsey:
+ln -s /opt/cray/pe/gcc/10.3.0/snos/bin/gcc ~/.local/bin/gcc-10
+ln -s /opt/cray/pe/gcc/10.3.0/snos/bin/g++ ~/.local/bin/g++-10
 ```
 
 3. Run the benchmarks
