@@ -37,11 +37,11 @@ die() {
 
 benchmark (){
 
-	echo "BLOW5 C"
-	for i in $(seq 1 5); do
-		echo "Iteration $i"
-		./run_rand.sh ${BLOW5} ${LIST} ${THREADS} 1000 c &> rand_slow5_${MACHINE}_${FILE}_${THREADS}_1000_c_${i}.log
-	done
+	# echo "BLOW5 C"
+	# for i in $(seq 1 5); do
+	# 	echo "Iteration $i"
+	# 	./run_rand.sh ${BLOW5} ${LIST} ${THREADS} 1000 c &> rand_slow5_${MACHINE}_${FILE}_${THREADS}_1000_c_${i}.log
+	# done
 
 	echo "BLOW5 CXX"
 	for i in $(seq 1 5); do
