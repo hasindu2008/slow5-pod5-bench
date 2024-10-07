@@ -83,7 +83,7 @@ Data repository path: s3://slow5test/
 
 3. Follow 2-8 above under s3
    
-4. 
+4. lustre setup
 ```
 wget -O - https://fsx-lustre-client-repo-public-keys.s3.amazonaws.com/fsx-ubuntu-public-key.asc | gpg --dearmor | sudo tee /usr/share/keyrings/fsx-ubuntu-public-key.gpg >/dev/null
 sudo bash -c 'echo "deb [signed-by=/usr/share/keyrings/fsx-ubuntu-public-key.gpg] https://fsx-lustre-client-repo.s3.amazonaws.com/ubuntu jammy main" > /etc/apt/sources.list.d/fsxlustreclientrepo.list && apt-get update'
@@ -95,5 +95,12 @@ sudo update-grub
 sudo reboot
 sudo mkdir /fsx
 sudo mount -t lustre -o relatime,flock fs-08c831373173eaa2a.fsx.us-east-1.amazonaws.com@tcp:/2zv2zb4v /fsx
+nohup find /fsx/data -type f -print0 | xargs -0 -n 1 -P 8 sudo lfs hsm_restore &
 ```
 
+5. run
+```
+sceen
+cd ~/slow5-pod5-bench/slow5
+manualbench/system/run-seq-aws-lustre.sh
+```
