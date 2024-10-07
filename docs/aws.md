@@ -96,6 +96,8 @@ sudo reboot
 sudo mkdir /fsx
 sudo mount -t lustre -o relatime,flock fs-08c831373173eaa2a.fsx.us-east-1.amazonaws.com@tcp:/2zv2zb4v /fsx
 nohup find /fsx/data -type f -print0 | xargs -0 -n 1 -P 8 sudo lfs hsm_restore &
+# check if available:
+lfs hsm_action /fsx/data/PGXXXX230339_reads_zstd-sv16-zd.blow5
 ```
 
 5. run
