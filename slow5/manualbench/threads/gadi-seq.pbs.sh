@@ -35,7 +35,6 @@ die() {
 	exit 1
 }
 
-CPU=${PBS_NCPUS}
 i=1
 
 echo "BLOW5 CXX"
