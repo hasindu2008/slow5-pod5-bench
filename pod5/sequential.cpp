@@ -210,10 +210,10 @@ int read_and_process_pod5_file(const std::string& path, size_t m_num_worker_thre
         exit(EXIT_FAILURE);
     }
 
-    fprintf(stderr, "batch_count: %zu\n", batch_count);
     cxxpool::thread_pool pool{m_num_worker_threads};
 
     tot_time += realtime() - t0;
+    fprintf(stderr, "batch_count: %zu\n", batch_count);
     /**** End of init ***/
 
     for (std::size_t batch_index = 0; batch_index < batch_count; ++batch_index) {
