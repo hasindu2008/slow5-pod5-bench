@@ -30,7 +30,7 @@ die() {
 	exit 1
 }
 
-CPU=128
+THREADS=128
 
 MACHINE=pawsey
 FILE=PGXXXX230339
