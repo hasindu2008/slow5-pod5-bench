@@ -19,6 +19,9 @@ elif [ "$MACHINE" == "gtgpu-nfs" ]; then
 elif [ "$MACHINE" == "hmnat" ]; then
     SOURCE_DIR=/mnt/d/hasindu2008.git/slow5-pod5-bench/slow5
     DATADIR=/mnt/e/tmp/
+elif [ "$MACHINE" == "hmlaptop" ]; then
+    SOURCE_DIR=/home/hasindu/slow5-pod5-bench/slow5
+    DATADIR=/data/tmp
 else
     echo "Invalid machine: $2"
     exit 1
