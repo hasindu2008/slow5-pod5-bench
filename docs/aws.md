@@ -3,6 +3,7 @@
 ```
 aws s3 cp /home/hasindu/scratch/hg2_prom_lsk114_5khz/PGXXXX230339_reads.pod5 s3://slow5test/
 aws s3 cp /home/hasindu/scratch/hg2_prom_lsk114_5khz/PGXXXX230339_reads_zstd-sv16-zd.blow5 s3://slow5test/
+aws s3 cp /home/hasindu/scratch/hg2_prom_lsk114_5khz/500k.list s3://slow5test/
 ```
 
 1. Select c5a.16xlarge, Ubuntu 24.04, 32GB gp3 disk, make sure to add key-pair
