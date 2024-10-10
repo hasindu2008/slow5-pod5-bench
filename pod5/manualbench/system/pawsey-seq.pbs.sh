@@ -35,7 +35,7 @@ THREADS=256
 MACHINE=pawsey
 FILE=PGXXXX230339
 SOURCE_DIR=/home/hasindu/slow5-pod5-bench/pod5
-POD5=/g/data/ox63/hasindu/slow5-pod5-bench/data/PGXXXX230339_reads.pod5
+POD5=/scratch/pawsey1099/hasindu/data/PGXXXX230339_reads.pod5
 
 
 echo "POD5 IO"
