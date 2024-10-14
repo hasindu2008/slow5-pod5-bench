@@ -1,6 +1,6 @@
 #!/bin/bash
 #PBS -P ox63
-#PBS -N BLOW5
+#PBS -N POD5
 #PBS -q normal
 #PBS -l ncpus=48
 #PBS -l mem=192GB
