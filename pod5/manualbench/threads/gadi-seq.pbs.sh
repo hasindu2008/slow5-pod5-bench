@@ -40,7 +40,7 @@ i=1
 echo "POD5 MMAP"
 for THREADS in 92 48 32 16 8 4 2 1; do
 	echo "Iteration $i"
-	./run_seq.sh ${POD5} ${THREADS} mmap &> seq_pod5_gadi_PGXXXX230339_${THREADS}_mmap_${i}.log
+	./run_seq.sh /g/data/ox63/hasindu/slow5-pod5-bench/data/PGXXXX230339_reads.pod5 ${THREADS} mmap &> seq_pod5_gadi_PGXXXX230339_${THREADS}_mmap_${i}.log
 done
 
 echo "done"
