@@ -38,6 +38,9 @@ ln -s /apps/gcc/10.3.0/bin/g++ ~/.local/bin/g++-10
 On Pawsey:
 ln -s /opt/cray/pe/gcc/10.3.0/snos/bin/gcc ~/.local/bin/gcc-10
 ln -s /opt/cray/pe/gcc/10.3.0/snos/bin/g++ ~/.local/bin/g++-10
+on glab:
+ln -s /share/apps/z_install_tree/linux-debian12-zen3/gcc-12.2.0/gcc-10.5.0-f5ilsjdd3ra637qfxkkeg7m375xbqrsb/bin/gcc ~/.local/bin/gcc-10
+ln -s /share/apps/z_install_tree/linux-debian12-zen3/gcc-12.2.0/gcc-10.5.0-f5ilsjdd3ra637qfxkkeg7m375xbqrsb/bin/g++ ~/.local/bin/g++-10
 ```
 
 3. Run the benchmarks
