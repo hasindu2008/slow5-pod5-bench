@@ -69,18 +69,17 @@ manualbench/system/run-seq-aws-s3.sh
 
 ## provision the foollowing
 
-1. Deployment and storage type: Persistent SSD, Throughput per unit of storage: 125 MB/s/TiB,  Storage capacity: 2.4TB, no compression, Throughput capacity = 300MB/s
-
-2. Persistent, HDD with SSD cache, 12 MB/s/TiB, 6 TiB, no compression
+Deployment and storage type: Persistent SSD, Throughput per unit of storage: 125 MB/s/TiB,  Storage capacity: 12TB, no compression, Throughput capacity = 1500MB/s
 
 Data repository association information: 
 File system path: /data
 Data repository path: s3://slow5test/
+Make sure to put this in same availability zone: us-east-1c
 
 ## Machine setup - Need ubuntu 22 for lustre
 
 1. Select c5a.16xlarge, Ubuntu 22.04, 32GB gp3 disk, make sure to add key-pair
-2.  IMPORTANT: Right click on instance -> change security group -> ADD the default security group
+2.  IMPORTANT: Right click on instance -> change security group -> ADD the default security group; also same availability zone us-east-1c
 
 3. Follow 2-8 above under s3
    
