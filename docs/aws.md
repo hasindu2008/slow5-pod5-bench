@@ -65,6 +65,33 @@ Run:
 manualbench/system/run-seq-aws-s3.sh
 ```
 
+# EBS
+
+1. Create volume in same availibilty zone - us-east-1c
+2. gp3
+3. 2000GB
+4. IOPS 3000
+5. 125 MB/s
+6. attach volume /dev/nvme1n1
+
+on the machine
+```
+sudo mkdir /ebs
+sudo fdisk /dev/nvme1n1
+sudo mkfs.ext4 /dev/nvme1n1p1
+sudo mount /dev/nvme1n1p1 /ebs
+sudo mkdir /ebs/data
+sudo chown ubuntu /ebs/data
+s3fs slow5test ./s3/ -o public_bucket=1  -o url=http://s3.amazonaws.com/ -o dbglevel=info -o curldbg -o umask=0005 -o  uid=$(id -u) # see above
+cp ~/s3/* /ebs/data/
+sudo uomount ~/s3
+```
+
+Run:
+```
+manualbench/system/run-seq-aws-ebs.sh
+```
+
 # FSx for Lustre
 
 ## provision the foollowing
@@ -102,7 +129,7 @@ lfs hsm_action /fsx/data/PGXXXX230339_reads_zstd-sv16-zd.blow5
 
 5. run
 ```
-sceen
+screen
 cd ~/slow5-pod5-bench/slow5
 manualbench/system/run-seq-aws-lustre.sh
 ```
