@@ -23,7 +23,7 @@ elif [ "$MACHINE" == "hmlaptop" ]; then
     SOURCE_DIR=/home/hasindu/slow5-pod5-bench/pod5
     DATADIR=/data/tmp
 elif [ "$MACHINE" == "xavierjet2" ]; then
-    SOURCE_DIR=/home/hasindu/slow5-pod5-bench/slow5
+    SOURCE_DIR=/home/nanojet/slow5-pod5-bench/pod5
     DATADIR=/data/hasindu/slow5-pod5-bench/data/
 else
     echo "Invalid machine: $2"
