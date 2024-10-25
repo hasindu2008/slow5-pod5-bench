@@ -11,7 +11,7 @@ die() {
 i=1
 
 echo "BLOW5 CXX"
-for THREADS in 32 16 8 4 2 1; do
+for THREADS in 64 32 16 8 4 2 1; do
 	echo "Iteration $i"
 	./run_seq.sh /data/hasindu/slow5-pod5-bench-data/PGXXXX230339_reads_zstd-sv16-zd.blow5  ${THREADS} 1000 cxx &> seq_slow5_scylla_PGXXXX230339_${THREADS}_1000_cxx_${i}.log
 done
