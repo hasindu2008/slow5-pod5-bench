@@ -10,7 +10,7 @@ tar -xvf lib_pod5-0.3.2-linux-x64.tar.gz -C pod5_format
 export LD_LIBRARY_PATH=$PWD/pod5_format/lib
 ```
 
-Note: for ARM64 Linux wget https://github.com/nanoporetech/pod5-file-format/releases/download/0.3.10/lib_pod5-0.3.10-linux-arm64.tar.gz
+Note: for ARM64 Linux wget https://github.com/nanoporetech/pod5-file-format/releases/download/0.3.2/lib_pod5-0.3.2-linux-arm64.tar.gz
 
 Note: FOr mac https://github.com/nanoporetech/pod5-file-format/releases/download/0.3.10/lib_pod5-0.3.10-osx-11.0-arm64.tar.gz
 
