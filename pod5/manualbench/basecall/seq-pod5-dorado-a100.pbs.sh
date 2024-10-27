@@ -1,6 +1,6 @@
 #!/bin/bash
 #PBS -P ox63
-#PBS -N A100-SLOW5-DORADO
+#PBS -N A100-POD5-DORADO
 #PBS -q dgxa100
 #PBS -l ncpus=128
 #PBS -l ngpus=8
@@ -37,6 +37,11 @@ die() {
 
 MERGED_POD5=/g/data/ox63/hasindu/slow5-pod5-bench/data/
 TMP_FASTQ=/scratch/ox63/hg1112/pod5-a100.fastq
+
+N_POD5=$(find ${MERGED_POD5} -name *.pod5 | wc -l)
+if [ ${N_POD5} -ne 1 ]; then
+	die "Only 1 pod5 file should be in ${MERGED_POD5}"
+fi
 
 clean_fscache || die "clean_fscache failed"
 
