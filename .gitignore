@@ -12,3 +12,4 @@ pod5/pod5_random
 zstd/
 /data
 .vscode
+/datasets
