@@ -63,7 +63,7 @@ Contents of section .comment:
 
 3. What are the compiler flags used in pod5?
 
-4. What is the zstd version used in pod5? [zstd/1.5.5](https://github.com/nanoporetech/pod5-file-format/blob/0.3.10/conanfile.py#L63)
+4. What is the zstd version used in pod5? [zstd/1.5.5](https://github.com/nanoporetech/pod5-file-format/blob/0.3.2/conanfile.py#L63)
 
 
 
@@ -79,10 +79,6 @@ Make sure:
 - [x] use taskset command to force using N number of CPUs
 - [x] clean_fscache to prevent caching
 - [x] POD5 must use streaming I/O (opposed to memory mapping)
- 
-- [ ] POD5 must use default chunk size as in MinKNOW, as it was the reason why ONT could not integrate SLOW5 to their minKNOW
-- [ ] **note** : use [jemalloc  5.2.1](https://github.com/nanoporetech/pod5-file-format/blob/0.3.10/conanfile.py#L70)
-- [ ] GLIBC and other system library versions must match
 
 | Conditions                         | pod5 IO stream             | pod5 mmap        | blow5 IO stream        | blow5 mmap             |
 | ---------------------------------- | -------------------------- | ---------------- | ---------------------- | ---------------------- |
@@ -92,10 +88,16 @@ Make sure:
 | Library compiler version           | gcc 10                 | gcc 10        | gcc 10               | gcc 10               |
 | Library compiler flags             | \-g -Wall -O3              | \-g -Wall -O3    | \-g -Wall -O3 -std=c99 | \-g -Wall -O3 -std=c99 |
 | streamvbyte16                      | N/A               | N/A     | \-g -Wall -O3          | \-g -Wall -O3     |
-| SIMD accelerated streamvbyte16     | yes                        | yes              | \yes                   | yes|
+| SIMD accelerated streamvbyte16     | yes                        | yes              | yes                   | yes|
 | zstd version                       | 1.5.5                      | 1.5.5            | 1.5.5                  | 1.5.5                        |
 | Taskset                            | used                       | used             | used                   | used                   |
-| clean_fscache                      | used                       | used             | used                   | used                   |
+| clean file system cache                      | used                       | used             | used                   | used                   |
 | POD5_DISABLE_MMAP_OPEN             | set                        | not set          | N/A                    | N/A                    |
 
+* Note that gcc/g++ 10 is clang/clang++ 14 for MacOS. Taskset is not there in Mac.  Also note that for ARM streamvbyte16 is not SIMD accelerated in both POD5 and BLOW5.
 
+Can match (currently not):
+
+- [ ] POD5 must use default chunk size as in MinKNOW, as it was the reason why ONT could not integrate SLOW5 to their minKNOW
+- [ ] **note** : use [jemalloc  5.2.1](https://github.com/nanoporetech/pod5-file-format/blob/0.3.2/conanfile.py#L70)
+- [ ] GLIBC and other system library versions must match
