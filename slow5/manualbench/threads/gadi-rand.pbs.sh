@@ -35,24 +35,7 @@ die() {
 	exit 1
 }
 
-benchmark (){
-
-	# echo "BLOW5 C"
-	# for i in $(seq 1 5); do
-	# 	echo "Iteration $i"
-	# 	./run_rand.sh ${BLOW5} ${LIST} ${THREADS} 1000 c &> rand_slow5_${MACHINE}_${FILE}_${THREADS}_1000_c_${i}.log
-	# done
-
-	echo "BLOW5 CXX"
-	for i in $(seq 1 5); do
-	echo "Iteration $i"
-		./run_rand.sh ${BLOW5} ${LIST} ${THREADS} 1000 cxx &> rand_slow5_${MACHINE}_${FILE}_${THREADS}_1000_cxx_${i}.log
-	done
-}
-
-
-CPU=${PBS_NCPUS}
-THREADS=$(echo "${CPU}*2" | bc)
+i=1
 
 MACHINE=gadi
 FILE=PGXXXX230339
@@ -64,6 +47,10 @@ test -e ${BLOW5} || die "ERROR: BLOW5 file not found: ${BLOW5}"
 test -e ${BLOW5}.idx || die "ERROR: BLOW5 file index not found: ${BLOW5}.idx"
 test -e ${LIST} || die "ERROR: LIST file not found: ${LIST}"
 
-benchmark
+echo "BLOW5 CXX"
+for THREADS in 92 48 32 16 8 4 2 1; do
+	echo "Iteration $i"
+	./run_rand.sh ${BLOW5} ${LIST} ${THREADS} 1000 cxx &> rand_slow5_${MACHINE}_${FILE}_${THREADS}_1000_cxx_${i}.log
+done
 
 echo "done"
