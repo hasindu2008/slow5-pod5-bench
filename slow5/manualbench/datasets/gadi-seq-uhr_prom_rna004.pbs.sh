@@ -55,8 +55,8 @@ CPU=${PBS_NCPUS}
 THREADS=$(echo "${CPU}*2" | bc)
 
 MACHINE=gadi
-FILE=PGXXXX230339
-BLOW5=/g/data/ox63/hasindu/slow5-pod5-bench/datasets/hg2_prom_lsk114_5khz/${FILE}_reads_zstd-svb16-zd.blow5
+FILE=PNXRXX240011
+BLOW5=/g/data/ox63/hasindu/slow5-pod5-bench/datasets/uhr_prom_rna004/${FILE}_reads_zstd-svb16-zd.blow5
 test -e ${BLOW5} || die "ERROR: BLOW5 file not found: ${BLOW5}"
 
 benchmark

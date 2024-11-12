@@ -55,8 +55,8 @@ CPU=${PBS_NCPUS}
 THREADS=$(echo "${CPU}*2" | bc)
 
 MACHINE=gadi
-FILE=PGXXXX230339
-POD5=/g/data/ox63/hasindu/slow5-pod5-bench/datasets/hg2_prom_lsk114_5khz/${FILE}_reads.pod5
+FILE=PNXRXX240011
+POD5=/g/data/ox63/hasindu/slow5-pod5-bench/datasets/uhr_prom_rna004/${FILE}_reads.pod5
 
 test -e ${POD5} || die "ERROR: POD5 file not found: ${POD5}"
 
