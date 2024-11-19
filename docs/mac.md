@@ -13,9 +13,16 @@ See which compiler was used to create the binary:
 	 1537fc 696f6e20 31342e30 2e302028 636c616e  ion 14.0.0 (clan
 	 15380c 672d3134 30302e30 2e32392e 32303229  g-1400.0.29.202)
 
-Install clang-14:
+Install brew:
 
-	brew install llvm@14
+	/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+	echo >> /Users/gtg/.zprofile
+	echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> /Users/gtg/.zprofile
+	eval "$(/opt/homebrew/bin/brew shellenv)"
+
+Install clang-14 and wget:
+
+	brew install llvm@14 wget
 
 Add clang-14 to the PATH. For persistent behaviour, add this to ~/.zshrc:
 
@@ -48,6 +55,19 @@ Change run_seq.sh and similarly run_rand.sh:
 	...
 
 	/usr/bin/time -pl "./$SEQ_CXX" "$POD5" "$T" > /dev/null
+
+Get number of logical cores:
+
+	getconf _NPROCESSORS_ONLN
+
+Benchmark:
+
+	./build.sh
+	for i in $(seq 1 5)
+	do
+		sudo ./run_seq.sh <pod5> 8 io > /dev/null 2> pod5_sequential_io-$i.err
+		sudo ./run_seq.sh <pod5> 8 mmap > /dev/null 2> pod5_sequential_mmap-$i.err
+	done
 
 slow5
 -----
@@ -85,3 +105,13 @@ Change run_seq.sh and similarly run_rand.sh:
 	...
 
 		/usr/bin/time -pl "./$SEQ_CXX" "$SLOW5" "$T" "$B" > /dev/null
+
+Benchmark:
+
+	./install-zstd.sh
+	./build.sh
+	for i in $(seq 1 5)
+	do
+		sudo ./run_seq.sh <slow5> 8 1000 c > /dev/null 2> slow5_sequential_c-$i.err
+		sudo ./run_seq.sh <slow5> 8 1000 cxx > /dev/null 2> slow5_sequential_cxx-$i.err
+	done

@@ -45,7 +45,9 @@ Build slow5_sequential and pod5_sequential on an ARM system:
 	make -j CC=gcc-10 slow5_mt=1 zstd_local=../zstd/lib/
 	cd ..
 	gcc-10 -static -Wall -O3 -g -I slow5lib/include/ -o slow5_sequential sequential.c slow5lib/lib/libslow5.a zstd/lib/libzstd.a -lm -lz -fopenmp
-	g++-10 -static -Wall -O3 -g -I slow5lib/include/ -I ../pod5/cxxpool/src -o slow5_sequential_cxxpool sequential_cxxpool.cpp slow5lib/lib/libslow5.a zstd/lib/libzstd.a -lm -lz -fopenmp -lpthread # TODO: aborts unexpectedly
+	g++-10 -static -Wall -O3 -g -I slow5lib/include/ -I ../pod5/cxxpool/src
+-o slow5_sequential_cxxpool sequential_cxxpool.cpp slow5lib/lib/libslow5.a
+../pod5/pod5_format/lib64/libzstd.a -lm -lz -fopenmp
 	g++-10 -static -Wall -O3 -g -I pod5_format/include -I cxxpool/src -o pod5_sequential sequential.cpp pod5_format/lib64/libpod5_format.a pod5_format/lib64/libarrow.a pod5_format/lib64/libzstd.a -lm -lz -fopenmp -lpthread
 
 Copy over the binaries:
@@ -59,8 +61,7 @@ Run the experiments:
 	for i in $(seq 1 5)
 	do
 		./clean_fscache && ./time -v taskset -a FF ./slow5_sequential /storage/emulated/data/PGXXXX230339_reads_500k_zstd-sv16-zd.blow5 8 1000 > /dev/null 2> slow5_sequential-$i.err
-		./clean_fscache && ./time -v taskset -a FF ./pod5_sequential /storage/emulated/data/PGXXXX230339_reads_500k.pod5 8 > /dev/null 2> pod5_sequential-$i.err
+		./clean_fscache && ./time -v taskset -a FF ./slow5_sequential_cxxpool /storage/emulated/data/PGXXXX230339_reads_500k_zstd-sv16-zd.blow5 8 1000 > /dev/null 2> slow5_sequential_cxxpool-$i.err
+		./clean_fscache && ./time -v taskset -a FF ./pod5_sequential /storage/emulated/data/PGXXXX230339_reads_500k.pod5 8 > /dev/null 2> pod5_sequential_mmap-$i.err
+		./clean_fscache && POD5_DISABLE_MMAP_OPEN=1 ./time -v taskset -a FF ./pod5_sequential /storage/emulated/data/PGXXXX230339_reads_500k.pod5 8 > /dev/null 2> pod5_sequential_io-$i.err
 	done
-
-TODO:
-- get slow5_sequential_cxxpool successfully statically executing
