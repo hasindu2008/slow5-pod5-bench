@@ -35,7 +35,7 @@ die() {
 	exit 1
 }
 
-bechmark (){
+benchmark (){
 
 	echo "POD5 IO"
 	for i in $(seq 1 5); do
