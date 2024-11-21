@@ -9,9 +9,9 @@ See which compiler was used to create the binary:
 	objdump -s pod5_format/lib/libpod5_format.a | grep clang -i -B1 -A2 -m1
 
 	Contents of section __DWARF,__debug_str:
-	 1537ec 4170706c 6520636c 616e6720 76657273  Apple clang vers
-	 1537fc 696f6e20 31342e30 2e302028 636c616e  ion 14.0.0 (clan
-	 15380c 672d3134 30302e30 2e32392e 32303229  g-1400.0.29.202)
+	 160d8b 4170706c 6520636c 616e6720 76657273  Apple clang vers
+	 160d9b 696f6e20 31332e31 2e362028 636c616e  ion 13.1.6 (clan
+	 160dab 672d3133 31362e30 2e32312e 322e3329  g-1316.0.21.2.3)
 
 Install brew:
 
