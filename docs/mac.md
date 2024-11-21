@@ -20,13 +20,13 @@ Install brew:
 	echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> /Users/gtg/.zprofile
 	eval "$(/opt/homebrew/bin/brew shellenv)"
 
-Install clang-14 and wget:
+Install clang-13 and wget:
 
-	brew install llvm@14 wget
+	brew install llvm@13 wget
 
-Add clang-14 to the PATH. For persistent behaviour, add this to ~/.zshrc:
+Add clang-13 to the PATH. For persistent behaviour, add this to ~/.zshrc:
 
-	export PATH="/opt/homebrew/opt/llvm@14/bin:$PATH"
+	export PATH="/opt/homebrew/opt/llvm@13/bin:$PATH"
 
 Add the following to random.cpp:
 
