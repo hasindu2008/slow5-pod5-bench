@@ -41,8 +41,10 @@ Change build.sh:
 
 	test -e pod5_format/lib/libpod5_format.a || die "pod5_format not found"
 
-	$CXX -Wall -O3 -g -I pod5_format/include -I cxxpool/src -o pod5_sequential sequential.cpp pod5_format/lib/*.a -lm -lz -fopenmp -lpthread -lunwind || die "Failed to build pod5_sequential"
-	$CXX -Wall -O3 -g -I pod5_format/include -I cxxpool/src -o pod5_random random.cpp pod5_format/lib/*.a -lm -lz -fopenmp -lpthread -lunwind || die "Failed to build pod5_random"
+	$CXX -Wall -O3 -g -I pod5_format/include -I cxxpool/src -o pod5_sequential sequential.cpp pod5_format/lib/* -lm -lz -fopenmp -lpthread -lunwind -L/opt/homebrew/Cellar/llvm@13/13.0.1_2/lib/ || die "Failed to build pod5_sequential"
+	$CXX -Wall -O3 -g -I pod5_format/include -I cxxpool/src -o pod5_random random.cpp pod5_format/lib/* -lm -lz -fopenmp -lpthread -lunwind -L/opt/homebrew/Cellar/llvm@13/13.0.1_2/lib/ || die "Failed to build pod5_random"
+	install_name_tool -add_rpath pod5_format/lib pod5_sequential
+	install_name_tool -add_rpath pod5_format/lib pod5_random
 
 I don't think it is possible to set the cpu affinity of a process on Mac. There
 is a related API <https://developer.apple.com/library/archive/releasenotes/Performance/RN-AffinityAPI/#//apple_ref/doc/uid/TP40006635-CH1-DontLinkElementID_2>,
@@ -91,8 +93,8 @@ Change build.sh and similarly build_cxxpool.sh:
 	cd ..
 
 	# adding -lunwind
-	$CC -Wall -O3 -g -I slow5lib/include/ -I slow5lib/src -o slow5_sequential sequential.c slow5lib/lib/libslow5.a zstd/lib/libzstd.a -lm -lz -fopenmp -lunwind || die "compilation failed"
-	$CC -Wall -O3 -g -I slow5lib/include/ -o slow5_random random.c slow5lib/lib/libslow5.a zstd/lib/libzstd.a -lm -lz -fopenmp -lunwind || die "compilation failed"
+	$CC -Wall -O3 -g -I slow5lib/include/ -I slow5lib/src -o slow5_sequential sequential.c slow5lib/lib/libslow5.a zstd/lib/libzstd.a -lm -lz -fopenmp -lunwind -L/opt/homebrew/Cellar/llvm@13/13.0.1_2/lib/ || die "compilation failed"
+	$CC -Wall -O3 -g -I slow5lib/include/ -o slow5_random random.c slow5lib/lib/libslow5.a zstd/lib/libzstd.a -lm -lz -fopenmp -lunwind -L/opt/homebrew/Cellar/llvm@13/13.0.1_2/lib/ || die "compilation failed"
 
 Change run_seq.sh and similarly run_rand.sh:
 
