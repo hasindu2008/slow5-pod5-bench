@@ -50,16 +50,25 @@ Build slow5_sequential and pod5_sequential on an ARM system:
 
 Copy over the binaries:
 
-	adb push slow5_sequential slow5_sequential_cxxpool pod5_sequential clean_fscache time /data/local/tmp/
+	adb shell mkdir -p /data/local/tmp/slow5-pod5-bench/slow5/ /data/local/tmp/slow5-pod5-bench/slow5/
+	adb push clean_fscache time /data/local/tmp/
+	adb push slow5_sequential_cxxpool slow5_random_cxxpool /data/local/tmp/slow5-pod5-bench/slow5/
+	adb push pod5_sequential pod5_random /data/local/tmp/slow5-pod5-bench/pod5/
 
 Run the experiments:
 
 	adb shell
-	cd /data/local/tmp
+	export PATH=/data/local/tmp/:$PATH
+	export TASKSET_AFFINITY=FF # processors 0-7
+	cd /data/local/tmp/slow5-pod5-bench/slow5
 	for i in $(seq 1 5)
 	do
-		./clean_fscache && ./time -v taskset -a FF ./slow5_sequential /storage/emulated/data/PGXXXX230339_reads_500k_zstd-sv16-zd.blow5 8 1000 > /dev/null 2> slow5_sequential-$i.err
-		./clean_fscache && ./time -v taskset -a FF ./slow5_sequential_cxxpool /storage/emulated/data/PGXXXX230339_reads_500k_zstd-sv16-zd.blow5 8 1000 > /dev/null 2> slow5_sequential_cxxpool-$i.err
-		./clean_fscache && ./time -v taskset -a FF ./pod5_sequential /storage/emulated/data/PGXXXX230339_reads_500k.pod5 8 > /dev/null 2> pod5_sequential_mmap-$i.err
-		./clean_fscache && POD5_DISABLE_MMAP_OPEN=1 ./time -v taskset -a FF ./pod5_sequential /storage/emulated/data/PGXXXX230339_reads_500k.pod5 8 > /dev/null 2> pod5_sequential_io-$i.err
+		clean_fscache && time -v taskset -a "$TASKSET_AFFINITY" ./slow5_sequential <slow5> 8 1000 > /dev/null 2> slow5_sequential-$i.err
+		clean_fscache && time -v taskset -a "$TASKSET_AFFINITY" ./slow5_sequential_cxxpool <slow5> <list> 8 1000 > /dev/null 2> slow5_sequential_cxxpool-$i.err
+	done
+	cd /data/local/tmp/slow5-pod5-bench/pod5
+	for i in $(seq 1 5)
+	do
+		clean_fscache && time -v taskset -a "$TASKSET_AFFINITY" ./pod5_sequential <pod5> 8 > /dev/null 2> pod5_sequential_mmap-$i.err
+		clean_fscache && POD5_DISABLE_MMAP_OPEN=1 time -v taskset -a "$TASKSET_AFFINITY" ./pod5_sequential <pod5> 8 > /dev/null 2> pod5_sequential_io-$i.err
 	done
