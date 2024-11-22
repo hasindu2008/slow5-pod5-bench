@@ -45,9 +45,7 @@ Build slow5_sequential and pod5_sequential on an ARM system:
 	make -j CC=gcc-10 slow5_mt=1 zstd_local=../zstd/lib/
 	cd ..
 	gcc-10 -static -Wall -O3 -g -I slow5lib/include/ -o slow5_sequential sequential.c slow5lib/lib/libslow5.a zstd/lib/libzstd.a -lm -lz -fopenmp
-	g++-10 -static -Wall -O3 -g -I slow5lib/include/ -I ../pod5/cxxpool/src
--o slow5_sequential_cxxpool sequential_cxxpool.cpp slow5lib/lib/libslow5.a
-../pod5/pod5_format/lib64/libzstd.a -lm -lz -fopenmp
+	g++-10 -static -Wall -O3 -g -I slow5lib/include/ -I ../pod5/cxxpool/src -o slow5_sequential_cxxpool sequential_cxxpool.cpp slow5lib/lib/libslow5.a -lm -lz -fopenmp -Wl,--whole-archive -lpthread -Wl,--no-whole-archive
 	g++-10 -static -Wall -O3 -g -I pod5_format/include -I cxxpool/src -o pod5_sequential sequential.cpp pod5_format/lib64/libpod5_format.a pod5_format/lib64/libarrow.a pod5_format/lib64/libzstd.a -lm -lz -fopenmp -lpthread
 
 Copy over the binaries:
