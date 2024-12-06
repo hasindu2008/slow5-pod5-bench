@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 die()
 {
@@ -17,7 +17,7 @@ benchmark(){
 	echo "BLOW5 CXX"
 	for i in $(seq 1 5); do
 	echo "Iteration $i"
-		./run_seq.sh ${BLOW5}  ${THREADS} 1000 cxx &> seq_slow5_${MACHINE}_${FILE}_${THREADS}_1000_cxx_${i}.log
+		./run_seq.sh ${BLOW5}  ${THREADS} 1000 cxx > seq_slow5_${MACHINE}_${FILE}_${THREADS}_1000_cxx_${i}.log 2>&1
 	done
 
 }

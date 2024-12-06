@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 die()
 {
@@ -10,13 +10,13 @@ benchmark(){
 	echo "POD5 IO"
 	for i in $(seq 1 5); do
 		echo "Iteration $i"
-		./run_rand.sh ${POD5} ${LIST} ${THREADS} 1000 io &> rand_pod5_${MACHINE}_${FILE}_${THREADS}_io_${i}.log
+		./run_rand.sh ${POD5} ${LIST} ${THREADS} 1000 io > rand_pod5_${MACHINE}_${FILE}_${THREADS}_io_${i}.log 2>&1
 	done
 
 	echo "POD5 MMAP"
 	for i in $(seq 1 5); do
 	echo "Iteration $i"
-		./run_rand.sh ${POD5} ${LIST} ${THREADS} 1000 mmap &> rand_pod5_${MACHINE}_${FILE}_${THREADS}_mmap_${i}.log
+		./run_rand.sh ${POD5} ${LIST} ${THREADS} 1000 mmap > rand_pod5_${MACHINE}_${FILE}_${THREADS}_mmap_${i}.log 2>&1
 	done
 }
 
