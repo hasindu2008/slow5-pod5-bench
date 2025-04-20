@@ -1,7 +1,9 @@
 #!/bin/sh
 # Print lizard statistics given paths
 # Usage: ./lizard.sh [<path> ...]
-# E.g. ./lizard.sh Makefile include/slow5/slow5* include/slow5/klib/* src/slow5* src/klib/* thirdparty/streamvbyte/Makefile  thirdparty/streamvbyte/include/*  thirdparty/streamvbyte/src/*
+# E.g. ./lizard.sh Makefile include/ src/ thirdparty/streamvbyte/Makefile  thirdparty/streamvbyte/include/  thirdparty/streamvbyte/src/
+#      ./lizard.sh conanfile.py pod5_make_version.py, CMakeLists.txt, cmake/* c++/CMakeLists.txt c++/pod5_format/ third_party/include/
+
 
 USAGE="$0 [<path> ...]"
 
@@ -18,8 +20,6 @@ die() {
 
 lizard --version || die "lizard not found, please install lizard"
 datamash --version || die "datamash not found, please install datamash"
-
-wc -l "$@"
 
 lizard "$@" > lizard.out
 sed 's/^ \+//' -i lizard.out # remove leading spaces
