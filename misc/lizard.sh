@@ -1,8 +1,7 @@
 #!/bin/sh
 # Print lizard statistics given paths
 # Usage: ./lizard.sh [<path> ...]
-# E.g. ./lizard.sh Makefile include/slow5/slow5* src/slow5.c src/slow5_byte.h src/slow5_extra.h src/slow5_idx.c src/slow5_idx.h src/slow5_misc.c src/slow5_misc.h src/slow5_press.c
-# E.g. ./lizard.sh Makefile include/slow5/slow5* src/slow5*'
+# E.g. ./lizard.sh Makefile include/slow5/slow5* include/slow5/klib/* src/slow5* src/klib/* thirdparty/streamvbyte/Makefile  thirdparty/streamvbyte/include/*  thirdparty/streamvbyte/src/*
 
 USAGE="$0 [<path> ...]"
 
@@ -11,6 +10,14 @@ then
 	echo "$USAGE" 2>&1
 	exit 1
 fi
+
+die() {
+	echo "$@" 1>&2
+	exit 1
+}
+
+lizard --version || die "lizard not found, please install lizard"
+datamash --version || die "datamash not found, please install datamash"
 
 wc -l "$@"
 
