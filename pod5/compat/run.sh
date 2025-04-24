@@ -1,7 +1,7 @@
 #!/bin/bash
 
-FILE_VERSIONS="0.1.0"
-LIB_VERSIONS="0.0.1	 0.0.3	0.0.4	0.0.5	0.0.9	0.0.11	0.0.12	0.0.13	0.0.14	0.0.15	0.0.16	0.0.17	0.0.19	0.0.20	0.0.23	0.0.31	0.0.32	0.0.41	0.0.43	0.1.0	0.1.4	0.1.5	0.1.8	0.1.10	0.1.11	0.1.12	0.1.13	0.1.15	0.1.16	0.1.19	0.1.20	0.1.21	0.2.0	0.2.2	0.2.3	0.2.4	0.3.0	0.3.1	0.3.2	0.3.6	0.3.10	0.3.11	0.3.12	0.3.15	0.3.21	0.3.23"
+FILE_VERSIONS="v0  v1  v2  v3"
+LIB_VERSIONS="0.0.1  0.0.3  0.0.4  0.0.5  0.0.9  0.0.11  0.0.12  0.0.13  0.0.14  0.0.15  0.0.16  0.0.17  0.0.19  0.0.20  0.0.23  0.0.31  0.0.32  0.0.41  0.0.43  0.1.0  0.1.4  0.1.5  0.1.8  0.1.10  0.1.11  0.1.12  0.1.13  0.1.15  0.1.16  0.1.19  0.1.20  0.1.21  0.2.0  0.2.2  0.2.3  0.2.4  0.3.0  0.3.1  0.3.2  0.3.6  0.3.10  0.3.11  0.3.12  0.3.15  0.3.21  0.3.23"
 
 die () {
     echo "$1" >&2
@@ -120,7 +120,6 @@ GET_POD5TOOLS(){
         return
     fi
 
-
     compare_versions ${LIB_VERSION} 0.0.43
     res=$?
     if [ $res -eq 2 ]; then
@@ -138,7 +137,7 @@ GET_POD5TOOLS(){
     fi
 
     pip3 install pod5==${LIB_VERSION} || die "Error: pip failed"
-    pod5 --version || pip3 install "numpy<=1.39" || die "Error: pip failed"
+    pod5 --version || pip3 install "numpy<=1.39" || die "Error: pip failed" # find where numpy new is needed
     pod5 --version > vnenv_${LIB_VERSION}/version.log || die "Error: pod5 failed"
 
     deactivate || die "Error: deactivate failed"
@@ -185,34 +184,23 @@ COMPILE_EXAMPLE_AND_RUN(){
         return
     fi
 
-    compare_versions ${LIB_VERSION} 0.1.11
-    res=$?
-    if [ $res -eq 2 ]; then
-        set -x
-        g++ pod5_example_0.0.41.cpp -Wl,-rpath,pod5lib/lib_pod5-${LIB_VERSION}/lib/ -lz -o example/pod5_read_${LIB_VERSION} -I./ -I pod5lib/lib_pod5-${LIB_VERSION}/include/ pod5lib/lib_pod5-${LIB_VERSION}/lib/libpod5_format.so  || die "Error: gcc failed"
-        set +x
-        if [ ${LIB_VERSION} = "0.1.8" ]; then
-            echo "NO binary"
-            return
-        fi
-        set -x
-        example/pod5_read_${LIB_VERSION} pod5/pod5-${LIB_VERSION}.pod5 > example/example_lib_${LIB_VERSION}.out 2> example/example_lib_${LIB_VERSION}.log || die "Error: example failed"
-        set +x
-        diff -q example.exp example/example_lib_${LIB_VERSION}.out  || die "Error: diff failed"
-        return
-    fi
-
     if  [ ${LIB_VERSION} = "0.3.0" ] || [ ${LIB_VERSION} = "0.3.1" ] ; then
         echo "NO binary"
         return
     fi
 
-    # from 0.1.11 onwards
     set -x
     g++ pod5_example_0.0.41.cpp -Wl,-rpath,pod5lib/lib_pod5-${LIB_VERSION}/lib/ -lz -o example/pod5_read_${LIB_VERSION} -I./ -I pod5lib/lib_pod5-${LIB_VERSION}/include/ pod5lib/lib_pod5-${LIB_VERSION}/lib/libpod5_format.so  || die "Error: gcc failed"
+    set +x
+    if [ ${LIB_VERSION} = "0.1.8" ]; then
+        echo "NO binary"
+        return
+    fi
+    set -x
     example/pod5_read_${LIB_VERSION} pod5/pod5-${LIB_VERSION}.pod5 > example/example_lib_${LIB_VERSION}.out 2> example/example_lib_${LIB_VERSION}.log || die "Error: example failed"
     set +x
     diff -q example.exp example/example_lib_${LIB_VERSION}.out  || die "Error: diff failed"
+    return
 
 }
 
@@ -227,9 +215,7 @@ COMPILE_EXAMPLE_AND_RUN_ALL(){
 }
 
 
-
 COMPILE_PROGRAME(){
-
 
     if  [ ${LIB_VERSION} = "0.0.5" ] || [ ${LIB_VERSION} = "0.0.9" ]; then
         echo "No BINARY"
@@ -369,20 +355,29 @@ RUN_LIB_VERSION_CHECK_ALL(){
 
 }
 
+# Evaluate if any breaking changes were introduced in:
+# 1. installing pod5lib binary
+# 2. installing pod5tools
+# 3. creating a pod5 file using each pod5 version from a fast5 file
+# 4. compiling, running and diffing a tiny example program (getting all read ids) using each pod5 version
 
-## Getting all the pod5 library versions
-# GET_LIB_ALL
-## Getting all the pod5tools versions
-# GET_POD5TOOLS_ALL
-## Creating all the pod5 files from different pod5tools versions
-# CREATE_POD5_ALL
+# Getting all the pod5 library versions
+GET_LIB_ALL
+# Getting all the pod5tools versions
+GET_POD5TOOLS_ALL
+# Creating all the pod5 files from different pod5tools versions
+CREATE_POD5_ALL
 
 # ## compile the tiny example program and run using each pod5 version
 COMPILE_EXAMPLE_AND_RUN_ALL
 
-# ## compile the test program using each pod5 version
-COMPILE_PROGRAME_ALL
-# ## Check the stability of each program version with each pod5 version
+
+
+# # compatibility matrix of different pod5 file versions and pod5 library versions
+
+# # compile the test program using each pod5 version
+# COMPILE_PROGRAME_ALL
+# # Check the stability of each program version with each pod5 version
 # echo "Check the stability of each program version with each pod5 version"
-RUN_LIB_VERSION_CHECK_ALL > stability_libversion_matrix.txt
-# echo "all done"
+# RUN_LIB_VERSION_CHECK_ALL > stability_libversion_matrix.txt
+# # echo "all done"
