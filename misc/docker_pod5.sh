@@ -36,4 +36,6 @@ cd build
 /usr/bin/time -vao ../time.out cmake ..
 /usr/bin/time -vao ../time.out make
 
+# cmake needs -DBUILD_SHARED_LIB=ON for .so
+# du -b c++/libpod5_format.so
 du -b c++/libpod5_format.a

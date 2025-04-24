@@ -1,6 +1,7 @@
 #!/bin/bash
 # Create ASCII dependency tree
 # usage: ./tree.sh <pkg>
+# only tested on Devian 12.0 (bookworm)
 
 USAGE="$0 <pkg>"
 

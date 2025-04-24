@@ -23,3 +23,4 @@ cd slow5lib
 /usr/bin/time -vo time.out apt-get -y install zlib1g-dev libzstd-dev make gcc
 /usr/bin/time -vao time.out make zstd=1
 du -b lib/libslow5.so
+du -b lib/libslow5.a
