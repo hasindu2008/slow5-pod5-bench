@@ -1,7 +1,7 @@
 #!/bin/bash
 
-FILE_VERSIONS="0.1.0 0.2.0 1.0.0"
-LIB_VERSIONS="0.1.0	0.2.0	0.3.0	0.4.0	0.5.0	0.5.1	0.6.0	0.7.0	0.8.0	0.9.0	1.0.0	1.1.0	1.2.0	1.3.0"
+FILE_VERSIONS="0.1.0  0.2.0  1.0.0"
+LIB_VERSIONS="0.1.0  0.2.0  0.3.0  0.4.0  0.5.0  0.5.1  0.6.0  0.7.0  0.8.0  0.9.0  1.0.0  1.1.0  1.2.0  1.3.0"
 
 die () {
     echo "$1" >&2
@@ -143,22 +143,30 @@ RUN_LIB_VERSION_CHECK_ALL(){
 }
 
 
-## download all slow5libs
-# GET_LIB_ALL
-## download all slow5tools
-# GET_SLOW5TOOLS_ALL
-## create a BLOW5 file using each slow5tools version
-# CREATE_BLOW5_ALL
+# Evaluate if any breaking changes were introduced in:
+# 1. installing slow5lib
+# 2. installing slow5tools
+# 3. creating a BLOW5 file using each slow5tools version from a fast5 file
+# 4. compiling, running and diffing a tiny example program (convert to pA) using each slow5lib version
 
-# ## compile the tiny example program and run using each slow5lib version
+# download all slow5libs
+GET_LIB_ALL
+# download all slow5tools
+GET_SLOW5TOOLS_ALL
+# create a BLOW5 file using each slow5tools version
+CREATE_BLOW5_ALL
+# compile the tiny example program and run using each slow5lib version
 COMPILE_EXAMPLE_AND_RUN_ALL
 
-# ## compile the test program using each slow5lib version
+
+# compatibility matrix of different slow5 file versions and slow5lib versions
+
+# compile the test programs using each slow5lib version
 COMPILE_PROGRAME_ALL
-# ## Check the stability of each slow5 file version with each slow5lib version
+# Check the stability of each slow5 file version with each slow5lib version
 echo "Checking the stability of each slow5 file version with each slow5lib version"
 RUN_FILE_VERSION_CHECK_ALL > stability_format_matrix.txt
-# ## Check the stability of each program version with each slow5lib version
+# Check the stability of each program version with each slow5lib version
 echo "Check the stability of each program version with each slow5lib version"
 RUN_LIB_VERSION_CHECK_ALL > stability_libversion_matrix.txt
 echo "all done"
