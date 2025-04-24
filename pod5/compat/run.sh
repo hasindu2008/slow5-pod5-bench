@@ -156,7 +156,79 @@ GET_POD5TOOLS_ALL(){
     cd ..
 }
 
-COMPILE_EXAMPLE(){
+COMPILE_EXAMPLE_AND_RUN(){
+
+    if  [ ${LIB_VERSION} = "0.0.5" ] || [ ${LIB_VERSION} = "0.0.9" ]; then
+        echo "No BINARY"
+        return
+    fi
+
+    compare_versions ${LIB_VERSION} 0.0.14
+    res=$?
+    if [ $res -eq 2 ]; then
+        set -x
+        g++ pod5_example_0.0.1.cpp -Wl,-rpath,pod5lib/lib_pod5-${LIB_VERSION}/lib/ -lz -o example/pod5_read_${LIB_VERSION} -I./ -I pod5lib/lib_pod5-${LIB_VERSION}/include/ pod5lib/lib_pod5-${LIB_VERSION}/lib/libmkr_format.so  || die "Error: gcc failed"
+        example/pod5_read_${LIB_VERSION} pod5/pod5-${LIB_VERSION}.pod5 > example/example_lib_${LIB_VERSION}.out 2> example/example_lib_${LIB_VERSION}.log || die "Error: example failed"
+        set +x
+        diff -q example.exp example/example_lib_${LIB_VERSION}.out  || die "Error: diff failed"
+        return
+    fi
+
+    compare_versions ${LIB_VERSION} 0.0.41
+    res=$?
+    if [ $res -eq 2 ]; then
+        set -x
+        g++ pod5_example_0.0.14.cpp -Wl,-rpath,pod5lib/lib_pod5-${LIB_VERSION}/lib/ -lz -o example/pod5_read_${LIB_VERSION} -I./ -I pod5lib/lib_pod5-${LIB_VERSION}/include/ pod5lib/lib_pod5-${LIB_VERSION}/lib/libpod5_format.so  || die "Error: gcc failed"
+        example/pod5_read_${LIB_VERSION} pod5/pod5-${LIB_VERSION}.pod5 > example/example_lib_${LIB_VERSION}.out 2> example/example_lib_${LIB_VERSION}.log || die "Error: example failed"
+        set +x
+        diff -q example.exp example/example_lib_${LIB_VERSION}.out  || die "Error: diff failed"
+        return
+    fi
+
+    compare_versions ${LIB_VERSION} 0.1.11
+    res=$?
+    if [ $res -eq 2 ]; then
+        set -x
+        g++ pod5_example_0.0.41.cpp -Wl,-rpath,pod5lib/lib_pod5-${LIB_VERSION}/lib/ -lz -o example/pod5_read_${LIB_VERSION} -I./ -I pod5lib/lib_pod5-${LIB_VERSION}/include/ pod5lib/lib_pod5-${LIB_VERSION}/lib/libpod5_format.so  || die "Error: gcc failed"
+        set +x
+        if [ ${LIB_VERSION} = "0.1.8" ]; then
+            echo "NO binary"
+            return
+        fi
+        set -x
+        example/pod5_read_${LIB_VERSION} pod5/pod5-${LIB_VERSION}.pod5 > example/example_lib_${LIB_VERSION}.out 2> example/example_lib_${LIB_VERSION}.log || die "Error: example failed"
+        set +x
+        diff -q example.exp example/example_lib_${LIB_VERSION}.out  || die "Error: diff failed"
+        return
+    fi
+
+    if  [ ${LIB_VERSION} = "0.3.0" ] || [ ${LIB_VERSION} = "0.3.1" ] ; then
+        echo "NO binary"
+        return
+    fi
+
+    # from 0.1.11 onwards
+    set -x
+    g++ pod5_example_0.0.41.cpp -Wl,-rpath,pod5lib/lib_pod5-${LIB_VERSION}/lib/ -lz -o example/pod5_read_${LIB_VERSION} -I./ -I pod5lib/lib_pod5-${LIB_VERSION}/include/ pod5lib/lib_pod5-${LIB_VERSION}/lib/libpod5_format.so  || die "Error: gcc failed"
+    example/pod5_read_${LIB_VERSION} pod5/pod5-${LIB_VERSION}.pod5 > example/example_lib_${LIB_VERSION}.out 2> example/example_lib_${LIB_VERSION}.log || die "Error: example failed"
+    set +x
+    diff -q example.exp example/example_lib_${LIB_VERSION}.out  || die "Error: diff failed"
+
+}
+
+COMPILE_EXAMPLE_AND_RUN_ALL(){
+    rm -rf example/
+    mkdir example || die "Error: mkdir failed"
+    for LIB_VERSION in ${LIB_VERSIONS}
+    do
+        echo "Compiling example and running version ${LIB_VERSION}"
+        COMPILE_EXAMPLE_AND_RUN &> example/compile_example_${LIB_VERSION}.log
+    done
+}
+
+
+
+COMPILE_PROGRAME(){
 
 
     if  [ ${LIB_VERSION} = "0.0.5" ] || [ ${LIB_VERSION} = "0.0.9" ]; then
@@ -168,7 +240,7 @@ COMPILE_EXAMPLE(){
     res=$?
     if [ $res -eq 2 ]; then
         set -x
-        g++ pod5_read_001.cpp -Wl,-rpath,pod5lib/lib_pod5-${LIB_VERSION}/lib/ -lz -o example/pod5_read_${LIB_VERSION} -I pod5lib/lib_pod5-${LIB_VERSION}/include/ pod5lib/lib_pod5-${LIB_VERSION}/lib/libmkr_format.so  || die "Error: gcc failed"
+        g++ pod5_read_0.0.1.cpp -Wl,-rpath,pod5lib/lib_pod5-${LIB_VERSION}/lib/ -lz -o program/pod5_read_${LIB_VERSION} -I pod5lib/lib_pod5-${LIB_VERSION}/include/ pod5lib/lib_pod5-${LIB_VERSION}/lib/libmkr_format.so  || die "Error: gcc failed"
         set +x
         return
     fi
@@ -177,7 +249,7 @@ COMPILE_EXAMPLE(){
     res=$?
     if [ $res -eq 2 ]; then
         set -x
-        g++ pod5_read_0014.cpp -Wl,-rpath,pod5lib/lib_pod5-${LIB_VERSION}/lib/ -lz -o example/pod5_read_${LIB_VERSION} -I pod5lib/lib_pod5-${LIB_VERSION}/include/ pod5lib/lib_pod5-${LIB_VERSION}/lib/libpod5_format.so  || die "Error: gcc failed"
+        g++ pod5_read_0.0.14.cpp -Wl,-rpath,pod5lib/lib_pod5-${LIB_VERSION}/lib/ -lz -o program/pod5_read_${LIB_VERSION} -I pod5lib/lib_pod5-${LIB_VERSION}/include/ pod5lib/lib_pod5-${LIB_VERSION}/lib/libpod5_format.so  || die "Error: gcc failed"
         set +x
         return
     fi
@@ -186,7 +258,7 @@ COMPILE_EXAMPLE(){
     res=$?
     if [ $res -eq 2 ]; then
         set -x
-        g++ pod5_read_0041.cpp -Wl,-rpath,pod5lib/lib_pod5-${LIB_VERSION}/lib/ -lz -o example/pod5_read_${LIB_VERSION} -I pod5lib/lib_pod5-${LIB_VERSION}/include/ pod5lib/lib_pod5-${LIB_VERSION}/lib/libpod5_format.so  || die "Error: gcc failed"
+        g++ pod5_read_0.0.41.cpp -Wl,-rpath,pod5lib/lib_pod5-${LIB_VERSION}/lib/ -lz -o program/pod5_read_${LIB_VERSION} -I pod5lib/lib_pod5-${LIB_VERSION}/include/ pod5lib/lib_pod5-${LIB_VERSION}/lib/libpod5_format.so  || die "Error: gcc failed"
         set +x
         return
     fi
@@ -196,43 +268,22 @@ COMPILE_EXAMPLE(){
         return
     fi
 
+    # from 0.1.11 onwards
     set -x
-    g++ pod5_read_0111.cpp -Wl,-rpath,pod5lib/lib_pod5-${LIB_VERSION}/lib/ -lz -o example/pod5_read_${LIB_VERSION} -I pod5lib/lib_pod5-${LIB_VERSION}/include/ pod5lib/lib_pod5-${LIB_VERSION}/lib/libpod5_format.so  || die "Error: gcc failed"
+    g++ pod5_read_0.1.11.cpp -Wl,-rpath,pod5lib/lib_pod5-${LIB_VERSION}/lib/ -lz -o program/pod5_read_${LIB_VERSION} -I pod5lib/lib_pod5-${LIB_VERSION}/include/ pod5lib/lib_pod5-${LIB_VERSION}/lib/libpod5_format.so  || die "Error: gcc failed"
     set +x
 }
 
-COMPILE_EXAMPLE_ALL(){
-    rm -rf example/
-    mkdir example || die "Error: mkdir failed"
+COMPILE_PROGRAME_ALL(){
+    rm -rf program/
+    mkdir program || die "Error: mkdir failed"
     for LIB_VERSION in ${LIB_VERSIONS}
     do
-        echo "Compiling example version ${LIB_VERSION}"
-        COMPILE_EXAMPLE &> example/compile_example_${LIB_VERSION}.log
+        echo "Compiling program version ${LIB_VERSION}"
+        COMPILE_PROGRAME &> program/compile_program_${LIB_VERSION}.log
     done
 }
 
-
-RUN_EXAMPLE(){
-    example/pod5_read_${LIB_VERSION} ${FILE_VERSION}.pod5 > run_example/run_example_${FILE_VERSION}_lib_${LIB_VERSION}.out 2> run_example/run_example_${FILE_VERSION}_lib_${LIB_VERSION}.log && SUCCESS=1
-    diff -q ${FILE_VERSION}.exp run_example/run_example_${FILE_VERSION}_lib_${LIB_VERSION}.out >/dev/null && SUCCESS=2
-}
-
-
-RUN_EXAMPLE_ALL(){
-    rm -rf run_example
-    mkdir run_example || die "Error: mkdir failed"
-    for  FILE_VERSION in $FILE_VERSIONS
-        do
-            for LIB_VERSION in ${LIB_VERSIONS}
-            do
-                SUCCESS=0
-                RUN_EXAMPLE
-                echo -ne $SUCCESS"\t"
-        done
-        echo ""
-    done
-
-}
 
 CREATE_POD5(){
     source pod5tools/vnenv_${LIB_VERSION}/bin/activate || die "Error: source failed"
@@ -241,7 +292,7 @@ CREATE_POD5(){
     compare_versions ${LIB_VERSION} 0.0.14
     res=$?
     if [ $res -eq 2 ]; then
-        mkr-convert-fast5 example.fast5 pod5/pod5-${LIB_VERSION}-tmp || die "Error: pod5tools failed"
+        mkr-convert-fast5 file.fast5 pod5/pod5-${LIB_VERSION}-tmp || die "Error: pod5tools failed"
         mv pod5/pod5-${LIB_VERSION}-tmp/output.mkr  pod5/pod5-${LIB_VERSION}.pod5 || die "Error: mv failed"
         deactivate || die "Error: deactivate failed"
         return
@@ -251,7 +302,7 @@ CREATE_POD5(){
     compare_versions ${LIB_VERSION} 0.0.43
     res=$?
     if [ $res -eq 2 ]; then
-        pod5-convert-fast5 example.fast5 pod5/pod5-${LIB_VERSION}-tmp || die "Error: pod5tools failed"
+        pod5-convert-fast5 file.fast5 pod5/pod5-${LIB_VERSION}-tmp || die "Error: pod5tools failed"
         mv pod5/pod5-${LIB_VERSION}-tmp/output.pod5  pod5/pod5-${LIB_VERSION}.pod5 || die "Error: mv failed"
         deactivate || die "Error: deactivate failed"
         return
@@ -261,7 +312,7 @@ CREATE_POD5(){
     compare_versions ${LIB_VERSION} 0.1.0
     res=$?
     if [ $res -eq 2 ]; then
-        pod5-convert-fast5 example.fast5 pod5/pod5-${LIB_VERSION}.pod5 || die "Error: pod5tools failed"
+        pod5-convert-fast5 file.fast5 pod5/pod5-${LIB_VERSION}.pod5 || die "Error: pod5tools failed"
         deactivate || die "Error: deactivate failed"
         return
     fi
@@ -276,12 +327,12 @@ CREATE_POD5(){
     compare_versions ${LIB_VERSION} 0.1.12
     res=$?
     if [ $res -eq 2 ]; then
-        pod5 convert fast5 example.fast5 pod5/pod5-${LIB_VERSION}.pod5 || die "Error: pod5tools failed"
+        pod5 convert fast5 file.fast5 pod5/pod5-${LIB_VERSION}.pod5 || die "Error: pod5tools failed"
         deactivate || die "Error: deactivate failed"
         return
     fi
 
-    pod5 convert fast5 example.fast5 -o pod5/pod5-${LIB_VERSION}.pod5 || die "Error: pod5tools failed"
+    pod5 convert fast5 file.fast5 -o pod5/pod5-${LIB_VERSION}.pod5 || die "Error: pod5tools failed"
     deactivate || die "Error: deactivate failed"
 }
 
@@ -296,21 +347,21 @@ CREATE_POD5_ALL(){
 }
 
 
-RUN_EXAMPLE_2(){
-    example/pod5_read_${READ_LIB_VERSION} pod5/pod5-${CREATE_LIB_VERSION}.pod5 > run_example_2/run_example_create_${CREATE_LIB_VERSION}_read_${READ_LIB_VERSION}.out 2> run_example_2/run_example_create_${CREATE_LIB_VERSION}_read_${READ_LIB_VERSION}.log && SUCCESS=1
-    diff -q example.exp run_example_2/run_example_create_${CREATE_LIB_VERSION}_read_${READ_LIB_VERSION}.out >/dev/null && SUCCESS=2
+RUN_LIB_VERSION_CHECK(){
+    program/pod5_read_${READ_LIB_VERSION} pod5/pod5-${CREATE_LIB_VERSION}.pod5 > run_lib_version_check/run_${CREATE_LIB_VERSION}_read_${READ_LIB_VERSION}.out 2> run_lib_version_check/run_${CREATE_LIB_VERSION}_read_${READ_LIB_VERSION}.log && SUCCESS=1
+    #diff -q file.exp run_lib_version_check/run_${CREATE_LIB_VERSION}_read_${READ_LIB_VERSION}.out >/dev/null && SUCCESS=2
 }
 
 
-RUN_EXAMPLE_2_ALL(){
-    rm -rf run_example_2
-    mkdir run_example_2 || die "Error: mkdir failed"
+RUN_LIB_VERSION_CHECK_ALL(){
+    rm -rf run_lib_version_check
+    mkdir run_lib_version_check || die "Error: mkdir failed"
     for  CREATE_LIB_VERSION in $LIB_VERSIONS
         do
             for READ_LIB_VERSION in ${LIB_VERSIONS}
             do
                 SUCCESS=0
-                RUN_EXAMPLE_2
+                RUN_LIB_VERSION_CHECK
                 echo -ne $SUCCESS"\t"
         done
         echo ""
@@ -319,10 +370,19 @@ RUN_EXAMPLE_2_ALL(){
 }
 
 
-GET_LIB_ALL
-GET_POD5TOOLS_ALL
-CREATE_POD5_ALL
+## Getting all the pod5 library versions
+# GET_LIB_ALL
+## Getting all the pod5tools versions
+# GET_POD5TOOLS_ALL
+## Creating all the pod5 files from different pod5tools versions
+# CREATE_POD5_ALL
 
-COMPILE_EXAMPLE_ALL
-RUN_EXAMPLE_ALL > stability_format_matrix.txt
-RUN_EXAMPLE_2_ALL > stability_libversion_matrix.txt
+# ## compile the tiny example program and run using each pod5 version
+COMPILE_EXAMPLE_AND_RUN_ALL
+
+# ## compile the test program using each pod5 version
+COMPILE_PROGRAME_ALL
+# ## Check the stability of each program version with each pod5 version
+# echo "Check the stability of each program version with each pod5 version"
+RUN_LIB_VERSION_CHECK_ALL > stability_libversion_matrix.txt
+# echo "all done"

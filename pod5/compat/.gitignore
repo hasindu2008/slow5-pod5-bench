@@ -5,3 +5,7 @@ pod5tools
 run_example
 run_example_2
 *.txt
+boost
+program/
+run_lib_version_check/
+

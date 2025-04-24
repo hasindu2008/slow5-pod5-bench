@@ -26,6 +26,7 @@ typedef struct {
     const char* flowcell_id;
     const char* position_id;
     const char* experiment_id;
+    const char* end_reason;
 } rec_t;
 
 void print_header(){
@@ -47,6 +48,7 @@ void print_header(){
     fprintf(stdout, "flowcell_id\t");
     fprintf(stdout, "position_id\t");
     fprintf(stdout, "run_acquisition_start_time\t");
+    fprintf(stdout, "end_reason\t");
 
     fprintf(stdout, "\n");
 }
@@ -85,6 +87,7 @@ void process_read_batch(rec_t *rec_list, int n){
         fprintf(stdout, "%s\t", rec->flowcell_id == NULL ? "." : rec->flowcell_id);
         fprintf(stdout, "%s\t", rec->position_id == NULL ? "." : rec->position_id);
         fprintf(stdout, "%" PRId64 "\t", rec->run_acquisition_start_time);
+        fprintf(stdout, "%s\t", rec->end_reason == NULL ? "." : rec->end_reason);
 
         fprintf(stdout, "\n");
     }
@@ -99,6 +102,7 @@ void process_read_batch(rec_t *rec_list, int n){
         free((char*)rec->flowcell_id);
         free((char*)rec->position_id);
         free((char*)rec->experiment_id);
+        free((char*)rec->end_reason);
     }
     free(rec_list);
 
@@ -144,6 +148,19 @@ int load_pod5_read(size_t row, Pod5ReadRecordBatch* batch, Pod5FileReader* file,
     rec->flowcell_id = strdup(run_info_data->flow_cell_id);
     rec->position_id = strdup(run_info_data->sequencer_position);
     rec->experiment_id = strdup(run_info_data->experiment_name);
+
+    pod5_end_reason_t end_reason_value{POD5_END_REASON_UNKNOWN};
+    char end_reason_string_value[200];
+    size_t end_reason_string_value_size = sizeof(end_reason_string_value);
+
+    pod5_error_t pod5_ret = pod5_get_end_reason(batch, read_data.end_reason, &end_reason_value,
+                                end_reason_string_value, &end_reason_string_value_size);
+    if (pod5_ret != POD5_OK) {
+        fprintf(stderr, "Failed to get read end_reason %zu %s", row, pod5_get_error_string());
+        return EXIT_FAILURE;
+    }
+    rec->end_reason = strdup(end_reason_string_value);
+
     if (pod5_free_run_info(run_info_data) != POD5_OK) {
         fprintf(stderr, "Failed to free run info\n");
         return EXIT_FAILURE;
@@ -153,12 +170,7 @@ int load_pod5_read(size_t row, Pod5ReadRecordBatch* batch, Pod5FileReader* file,
 
 int read_and_process_pod5_file(const std::string& path) {
 
-    double tot_time = 0;
-    double disc_time = 0;
-    double t0 = 0;
-    double t1 = 0;
     int read_count = 0;
-
     print_header();
 
     /**** Initialisation and opening of the file ***/

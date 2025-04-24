@@ -1,7 +1,8 @@
 slow5lib
 slow5tools
 example
+program
 blow5
-run_example
-run_example_2
+run_file_version_check
+run_lib_version_check
 *.txt
