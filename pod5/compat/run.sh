@@ -3,6 +3,11 @@
 FILE_VERSIONS="v0  v1  v2  v3"
 LIB_VERSIONS="0.0.1  0.0.3  0.0.4  0.0.5  0.0.9  0.0.11  0.0.12  0.0.13  0.0.14  0.0.15  0.0.16  0.0.17  0.0.19  0.0.20  0.0.23  0.0.31  0.0.32  0.0.41  0.0.43  0.1.0  0.1.4  0.1.5  0.1.8  0.1.10  0.1.11  0.1.12  0.1.13  0.1.15  0.1.16  0.1.19  0.1.20  0.1.21  0.2.0  0.2.2  0.2.3  0.2.4  0.3.0  0.3.1  0.3.2  0.3.6  0.3.10  0.3.11  0.3.12  0.3.15  0.3.21  0.3.23"
 
+#  cp pod5/pod5-0.0.23.pod5 v0.pod5
+#  cp pod5/pod5-0.0.31.pod5 v1.pod5
+#  cp pod5/pod5-0.0.32.pod5 v2.pod5
+#  cp pod5/pod5-0.1.0.pod5 v3.pod5
+
 die () {
     echo "$1" >&2
     exit 1
@@ -326,7 +331,15 @@ CREATE_POD5_ALL(){
 
 RUN_FILE_VERSION_CHECK(){
     program/pod5_read_${LIB_VERSION} ${FILE_VERSION}.pod5 > run_file_version_check/run_${FILE_VERSION}_lib_${LIB_VERSION}.out 2> run_file_version_check/run_${FILE_VERSION}_lib_${LIB_VERSION}.log && SUCCESS=1
-    diff -q ${FILE_VERSION}.exp run_file_version_check/run_${FILE_VERSION}_lib_${LIB_VERSION}.out >/dev/null && SUCCESS=2
+
+    compare_versions ${LIB_VERSION} 0.0.41
+    res=$?
+    if [ $res -eq 2 ]; then
+        diff -q file0.exp run_file_version_check/run_${FILE_VERSION}_lib_${LIB_VERSION}.out >/dev/null && SUCCESS=2
+        return
+    fi
+
+    diff -q file.exp run_file_version_check/run_${FILE_VERSION}_lib_${LIB_VERSION}.out >/dev/null && SUCCESS=2
 }
 
 
