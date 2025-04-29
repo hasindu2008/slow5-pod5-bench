@@ -7,7 +7,7 @@ LIB_VERSIONS="0.0.1  0.0.3  0.0.4  0.0.5  0.0.9  0.0.11  0.0.12  0.0.13  0.0.14 
 ### cat a.txt  | grep "arrow\|OPEN pod5" | uniq  > libversion.inotify.txt
 
 ### inotifywait -r -m .  > b.txt
-### cat b.txt  | grep "arrow\|OPEN pod5" | uniq  > file.inotify.txt
+### cat b.txt  | grep "arrow\|OPEN pod5\|OPEN v" | uniq  > file.inotify.txt
 
 
 GET_CONVERSIONS_LIBVERSIONS(){
@@ -30,12 +30,12 @@ done
 }
 
 GET_CONVERSIONS_FILEVERSIONS(){
-    for  CREATE_LIB_VERSION in $LIB_VERSIONS
-    do
-        for READ_LIB_VERSION in ${LIB_VERSIONS}
+    for  FILE_VERSION in $FILE_VERSIONS
+        do
+            for LIB_VERSION in ${LIB_VERSIONS}
         do
             CONVERT=0
-            VAL=$(grep -w "pod5_read_${READ_LIB_VERSION}" -A 2 file.inotify.txt | grep -w "pod5-${CREATE_LIB_VERSION}.pod5" -A 1 | tail -1 | awk '{print $NF}')
+            VAL=$(grep -w "pod5_read_${LIB_VERSION}" -A 2 file.inotify.txt | grep -w "${FILE_VERSION}.pod5" -A 1 | tail -1 | awk '{print $NF}')
             if echo "$VAL" | grep -q "arrow"
             then
                 CONVERT=1
