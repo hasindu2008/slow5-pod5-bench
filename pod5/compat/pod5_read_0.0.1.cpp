@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <vector>
+#include <boost/uuid/uuid.hpp>
+#include <boost/uuid/uuid_io.hpp>
 #include "mkr_format/c_api.h"
 
 typedef struct {
@@ -58,7 +60,7 @@ int main(int argc, char *argv[]){
 
         // need to find out of this part can be multi-threaded, and if so the best way
         for (size_t row = 0; row < batch_row_count; ++row) {
-            uint8_t read_id[16];
+            boost::uuids::uuid read_id;
             int16_t pore = 0;
             int16_t calibration_idx = 0;
             uint32_t read_number = 0;
@@ -67,15 +69,14 @@ int main(int argc, char *argv[]){
             int16_t end_reason = 0;
             int16_t run_info = 0;
             int64_t signal_row_count = 0;
-            if (mkr_get_read_batch_row_info(batch, row, read_id, &pore, &calibration_idx,
+            if (mkr_get_read_batch_row_info(batch, row, read_id.begin(), &pore, &calibration_idx,
                                             &read_number, &start_sample, &median_before,
                                             &end_reason, &run_info, &signal_row_count) != MKR_OK) {
                 fprintf(stderr,"Failed to get read %ld\n", row );
             }
             read_count += 1;
 
-            char read_id_tmp[37];
-            //mkr_error_t err = mkr_format_read_id(read_id, read_id_tmp);
+            const char *read_id_tmp = boost::uuids::to_string(read_id).c_str();
 
             // Now read out the calibration params:
             CalibrationDictData_t *calib_data = NULL;
