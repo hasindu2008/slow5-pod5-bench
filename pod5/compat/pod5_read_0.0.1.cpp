@@ -8,7 +8,6 @@
 
 typedef struct {
     char* read_id;
-    double digitisation;
     double offset;
     double scale;
     uint64_t len_raw_signal;
@@ -73,10 +72,12 @@ int main(int argc, char *argv[]){
                                             &read_number, &start_sample, &median_before,
                                             &end_reason, &run_info, &signal_row_count) != MKR_OK) {
                 fprintf(stderr,"Failed to get read %ld\n", row );
+                exit(EXIT_FAILURE);
             }
             read_count += 1;
 
-            const char *read_id_tmp = boost::uuids::to_string(read_id).c_str();
+            std::string read_id_str = boost::uuids::to_string(read_id);
+            const char *read_id_tmp = read_id_str.c_str();
 
             // Now read out the calibration params:
             CalibrationDictData_t *calib_data = NULL;
@@ -115,7 +116,7 @@ int main(int argc, char *argv[]){
                 if (mkr_get_signal(file, signal_rows[i], signal_rows[i]->stored_sample_count,
                                    samples + samples_read_so_far) != MKR_OK) {
                     fprintf(stderr,"Failed to get read  %ld; signal: %s\n", row, mkr_get_error_string());
-                    fprintf(stderr,"Failed to get read  %ld; signal: %s\n", row, mkr_get_error_string());
+                    exit(EXIT_FAILURE);
                 }
 
                 samples_read_so_far += signal_rows[i]->stored_sample_count;
@@ -136,7 +137,7 @@ int main(int argc, char *argv[]){
         /**** Batch fetched ***/
 
         //process and print
-        double *sums = (double*)malloc(batch_row_count * sizeof(double));
+        uint64_t *sums = (uint64_t*)malloc(batch_row_count * sizeof(uint64_t));
         for(int i=0;i<batch_row_count;i++){
             uint64_t sum = 0;
             for(int j=0; j<rec[i].len_raw_signal; j++){
@@ -146,7 +147,7 @@ int main(int argc, char *argv[]){
         }
 
         for(int i=0;i<batch_row_count;i++){
-            fprintf(stdout,"%s\t%f\n",rec[i].read_id,sums[i]);
+            fprintf(stdout,"%s\t%ld\n",rec[i].read_id,sums[i]);
         }
         free(sums);
         fprintf(stderr,"batch printed with %ld reads\n",batch_row_count);

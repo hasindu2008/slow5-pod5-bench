@@ -6,7 +6,6 @@
 
 typedef struct {
     char* read_id;
-    double digitisation;
     double offset;
     double scale;
     uint64_t len_raw_signal;
@@ -114,7 +113,7 @@ int main(int argc, char *argv[]){
                 if (pod5_get_signal(file, signal_rows[i], signal_rows[i]->stored_sample_count,
                                    samples + samples_read_so_far) != POD5_OK) {
                     fprintf(stderr,"Failed to get read  %ld; signal: %s\n", row, pod5_get_error_string());
-                    fprintf(stderr,"Failed to get read  %ld; signal: %s\n", row, pod5_get_error_string());
+                    exit(EXIT_FAILURE);
                 }
 
                 samples_read_so_far += signal_rows[i]->stored_sample_count;
@@ -135,7 +134,7 @@ int main(int argc, char *argv[]){
         /**** Batch fetched ***/
 
         //process and print
-        double *sums = (double*)malloc(batch_row_count * sizeof(double));
+        uint64_t *sums = (uint64_t*)malloc(batch_row_count * sizeof(uint64_t));
         for(int i=0;i<batch_row_count;i++){
             uint64_t sum = 0;
             for(int j=0; j<rec[i].len_raw_signal; j++){
@@ -145,7 +144,7 @@ int main(int argc, char *argv[]){
         }
 
         for(int i=0;i<batch_row_count;i++){
-            fprintf(stdout,"%s\t%f\n",rec[i].read_id,sums[i]);
+            fprintf(stdout,"%s\t%ld\n",rec[i].read_id,sums[i]);
         }
         free(sums);
         fprintf(stderr,"batch printed with %ld reads\n",batch_row_count);

@@ -331,14 +331,6 @@ CREATE_POD5_ALL(){
 
 RUN_FILE_VERSION_CHECK(){
     program/pod5_read_${LIB_VERSION} ${FILE_VERSION}.pod5 > run_file_version_check/run_${FILE_VERSION}_lib_${LIB_VERSION}.out 2> run_file_version_check/run_${FILE_VERSION}_lib_${LIB_VERSION}.log && SUCCESS=1
-
-    compare_versions ${LIB_VERSION} 0.0.41
-    res=$?
-    if [ $res -eq 2 ]; then
-        diff -q file0.exp run_file_version_check/run_${FILE_VERSION}_lib_${LIB_VERSION}.out >/dev/null && SUCCESS=2
-        return
-    fi
-
     diff -q file.exp run_file_version_check/run_${FILE_VERSION}_lib_${LIB_VERSION}.out >/dev/null && SUCCESS=2
 }
 
@@ -363,14 +355,6 @@ RUN_FILE_VERSION_CHECK_ALL(){
 RUN_LIB_VERSION_CHECK(){
 
     program/pod5_read_${READ_LIB_VERSION} pod5/pod5-${CREATE_LIB_VERSION}.pod5 > run_lib_version_check/run_${CREATE_LIB_VERSION}_read_${READ_LIB_VERSION}.out 2> run_lib_version_check/run_${CREATE_LIB_VERSION}_read_${READ_LIB_VERSION}.log && SUCCESS=1
-
-    compare_versions ${READ_LIB_VERSION} 0.0.41
-    res=$?
-    if [ $res -eq 2 ]; then
-        diff -q file0.exp run_lib_version_check/run_${CREATE_LIB_VERSION}_read_${READ_LIB_VERSION}.out >/dev/null && SUCCESS=2
-        return
-    fi
-
     diff -q file.exp run_lib_version_check/run_${CREATE_LIB_VERSION}_read_${READ_LIB_VERSION}.out >/dev/null && SUCCESS=2
 
 }
@@ -399,21 +383,21 @@ RUN_LIB_VERSION_CHECK_ALL(){
 # 4. compiling, running and diffing a tiny example program (getting all read ids) using each pod5 version
 
 # Getting all the pod5 library versions
-# GET_LIB_ALL
+GET_LIB_ALL
 # Getting all the pod5tools versions
-# GET_POD5TOOLS_ALL
+GET_POD5TOOLS_ALL
 # Creating all the pod5 files from different pod5tools versions
-# CREATE_POD5_ALL
+CREATE_POD5_ALL
 # compile the tiny example program and run using each pod5 version
-# COMPILE_EXAMPLE_AND_RUN_ALL
+COMPILE_EXAMPLE_AND_RUN_ALL
 
 # # compatibility matrix of different pod5 file versions and pod5 library versions
 
 # # compile the test program using each pod5 version
-# COMPILE_PROGRAME_ALL
+COMPILE_PROGRAME_ALL
 echo "Checking the stability of each pod5 file version with each pod5lib version"
 RUN_FILE_VERSION_CHECK_ALL > stability_format_matrix.txt
 # # Check the stability of each program version with each pod5lib version
-# echo "Check the stability of each program version with each pod5lib version"
-#RUN_LIB_VERSION_CHECK_ALL > stability_libversion_matrix.txt
-# # echo "all done"
+echo "Check the stability of each program version with each pod5lib version"
+RUN_LIB_VERSION_CHECK_ALL > stability_libversion_matrix.txt
+echo "all done"
