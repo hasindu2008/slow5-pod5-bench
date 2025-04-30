@@ -85,7 +85,7 @@ COMPILE_EXAMPLE_AND_RUN_ALL(){
 
 RUN_FILE_VERSION_CHECK(){
     program/slow5_read_${LIB_VERSION} ${FILE_VERSION}.blow5 > run_file_version_check/run_${FILE_VERSION}_lib_${LIB_VERSION}.out 2> run_file_version_check/run_${FILE_VERSION}_lib_${LIB_VERSION}.log && SUCCESS=1
-    diff -q ${FILE_VERSION}.exp run_file_version_check/run_${FILE_VERSION}_lib_${LIB_VERSION}.out >/dev/null && SUCCESS=2
+    diff -q file.exp run_file_version_check/run_${FILE_VERSION}_lib_${LIB_VERSION}.out >/dev/null && SUCCESS=2
 }
 
 
