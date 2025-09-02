@@ -1,6 +1,10 @@
 # slow5-pod5-bench
 
-In this repository, we benchmark the S/BLOW5 format vs POD5 format using the C/C++ API. First, clone this repository and enter the repository as follows:
+Preprint: https://doi.org/10.1101/2025.06.30.662478
+
+In this repository, we provide the source code for benchmarking the S/BLOW5 format vs POD5 format using the C/C++ API. 
+
+First, clone this repository and enter the repository as follows:
 ```bash
 git clone --recursive https://github.com/hasindu2008/slow5-pod5-bench
 cd slow5-pod5-bench
