@@ -104,3 +104,10 @@ The benchmark code for POD5 is available in the [pod5 subdirectory](pod5/README.
 
 - Refer to the preprint and the associated supplementary notes for more details
 - The source code, including scripts in this repository, is under the MIT license. Any test data (e.g., test blow5 files) in the repository are under the CC0 public waiver.
+- This repository is only for benchmarking reading. There is no example code or documentation from ONT on how to use pod5 C++ API for writing. We have [requested ONT for this](https://github.com/nanoporetech/pod5-file-format/issues/167), but no response yet as of 12.09.2025.
+
+## See also
+
+- [pyslow5-pod5-writer-benchmark](https://github.com/Psy-Fer/pyslow5-pod5-writer-benchmark): Python-based writing benchmark
+- [slowION](https://github.com/hasindu2008/slowion): for a slow5-based writing simulator
+- [slow5 ecosystem](https://hasindu2008.github.io/slow5)
