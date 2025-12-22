@@ -1,8 +1,25 @@
 # slow5-pod5-bench
 
-Preprint: https://doi.org/10.1101/2025.06.30.662478
+In this repository, we provide the source code for benchmarking the S/BLOW5 format vs POD5 format using the C/C++ API. The associated publication:
 
-In this repository, we provide the source code for benchmarking the S/BLOW5 format vs POD5 format using the C/C++ API. 
+Preprint: https://doi.org/10.1101/2025.06.30.662478
+paper: https://doi.org/10.1093/gigascience/giaf118
+
+> Hasindu Gamaarachchi, Sasha Jenner, Hiruna Samarakoon, James M Ferguson, Ira W Deveson, The enduring advantages of the SLOW5 file format for raw nanopore sequencing data, GigaScience, Volume 14, 2025, giaf118, https://doi.org/10.1093/gigascience/giaf118
+
+```
+@article{gamaarachchi2025enduring,
+  title={The enduring advantages of the SLOW5 file format for raw nanopore sequencing data},
+  author={Gamaarachchi, Hasindu and Jenner, Sasha and Samarakoon, Hiruna and Ferguson, James M and Deveson, Ira W},
+  journal={GigaScience},
+  volume={14},
+  pages={giaf118},
+  year={2025},
+  publisher={Oxford University Press}
+}
+```
+
+## Cloning the respository
 
 First, clone this repository and enter the repository as follows:
 ```bash
@@ -111,3 +128,6 @@ The benchmark code for POD5 is available in the [pod5 subdirectory](pod5/README.
 - [pyslow5-pod5-writer-benchmark](https://github.com/Psy-Fer/pyslow5-pod5-writer-benchmark): Python-based writing benchmark
 - [slowION](https://github.com/hasindu2008/slowion): for a slow5-based writing simulator
 - [slow5 ecosystem](https://hasindu2008.github.io/slow5)
+
+
+
