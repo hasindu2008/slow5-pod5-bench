@@ -1,10 +1,7 @@
 # slow5-pod5-bench
 
-In this repository, we provide the source code for benchmarking the S/BLOW5 format vs POD5 format using the C/C++ API. The associated publication:
+In this repository, we provide the source code for benchmarking the S/BLOW5 format vs POD5 format using the C/C++ API, associated with the following publication:
 
-Preprint: https://doi.org/10.1101/2025.06.30.662478
-
-paper: https://doi.org/10.1093/gigascience/giaf118
 
 > Hasindu Gamaarachchi, Sasha Jenner, Hiruna Samarakoon, James M Ferguson, Ira W Deveson, The enduring advantages of the SLOW5 file format for raw nanopore sequencing data, GigaScience, Volume 14, 2025, giaf118, https://doi.org/10.1093/gigascience/giaf118
 
